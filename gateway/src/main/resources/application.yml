@@ -1,0 +1,25 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: board
+          uri: lb://board/
+          predicates:
+            - Path=/board/**
+        - id: sign-api
+          uri: lb://sign-api/
+          predicates:
+            - Path=/sign-api/**
+
+eureka:
+  client:
+    register-with-eureka: true # ?? ??? ???? ???? ??
+    fetch-registry: true # ??????? ???? ??? ??? ??? ??? ??. ??? ?? ?? ??.
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+

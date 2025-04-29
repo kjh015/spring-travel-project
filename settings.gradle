@@ -1,0 +1,5 @@
+rootProject.name = 'spring-travel-project'
+include("board")
+include("sign")
+include("discovery")
+include("gateway")
