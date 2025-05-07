@@ -15,6 +15,21 @@ spring:
           uri: lb://sign-api/
           predicates:
             - Path=/sign-api/**, /kafka/**
+        - id: logpipeline
+          uri: lb://logpipeline/
+          predicates:
+            - Path=/sse/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedHeaders:
+              - "*"
+            allowedMethods:
+              - "GET"
+              - "POST"
+              - "OPTIONS"
+
 
 eureka:
   client:
