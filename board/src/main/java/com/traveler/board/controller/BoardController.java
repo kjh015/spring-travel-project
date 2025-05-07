@@ -6,6 +6,8 @@ import com.traveler.board.entity.Category;
 import com.traveler.board.entity.Region;
 import com.traveler.board.entity.TravelPlace;
 import com.traveler.board.service.BoardService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +21,7 @@ public class BoardController {
     public BoardController(BoardService boardService) {
         this.boardService = boardService;
     }
-
+    Logger logger = LoggerFactory.getLogger(BoardController.class);
 
     private List<Board> articleList;
 
@@ -56,5 +58,28 @@ public class BoardController {
 
 
     }
+    @GetMapping("/view")
+    public Board viewArticle(@RequestParam String no){
+        logger.info("viewArticle => articleNo: " + no);
+        return boardService.viewArticle(Long.parseLong(no));
+    }
+
+    @PostMapping("/edit")
+    public Board editArticle(@RequestParam String no, @RequestParam String title, @RequestParam String content){
+        Board board = new Board();
+        board.setId(Long.parseLong(no));
+        board.setTitle(title);
+        board.setContent(content);
+        boardService.editArticle(board);
+        logger.info("editArticle => title: " + title);
+        logger.info("editArticle => content: " + content);
+        return board;
+    }
+
+    @PostMapping("/remove")
+    public void removeArticle(@RequestParam String no){
+        boardService.removeArticle(Long.parseLong(no));
+    }
+
 
 }

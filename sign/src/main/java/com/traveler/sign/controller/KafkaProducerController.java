@@ -16,10 +16,11 @@ public class KafkaProducerController {
 
     private final KafkaProducerService kafkaProducerService;
 
-    @PostMapping
+    @PostMapping()
     public ResponseEntity<Void> sendMassage(
             @RequestParam String message) {
         this.kafkaProducerService.sendMessageToKafka(message);
+        System.out.println("message: " + message);
         return ResponseEntity.ok().build();
     }
 }
