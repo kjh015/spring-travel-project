@@ -11,9 +11,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Service
 public class SseService {
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
 
     public SseEmitter subscribe() {
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
         emitters.add(emitter);
         emitter.onCompletion(() -> emitters.remove(emitter));
         emitter.onTimeout(() -> emitters.remove(emitter));

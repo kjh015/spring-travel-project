@@ -20,6 +20,8 @@ public class LogDto {
     private String size;
     private String referer;
     private String agent;
+    private String processId;
+    private String timestamp;
 
     @Override
     public String toString() {
