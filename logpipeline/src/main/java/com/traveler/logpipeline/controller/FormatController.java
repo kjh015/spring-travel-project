@@ -4,25 +4,66 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.logpipeline.dto.FormatDto;
 import com.traveler.logpipeline.entity.Format;
-import com.traveler.logpipeline.repository.FormatRepository;
+import com.traveler.logpipeline.service.FormatService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/format")
 public class FormatController {
-    private final FormatRepository formatRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final FormatService formatService;
 
-    public FormatController(FormatRepository formatRepository) {
-        this.formatRepository = formatRepository;
+    public FormatController(FormatService formatService) {
+        this.formatService = formatService;
     }
 
-    @PostMapping("/config")
-    public void updateFormatConfig(@RequestParam String processId, @RequestBody FormatDto formatConfig) throws JsonProcessingException {
-        Format format = new Format();
-        format.setProcessId(processId);
-        format.setFormatJson(objectMapper.writeValueAsString(formatConfig.getConfig()));
-        formatRepository.save(format);
+    @GetMapping("/list")
+    public List<Format> getFormatList(@RequestParam String processId){
+        return formatService.listFormats(processId);
     }
+    @GetMapping("/view")
+    public Format viewFormat(@RequestParam String formatId){
+        return formatService.viewFormat(formatId);
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<String> addFormat(@RequestParam String processId, @RequestParam String name, @RequestBody FormatDto formatData)  {
+        try {
+            Format format = new Format();
+//            format.setProcessId(processId);
+            format.setName(name);
+            format.setFormatJson(objectMapper.writeValueAsString(formatData.getFormat()));
+            formatService.addFormat(format);
+            return ResponseEntity.ok("포맷 저장 성공");
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body("JSON 파싱 실패: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<String> updateFormat(@RequestParam String formatId, @RequestParam String name, @RequestBody FormatDto formatData){
+        try{
+            Format format = new Format();
+            format.setId(formatId);
+            format.setName(name);
+            format.setFormatJson(objectMapper.writeValueAsString(formatData.getFormat()));
+            formatService.updateFormat(format);
+            return ResponseEntity.ok("포맷 갱신 성공");
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body("JSON 파싱 실패: " + e.getMessage());
+        }
+
+    }
+    @PostMapping("/remove")
+    public ResponseEntity<String> removeFormat(@RequestParam String formatId){
+        formatService.removeFormat(formatId);
+        return ResponseEntity.ok("포맷 삭제 성공");
+    }
+
+
+    //formatAdd, Update, Remove
 
 }

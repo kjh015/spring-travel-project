@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -22,6 +25,7 @@ public class LogDto {
     private String agent;
     private String processId;
     private String timestamp;
+    private Map<String, String> additionalData = new HashMap<>();
 
     @Override
     public String toString() {

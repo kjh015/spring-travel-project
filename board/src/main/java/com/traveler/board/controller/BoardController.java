@@ -58,9 +58,13 @@ public class BoardController {
 
 
     }
+//    @GetMapping("/view")
+//    public Board viewArticle(@RequestParam String no){
+//        logger.info("viewArticle => articleNo: " + no);
+//        return boardService.viewArticle(Long.parseLong(no));
+//    }
     @GetMapping("/view")
     public Board viewArticle(@RequestParam String no){
-        logger.info("viewArticle => articleNo: " + no);
         return boardService.viewArticle(Long.parseLong(no));
     }
 

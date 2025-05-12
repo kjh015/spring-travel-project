@@ -1,6 +1,9 @@
 package com.traveler.logpipeline.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,19 +12,12 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Format {
+public class Process {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "process_id")
-    private Process processId;
-
     private String name;
-
-    @Column(columnDefinition = "TEXT")
-    private String formatJson;
 
     private LocalDateTime updatedTime;
 }
