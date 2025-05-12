@@ -29,7 +29,7 @@ public class ProcessService {
             processRepository.save(process);
         }
     }
-    public void removeProcess(String processId){
+    public void removeProcess(Long processId){
         processRepository.deleteById(processId);
     }
 

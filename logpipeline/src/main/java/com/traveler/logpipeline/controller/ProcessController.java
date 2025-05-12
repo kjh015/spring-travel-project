@@ -30,12 +30,12 @@ public class ProcessController {
     @PostMapping("/update")
     public void updateProcess(@RequestParam String processId, @RequestParam String name){
         Process process = new Process();
-        process.setId(processId);
+        process.setId(Long.parseLong(processId));
         process.setName(name);
         processService.updateProcess(process);
     }
     @PostMapping("/remove")
     public void removeProcess(@RequestParam String processId){
-        processService.removeProcess(processId);
+        processService.removeProcess(Long.parseLong(processId));
     }
 }

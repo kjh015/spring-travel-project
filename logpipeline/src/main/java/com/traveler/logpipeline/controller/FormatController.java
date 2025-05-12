@@ -22,21 +22,20 @@ public class FormatController {
 
     @GetMapping("/list")
     public List<Format> getFormatList(@RequestParam String processId){
-        return formatService.listFormats(processId);
+        return formatService.listFormats(Long.parseLong(processId));
     }
     @GetMapping("/view")
     public Format viewFormat(@RequestParam String formatId){
-        return formatService.viewFormat(formatId);
+        return formatService.viewFormat(Long.parseLong(formatId));
     }
 
     @PostMapping("/add")
     public ResponseEntity<String> addFormat(@RequestParam String processId, @RequestParam String name, @RequestBody FormatDto formatData)  {
         try {
             Format format = new Format();
-//            format.setProcessId(processId);
             format.setName(name);
             format.setFormatJson(objectMapper.writeValueAsString(formatData.getFormat()));
-            formatService.addFormat(format);
+            formatService.addFormat(format, Long.parseLong(processId));
             return ResponseEntity.ok("포맷 저장 성공");
         } catch (JsonProcessingException e) {
             return ResponseEntity.badRequest().body("JSON 파싱 실패: " + e.getMessage());
@@ -47,7 +46,7 @@ public class FormatController {
     public ResponseEntity<String> updateFormat(@RequestParam String formatId, @RequestParam String name, @RequestBody FormatDto formatData){
         try{
             Format format = new Format();
-            format.setId(formatId);
+            format.setId(Long.parseLong(formatId));
             format.setName(name);
             format.setFormatJson(objectMapper.writeValueAsString(formatData.getFormat()));
             formatService.updateFormat(format);
@@ -59,11 +58,8 @@ public class FormatController {
     }
     @PostMapping("/remove")
     public ResponseEntity<String> removeFormat(@RequestParam String formatId){
-        formatService.removeFormat(formatId);
+        formatService.removeFormat(Long.parseLong(formatId));
         return ResponseEntity.ok("포맷 삭제 성공");
     }
-
-
-    //formatAdd, Update, Remove
 
 }

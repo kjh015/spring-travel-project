@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface FormatRepository extends JpaRepository<Format, String> {
-    List<Format> findAllByProcessId(String processId);
+public interface FormatRepository extends JpaRepository<Format, Long> {
+    List<Format> findAllByProcess_Id(Long processId);
 }

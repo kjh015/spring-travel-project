@@ -25,7 +25,7 @@ public class KafkaConsumerService {
 
     @KafkaListener(topics = "START_TOPIC", groupId = "matomo-log-consumer")
     public void startTopic(ConsumerRecord<String, String> record) {
-        String formatId = "1";
+        Long formatId = 1L;
 
         try {
             LogDto log = objectMapper.readValue(record.value(), LogDto.class);

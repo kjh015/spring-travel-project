@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 public class Format {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "process_id")
-    private Process processId;
+    private Process process;
 
     private String name;
 

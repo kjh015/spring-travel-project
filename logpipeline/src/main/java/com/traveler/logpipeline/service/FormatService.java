@@ -2,6 +2,7 @@ package com.traveler.logpipeline.service;
 
 import com.traveler.logpipeline.entity.Format;
 import com.traveler.logpipeline.repository.FormatRepository;
+import com.traveler.logpipeline.repository.ProcessRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,20 +10,23 @@ import java.util.List;
 @Service
 public class FormatService {
     private final FormatRepository formatRepository;
+    private final ProcessRepository processRepository;
 
-    public FormatService(FormatRepository formatRepository) {
+    public FormatService(FormatRepository formatRepository, ProcessRepository processRepository) {
         this.formatRepository = formatRepository;
+        this.processRepository = processRepository;
     }
 
-    public List<Format> listFormats(String processId){
-        return formatRepository.findAllByProcessId(processId);
+    public List<Format> listFormats(Long processId){
+        return formatRepository.findAllByProcess_Id(processId);
     }
 
-    public Format viewFormat(String formatId){
+    public Format viewFormat(Long formatId){
         return formatRepository.findById(formatId).orElse(null);
     }
 
-    public void addFormat(Format format){
+    public void addFormat(Format format, Long processId){
+        format.setProcess(processRepository.findById(processId).orElse(null));        ;
         formatRepository.save(format);
     }
 
@@ -34,7 +38,7 @@ public class FormatService {
             formatRepository.save(format);
         }
     }
-    public void removeFormat(String formatId){
+    public void removeFormat(Long formatId){
         formatRepository.deleteById(formatId);
     }
 
