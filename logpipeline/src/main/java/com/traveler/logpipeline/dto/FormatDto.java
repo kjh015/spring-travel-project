@@ -6,5 +6,6 @@ import java.util.Map;
 
 @Data
 public class FormatDto {
-    private Map<String, String> format;
+    private Map<String, String> formatInfo;
+    private Map<String, String> defaultInfo;
 }

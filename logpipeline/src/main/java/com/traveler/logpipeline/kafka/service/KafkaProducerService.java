@@ -10,15 +10,15 @@ import java.util.Map;
 public class KafkaProducerService {
     /* Kafka Template 을 이용해 Kafka Broker 전송 */
 
-    private final KafkaTemplate<String,Object> kafkaTemplate;
+    private final KafkaTemplate<String,String> kafkaTemplate;
 
-    public KafkaProducerService(KafkaTemplate<String, Object> kafkaTemplate) {
+    public KafkaProducerService(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
 
     public void sendMessageToKafka(String topicName, Map<String, String> message) {
-        System.out.printf("Producer Message : %s%n",message);
-        this.kafkaTemplate.send(topicName,message);
+//        System.out.printf("Producer Message : %s%n",message);
+//        this.kafkaTemplate.send(topicName,message);
     }
 }

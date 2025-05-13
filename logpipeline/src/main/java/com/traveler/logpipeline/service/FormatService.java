@@ -34,7 +34,9 @@ public class FormatService {
         Format format = formatRepository.findById(inFormat.getId()).orElse(null);
         if(format != null){
             format.setName(inFormat.getName());
+            format.setDefaultJson(inFormat.getDefaultJson());
             format.setFormatJson(inFormat.getFormatJson());
+            format.setActive(inFormat.isActive());
             formatRepository.save(format);
         }
     }

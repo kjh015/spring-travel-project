@@ -30,11 +30,13 @@ public class FormatController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addFormat(@RequestParam String processId, @RequestParam String name, @RequestBody FormatDto formatData)  {
+    public ResponseEntity<String> addFormat(@RequestParam String processId, @RequestParam String name, @RequestParam String active, @RequestBody FormatDto formatData)  {
         try {
             Format format = new Format();
             format.setName(name);
-            format.setFormatJson(objectMapper.writeValueAsString(formatData.getFormat()));
+            format.setDefaultJson(objectMapper.writeValueAsString(formatData.getDefaultInfo()));
+            format.setFormatJson(objectMapper.writeValueAsString(formatData.getFormatInfo()));
+            format.setActive(Boolean.parseBoolean(active));
             formatService.addFormat(format, Long.parseLong(processId));
             return ResponseEntity.ok("포맷 저장 성공");
         } catch (JsonProcessingException e) {
@@ -43,12 +45,14 @@ public class FormatController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<String> updateFormat(@RequestParam String formatId, @RequestParam String name, @RequestBody FormatDto formatData){
+    public ResponseEntity<String> updateFormat(@RequestParam String formatId, @RequestParam String name, @RequestParam String active, @RequestBody FormatDto formatData){
         try{
             Format format = new Format();
             format.setId(Long.parseLong(formatId));
             format.setName(name);
-            format.setFormatJson(objectMapper.writeValueAsString(formatData.getFormat()));
+            format.setDefaultJson(objectMapper.writeValueAsString(formatData.getDefaultInfo()));
+            format.setFormatJson(objectMapper.writeValueAsString(formatData.getFormatInfo()));
+            format.setActive(Boolean.parseBoolean(active));
             formatService.updateFormat(format);
             return ResponseEntity.ok("포맷 갱신 성공");
         } catch (JsonProcessingException e) {

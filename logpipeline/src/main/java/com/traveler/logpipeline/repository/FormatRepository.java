@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface FormatRepository extends JpaRepository<Format, Long> {
     List<Format> findAllByProcess_Id(Long processId);
+    List<Format> findAllByIsActiveTrue();
 }
