@@ -11,24 +11,17 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Format {
+public class LogSave {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name = "process_id")
     private Process process;
 
-    private String name;
-
     @Column(columnDefinition = "TEXT")
-    private String defaultJson;
-
-    @Column(columnDefinition = "TEXT")
-    private String formatJson;
-
-    private boolean isActive;
+    private String logJson;
 
     @CreationTimestamp
     private LocalDateTime createdTime;

@@ -18,7 +18,7 @@ spring:
         - id: logpipeline
           uri: lb://logpipeline/
           predicates:
-            - Path=/format/**, /sse/**, /process/**
+            - Path=/format/**, /sse/**, /process/**, /filter/**
       globalcors:
         cors-configurations:
           '[/**]':
