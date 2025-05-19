@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider; // 클라이언트 요청은 서블릿 디스패처가 받음. 그 사이에 필터를 놔서 유효한 요청만 서블릿으로 가도록 필터링함
@@ -25,12 +26,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         // TODO Auto-generated method stub
-        String token = jwtTokenProvider.resolveToken(request);
+        Optional<String> token = jwtTokenProvider.resolveToken(request);
         logger.info("[doFilterInternal] token 값 추출 완료. token : {}", token);
 
         logger.info("[doFilterInternal] token 값 유효성 체크 시작");
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        if (token.isPresent() && jwtTokenProvider.validateToken(token.orElse(null))) {
+            Authentication authentication = jwtTokenProvider.getAuthentication(token.orElse(null));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             logger.info("[doFilterInternal] token 값 유효성 체크 완료");
         }

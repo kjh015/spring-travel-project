@@ -7,11 +7,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SignInResultDto extends SignUpResultDto {
-    private String token;
+    private String accessToken;
+    private String refreshToken;
 
     @Builder
-    public SignInResultDto(boolean success, int code, String msg, String token){
+    public SignInResultDto(boolean success, int code, String msg, String accessToken, String refreshToken){
         super(success, code, msg);
-        this.token = token;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
     }
 }

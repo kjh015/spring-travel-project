@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.logpipeline.entity.Filter;
 import com.traveler.logpipeline.entity.Format;
-import com.traveler.logpipeline.entity.LogSave;
+import com.traveler.logpipeline.entity.LogFail;
+import com.traveler.logpipeline.entity.LogSuccess;
 import com.traveler.logpipeline.kafka.dto.LogDto;
 import com.traveler.logpipeline.service.FilterService;
 import com.traveler.logpipeline.service.FormatService;
-import com.traveler.logpipeline.service.LogSaveService;
+import com.traveler.logpipeline.service.LogFailService;
+import com.traveler.logpipeline.service.LogSuccessService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -22,15 +24,18 @@ public class KafkaConsumerService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final FormatService formatService;
     private final FilterService filterService;
-    private final LogSaveService logSaveService;
+    private final LogSuccessService logSuccessService;
+    private final LogFailService logFailService;
     private final KafkaTemplate<String,String> kafkaTemplate;
 
-    public KafkaConsumerService(FormatService formatService, FilterService filterService, LogSaveService logSaveService, KafkaTemplate<String, String> kafkaTemplate) {
+    public KafkaConsumerService(FormatService formatService, FilterService filterService, LogSuccessService logSuccessService, LogFailService logFailService, KafkaTemplate<String, String> kafkaTemplate) {
         this.formatService = formatService;
         this.filterService = filterService;
-        this.logSaveService = logSaveService;
+        this.logSuccessService = logSuccessService;
+        this.logFailService = logFailService;
         this.kafkaTemplate = kafkaTemplate;
     }
+
     static Long processId = 1L;
 
     @KafkaListener(topics = "START_TOPIC", groupId = "matomo-log-consumer")
@@ -73,7 +78,9 @@ public class KafkaConsumerService {
             Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {});
             List<Filter> filters = filterService.activeFilters(processId);
 
-            boolean ableSend = true;
+            boolean success = true;
+            Long failBy = 0L;
+
 
             //아이템이 활성화된 필터를 모두 거치도록
             for(Filter filter : filters){
@@ -110,17 +117,19 @@ public class KafkaConsumerService {
                 String fullCode = filter.getSourceCode();
 
                 if(!JavaMethodExecutor.compileAndRunMethod(fullCode, paramTypes.toArray(Class[]::new), paramValues.toArray())){
-                    ableSend = false;
+                    success = false;
+                    failBy = filter.getId();
                     break;
                 }
             }
-            if(ableSend){
-                kafkaTemplate.send("DB_TOPIC", objectMapper.writeValueAsString(items));
-                System.out.println("Message send to DB_TOPIC");
+            if(success){
+                items.put("success", "true");
             }
             else{
-                System.out.println("Message not send to DB_TOPIC");
+                items.put("success", "false");
+                items.put("failBy", failBy.toString());
             }
+            kafkaTemplate.send("DB_TOPIC", objectMapper.writeValueAsString(items));
         } catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
@@ -132,9 +141,16 @@ public class KafkaConsumerService {
         try {
             Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {});
             //DB 저장
-            LogSave log = new LogSave();
-            log.setLogJson(objectMapper.writeValueAsString(items));
-            logSaveService.addLog(log, processId);
+            if(items.get("success").equalsIgnoreCase("true")){
+                LogSuccess log = new LogSuccess();
+                log.setLogJson(objectMapper.writeValueAsString(items));
+                logSuccessService.addSuccessLog(log, processId);
+            }
+            else{
+                LogFail log = new LogFail();
+                log.setLogJson(objectMapper.writeValueAsString(items));
+                logFailService.addFailLog(log, processId, Long.parseLong(items.get("failBy")));
+            }
         } catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }

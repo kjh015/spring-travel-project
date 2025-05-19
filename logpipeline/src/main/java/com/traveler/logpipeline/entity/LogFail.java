@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class LogSave {
+public class LogFail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,6 +22,10 @@ public class LogSave {
 
     @Column(columnDefinition = "TEXT")
     private String logJson;
+
+    @ManyToOne
+    @JoinColumn(name = "filter_id")
+    private Filter filter;
 
     @CreationTimestamp
     private LocalDateTime createdTime;

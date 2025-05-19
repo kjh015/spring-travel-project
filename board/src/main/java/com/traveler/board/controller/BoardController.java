@@ -33,8 +33,15 @@ public class BoardController {
         return articleList;
     }
 
-    @PostMapping("/addarticle")
+    @GetMapping("/view")
+    public Board viewArticle(@RequestParam String no){
+        logger.info("viewArticle => articleNo: " + no);
+        return boardService.viewArticle(Long.parseLong(no));
+    }
+
+    @PostMapping("/add")
     public Board addArticle(@RequestParam String title, @RequestParam String content, @RequestParam Long memberId){
+
         Board board = new Board();
         board.setTitle(title);
         board.setContent(content);
@@ -57,11 +64,6 @@ public class BoardController {
         return board;
 
 
-    }
-    @GetMapping("/view")
-    public Board viewArticle(@RequestParam String no){
-        logger.info("viewArticle => articleNo: " + no);
-        return boardService.viewArticle(Long.parseLong(no));
     }
 
     @PostMapping("/edit")

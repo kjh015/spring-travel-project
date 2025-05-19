@@ -5,8 +5,11 @@ import com.traveler.sign.common.CommonResponse;
 import com.traveler.sign.dto.SignInResultDto;
 import com.traveler.sign.dto.SignUpResultDto;
 import com.traveler.sign.entity.Member;
+import com.traveler.sign.entity.RefreshToken;
 import com.traveler.sign.repository.MemberRepository;
+import com.traveler.sign.repository.RefreshTokenRepository;
 import com.traveler.sign.security.JwtTokenProvider;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,10 +21,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SignService {
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public SignUpResultDto signUp(String loginId, String password, String email, String nickname, String gender, String role){
+        if (memberRepository.existsByLoginId(loginId)) {
+            throw new RuntimeException("이미 가입되어 있는 유저입니다");
+        }
+
         Member member;
 
         if(role.equalsIgnoreCase("admin")){
@@ -43,7 +52,7 @@ public class SignService {
         }
         return signUpResultDto;
     }
-
+    @Transactional
     public SignInResultDto signIn(String loginId, String password) throws RuntimeException {
         Member member = memberRepository.getByLoginId(loginId);
 
@@ -51,10 +60,24 @@ public class SignService {
             throw new RuntimeException();
         }
         SignInResultDto signInResultDto = SignInResultDto.builder()
-                .token(jwtTokenProvider.createToken(String.valueOf(member.getLoginId()), member.getRoles())).build(); // null일 경우 대비하여 String.valueOf()로 감쌈
+                .accessToken(jwtTokenProvider.createAccessToken(String.valueOf(member.getLoginId()), member.getRoles()))
+                .refreshToken(jwtTokenProvider.createRefreshToken(String.valueOf(member.getLoginId()), member.getRoles()))
+                .build(); // null일 경우 대비하여 String.valueOf()로 감쌈
         setSuccessResult(signInResultDto);
 
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setLoginId(loginId);
+        refreshToken.setRefreshToken(signInResultDto.getRefreshToken());
+        refreshTokenRepository.save(refreshToken);
+
         return signInResultDto;
+    }
+    @Transactional
+    public void signOut(String accessToken) {
+        String loginId = jwtTokenProvider.getUsername(accessToken);
+
+        // RefreshToken 삭제
+        refreshTokenRepository.deleteByLoginId(loginId);
     }
 
     private void setSuccessResult(SignUpResultDto result) {
