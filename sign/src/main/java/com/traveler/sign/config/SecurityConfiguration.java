@@ -29,8 +29,8 @@ public class SecurityConfiguration {
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // JWT 토큰인증 방식의 사용으로 세션은 사용하지 않음
                 .authorizeHttpRequests(authorize -> authorize
-                                .requestMatchers("/sign-api/sign-in", "/sign-api/sign-up", "/sign-api/exception", "/sign-api/refresh").permitAll() //이 3개의 주소에는 시큐리티 걸지 않음
-                                .requestMatchers("**exception**").permitAll().anyRequest().hasAnyRole("ADMIN")	// 이주소는 어드민에게만 허용
+                                .requestMatchers("/sign-api/sign-in", "/sign-api/sign-up", "/sign-api/exception", "/sign-api/refresh", "/sign-api/sign-out").permitAll() //이 3개의 주소에는 시큐리티 걸지 않음
+                                .requestMatchers("**exception**").permitAll().anyRequest().hasAnyRole("USER", "ADMIN")	// 이주소는 어드민에게만 허용
                         // 나머지 요청은 ADMIN 권한을 가진 사용자에게 허용
                 )
                 .exceptionHandling(authenticationManager -> authenticationManager

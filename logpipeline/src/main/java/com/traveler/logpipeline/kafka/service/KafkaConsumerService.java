@@ -15,8 +15,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
@@ -38,13 +39,21 @@ public class KafkaConsumerService {
 
     static Long processId = 1L;
 
+//    @KafkaListener(topics = "START_TOPIC", groupId = "matomo-log-consumer")
+    public void startTopic2(ConsumerRecord<String, String> record) {
+        System.out.println("Start Topic Consumed: " + record.value());
+    }
+
+
     @KafkaListener(topics = "START_TOPIC", groupId = "matomo-log-consumer")
     public void startTopic(ConsumerRecord<String, String> record) {
         try {
             LogDto log = objectMapper.readValue(record.value(), LogDto.class);
             System.out.println("Start Topic Consumed: " + log.toString());
             //log에서 query 부분 추출
-            Map<String, String> query = parseQuery(log.getQuery());
+            Map<String, String> query = parseQueryParams(log.getPath());
+
+            System.out.println(query);
 
             //send할 Map
             Map<String, String> items = new HashMap<>();
@@ -63,7 +72,6 @@ public class KafkaConsumerService {
                 });
                 items.putAll(defaultInfo);
             }
-            items.putAll(query);
             //send
             kafkaTemplate.send("FILTER_TOPIC", objectMapper.writeValueAsString(items));
         } catch (Exception e) {
@@ -157,12 +165,22 @@ public class KafkaConsumerService {
         
     }
 
-    public Map<String, String> parseQuery(String query) {
-        String fakeUrl = "http://dummy?" + query;
-        return UriComponentsBuilder.fromUriString(fakeUrl)
-                .build()
-                .getQueryParams()
-                .toSingleValueMap();
+    public Map<String, String> parseQueryParams(String pathWithQuery) {
+        Map<String, String> queryPairs = new HashMap<>();
+        if (!pathWithQuery.contains("?")) return queryPairs;
+
+        String query = pathWithQuery.substring(pathWithQuery.indexOf('?') + 1);
+        String[] pairs = query.split("&");
+
+        for (String pair : pairs) {
+            int idx = pair.indexOf('=');
+            if (idx == -1) continue;
+            String key = URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8);
+            String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
+            queryPairs.put(key, value);
+        }
+
+        return queryPairs;
     }
 
 }

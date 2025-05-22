@@ -73,11 +73,12 @@ public class SignService {
         return signInResultDto;
     }
     @Transactional
-    public void signOut(String accessToken) {
-        String loginId = jwtTokenProvider.getUsername(accessToken);
+    public void signOut(String refreshToken) {
+        if (refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
+            String loginId = jwtTokenProvider.getUsername(refreshToken);
+            refreshTokenRepository.deleteByLoginId(loginId);
+        }
 
-        // RefreshToken 삭제
-        refreshTokenRepository.deleteByLoginId(loginId);
     }
 
     private void setSuccessResult(SignUpResultDto result) {

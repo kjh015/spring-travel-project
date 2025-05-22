@@ -5,30 +5,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class LogDto {
     private String remote;
-    private String time;
+    private String host;
+    private String user;
     private String method;
     private String path;
-    private String query;
-    private String protocol;
     private String code;
     private String size;
     private String referer;
     private String agent;
-    private String processId;
-    private String timestamp;
-    private Map<String, String> additionalData = new HashMap<>();
-
-    @Override
-    public String toString() {
-        return String.format("[NGINX] %s %s %s (%s) / query: [%s]", remote, method, path, time, query);
-    }
 }

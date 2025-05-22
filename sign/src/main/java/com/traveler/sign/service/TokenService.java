@@ -3,6 +3,8 @@ package com.traveler.sign.service;
 import com.traveler.sign.entity.RefreshToken;
 import com.traveler.sign.repository.RefreshTokenRepository;
 import com.traveler.sign.security.JwtTokenProvider;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +40,16 @@ public class TokenService {
 
         // 새로운 accessToken 발급
         return jwtTokenProvider.createAccessToken(loginId, roles);
+    }
+
+    public String getCookieValue(HttpServletRequest request, String name) {
+        if (request.getCookies() == null) return null;
+        for (Cookie cookie : request.getCookies()) {
+            if (name.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 
 

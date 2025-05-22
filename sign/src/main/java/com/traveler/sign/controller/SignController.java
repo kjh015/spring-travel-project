@@ -1,17 +1,24 @@
 package com.traveler.sign.controller;
 
 
+import com.traveler.sign.dto.SignInRequestDto;
 import com.traveler.sign.dto.SignInResultDto;
+import com.traveler.sign.dto.SignUpRequestDto;
 import com.traveler.sign.dto.SignUpResultDto;
 import com.traveler.sign.service.InvalidTokenException;
 import com.traveler.sign.service.SignService;
 import com.traveler.sign.service.TokenService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,31 +36,49 @@ public class SignController {
     private Logger logger = LoggerFactory.getLogger(SignController.class);
 
     @PostMapping("/sign-in")
-    public SignInResultDto signIn(@RequestParam(required = true) String loginId, @RequestParam(required = true) String password) throws RuntimeException{
-        logger.info("[signIn] 로그인을 시도하고 있습니다. id : {}, pw : ****", loginId);
-        SignInResultDto signInResultDto = signService.signIn(loginId, password);
+    public SignInResultDto signIn(@RequestBody SignInRequestDto signIn, HttpServletResponse response) throws RuntimeException{
+        logger.info("[signIn] 로그인을 시도하고 있습니다. id : {}, pw : ****", signIn.getLoginId());
+        SignInResultDto signInResultDto = signService.signIn(signIn.getLoginId(), signIn.getPassword());
+
+        // RefreshToken을 HttpOnly 쿠키로 설정
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", signInResultDto.getRefreshToken())
+                .httpOnly(true)
+                .secure(false) // HTTPS만 허용할 경우 true
+                .path("/")
+                .maxAge(Duration.ofDays(7))
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         if(signInResultDto.getCode() == 0){
-            logger.info("[signIn] 정상적으로 로그인되었습니다. id : {}, accessToken : {}, refreshToken : {}", loginId, signInResultDto.getAccessToken(), signInResultDto.getRefreshToken());
+            logger.info("[signIn] 정상적으로 로그인되었습니다. id : {}, accessToken : {}, refreshToken : {}", signIn.getLoginId(), signInResultDto.getAccessToken(), signInResultDto.getRefreshToken());
         }
         return signInResultDto;
     }
 
     @PostMapping("/sign-up")
-    public SignUpResultDto signUp(@RequestParam(required = true) String loginId, @RequestParam(required = true) String password,
-                                  @RequestParam(required = true) String email, @RequestParam(required = true) String nickname,
-                                  @RequestParam(required = true) String gender, @RequestParam(required = true) String role){
-        logger.info("[signUp] 회원가입을 수행합니다. id : {}, password : ****, email : {}, role : {}", loginId, email, role);
-        SignUpResultDto signUpResultDto = signService.signUp(loginId, password, email, nickname, gender, role);
-        logger.info("[signUp] 회원가입을 완료했습니다. id : {}", loginId);
+    public SignUpResultDto signUp(@RequestBody SignUpRequestDto signUp){
+        logger.info("[signUp] 회원가입을 수행합니다. id : {}, password : ****, email : {}, role : {}", signUp.getLoginId(), signUp.getEmail(), signUp.getRole());
+        SignUpResultDto signUpResultDto = signService.signUp(signUp.getLoginId(), signUp.getPassword(), signUp.getEmail(), signUp.getNickname(), signUp.getGender(), signUp.getRole());
+        logger.info("[signUp] 회원가입을 완료했습니다. id : {}", signUp.getLoginId());
         return signUpResultDto;
     }
 
     @PostMapping("/sign-out")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String bearerToken) {
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         logger.info("[signOut] 로그아웃");
-        String accessToken = bearerToken.replace("Bearer ", "");
-        signService.signOut(accessToken);
+
+        String refreshToken = tokenService.getCookieValue(request, "refreshToken");
+        signService.signOut(refreshToken);
+
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
+
         return ResponseEntity.ok("로그아웃 완료");
     }
 
@@ -64,9 +89,9 @@ public class SignController {
      *                                                                                                           -> refreshToken도 만료 시 재로그인 요청
      * */
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
         logger.info("[refresh] accessToken 재발급 수행");
-        String refreshToken = request.get("refreshToken");
+        String refreshToken = tokenService.getCookieValue(request, "refreshToken");
         try {
             String newAccessToken = tokenService.reissueAccessToken(refreshToken);
             return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
@@ -74,6 +99,12 @@ public class SignController {
             logger.info("[refresh] accessToken 재발급 실패");
             return ResponseEntity.status(401).body(e.getMessage());
         }
+    }
+
+    @PostMapping("/test")
+    public String testAccessToken(){
+        logger.info("[tokenTest]: test success");
+        return "test success";
     }
 
 
@@ -95,6 +126,8 @@ public class SignController {
 
         return map;
     }
+
+
 
 
 

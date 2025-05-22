@@ -40,7 +40,7 @@ public class LogController {
     }
     @GetMapping("/fail-filter")
     public List<LogFail> listFailLogsByFilter(@RequestParam String filterId){
-        return logFailService.listFailLogsByProcess(Long.parseLong(filterId));
+        return logFailService.listFailLogsByFilter(Long.parseLong(filterId));
     }
 
 }
