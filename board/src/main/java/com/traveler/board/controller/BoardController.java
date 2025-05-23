@@ -1,13 +1,12 @@
 package com.traveler.board.controller;
 
 
+import com.traveler.board.dto.BoardDto;
 import com.traveler.board.entity.Board;
-import com.traveler.board.entity.Category;
-import com.traveler.board.entity.Region;
-import com.traveler.board.entity.TravelPlace;
 import com.traveler.board.service.BoardService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,53 +33,41 @@ public class BoardController {
     }
 
     @GetMapping("/view")
-    public Board viewArticle(@RequestParam String no){
-        logger.info("viewArticle => articleNo: " + no);
-        return boardService.viewArticle(Long.parseLong(no));
+    public ResponseEntity<Board> viewArticle(@RequestParam String no){
+        return boardService.viewArticle(Long.parseLong(no))
+                .map(ResponseEntity::ok)                    //ResponseEntity.ok(board)
+                .orElseGet(() -> ResponseEntity.notFound().build());    // null -> 404
     }
 
     @PostMapping("/add")
-    public Board addArticle(@RequestParam String title, @RequestParam String content, @RequestParam Long memberId){
-
-        Board board = new Board();
-        board.setTitle(title);
-        board.setContent(content);
-        board.setMemberId(memberId);
-
-        TravelPlace tp = new TravelPlace();
-        tp.setAddress("tempAddress");
-        tp.setName("서울여행");
-        Category cg = new Category();
-        cg.setName("관광");
-        Region rg = new Region();
-        rg.setName("서울");
-        tp.setCategory(cg);
-        tp.setRegion(rg);
-
-        board.setTravelPlace(tp);
-
-        boardService.addArticle(board);
-
-        return board;
-
+    public ResponseEntity<String> addArticle(@RequestBody BoardDto data){
+        try{
+            boardService.addArticle(data);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
 
     }
 
     @PostMapping("/edit")
-    public Board editArticle(@RequestParam String no, @RequestParam String title, @RequestParam String content){
-        Board board = new Board();
-        board.setId(Long.parseLong(no));
-        board.setTitle(title);
-        board.setContent(content);
-        boardService.editArticle(board);
-        logger.info("editArticle => title: " + title);
-        logger.info("editArticle => content: " + content);
-        return board;
+    public ResponseEntity<String> editArticle(@RequestBody BoardDto data){
+        try{
+            boardService.editArticle(data);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/remove")
-    public void removeArticle(@RequestParam String no){
-        boardService.removeArticle(Long.parseLong(no));
+    public ResponseEntity<String> removeArticle(@RequestParam String no){
+        try{
+            boardService.removeArticle(Long.parseLong(no));
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 

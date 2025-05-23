@@ -16,12 +16,11 @@ public class Board {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "travel_place_id")
     private TravelPlace travelPlace;
 
-
-    private Long memberId;
+    private String memberNickname;
 
     @Column(length=100)
     private String title;
