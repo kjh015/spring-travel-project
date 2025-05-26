@@ -2,6 +2,7 @@ package com.traveler.board.controller;
 
 
 import com.traveler.board.dto.BoardDto;
+import com.traveler.board.dto.BoardListDto;
 import com.traveler.board.entity.Board;
 import com.traveler.board.service.BoardService;
 import org.slf4j.Logger;
@@ -27,16 +28,17 @@ public class BoardController {
 
     //signup -> addarticle -> list
     @GetMapping("/list")
-    public List<Board> getArticleList(){
-        articleList = boardService.listArticles();
-        return articleList;
+    public List<BoardListDto> getArticleList(){
+        return boardService.listArticles();
     }
 
     @GetMapping("/view")
-    public ResponseEntity<Board> viewArticle(@RequestParam String no){
-        return boardService.viewArticle(Long.parseLong(no))
-                .map(ResponseEntity::ok)                    //ResponseEntity.ok(board)
-                .orElseGet(() -> ResponseEntity.notFound().build());    // null -> 404
+    public ResponseEntity<BoardDto> viewArticle(@RequestParam String no){
+        try{
+            return ResponseEntity.ok(boardService.viewArticle(Long.parseLong(no)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/add")

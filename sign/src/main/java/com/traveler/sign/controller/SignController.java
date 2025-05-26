@@ -5,6 +5,7 @@ import com.traveler.sign.dto.SignInRequestDto;
 import com.traveler.sign.dto.SignInResultDto;
 import com.traveler.sign.dto.SignUpRequestDto;
 import com.traveler.sign.dto.SignUpResultDto;
+import com.traveler.sign.service.CustomSignException;
 import com.traveler.sign.service.InvalidTokenException;
 import com.traveler.sign.service.SignService;
 import com.traveler.sign.service.TokenService;
@@ -19,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -82,6 +82,22 @@ public class SignController {
         return ResponseEntity.ok("로그아웃 완료");
     }
 
+    @PostMapping("/withdraw")
+    public ResponseEntity<String> withdraw(HttpServletRequest request, HttpServletResponse response){
+        String refreshToken = tokenService.getCookieValue(request, "refreshToken");
+        signService.withdraw(refreshToken);
+        
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
+        return ResponseEntity.ok("회원탈퇴 완료");
+    }
+
     /*
      * 현재: 로그인 -> accessToken, refreshToken 생성 후 DB 저장 및 프론트에 전달.
      * 프론트에서 accessToken과 refreshToken을 받는다 -> accessToken이 유효하면 통과
@@ -107,24 +123,14 @@ public class SignController {
         return "test success";
     }
 
-
-    @GetMapping("/exception")
-    public void exceptionTest() throws RuntimeException{
-        throw new RuntimeException("접근이 금지되었습니다.");
+    @PostMapping("/nickname")
+    public ResponseEntity<String> getNickname(@RequestBody Map<String, String> data){
+        return ResponseEntity.ok(signService.getNickname(data.get("loginId")));
     }
 
-    @ExceptionHandler(value=RuntimeException.class)
-    public Map<String, String> ExceptionHandler(RuntimeException e) {
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-
-        logger.error("ExceptionHandler 호출, {}, {}", e.getCause(), e.getMessage());
-
-        Map<String, String> map = new HashMap<>();
-        map.put("error type", httpStatus.getReasonPhrase());
-        map.put("code", "400");
-        map.put("message", "에러 발생");
-
-        return map;
+    @ExceptionHandler(CustomSignException.class)
+    public ResponseEntity<String> ExceptionHandler(CustomSignException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
 

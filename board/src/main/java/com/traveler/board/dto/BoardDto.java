@@ -8,7 +8,7 @@ public class BoardDto {
     private String title;
     private String content;
     private String memberNickname;
-    private String tName;
+    private String travelPlace;
     private String address;
     private String category;
     private String region;

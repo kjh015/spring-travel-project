@@ -19,6 +19,14 @@ spring:
           uri: lb://logpipeline/
           predicates:
             - Path=/format/**, /sse/**, /process/**, /filter/**, /log-db/**
+        - id: comment
+          uri: lb://comment/
+          predicates:
+            - Path=/comment-api/**
+        - id: favorite
+          uri: lb://favorite
+          predicates:
+            - Path=/favorite-api/**
       globalcors:
         cors-configurations:
           '[/**]':
