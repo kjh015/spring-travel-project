@@ -18,7 +18,7 @@ spring:
         - id: logpipeline
           uri: lb://logpipeline/
           predicates:
-            - Path=/format/**, /sse/**, /process/**, /filter/**, /log-db/**
+            - Path=/format/**, /sse/**, /process/**, /filter/**, /log-db/**, /deduplication/**
         - id: comment
           uri: lb://comment/
           predicates:

@@ -142,6 +142,22 @@ public class KafkaConsumerService {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
     }
+    @KafkaListener(topics = "DEDUPLICATION_TOPIC", groupId = "matomo-log-consumer")
+    public void deduplicationTopic(ConsumerRecord<String, String> record){
+        System.out.println("Consumed Deduplication Topic: " + record.value());
+        try{
+            Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {});
+            /*
+            * 프론트에서 중복제거 시간 설정. 중복제거할 포맷 아이템과
+            *
+            * */
+
+        }catch (Exception e) {
+            System.err.println("Kafka message handling failed: " + e.getMessage());
+        }
+
+    }
+
     
     @KafkaListener(topics = "DB_TOPIC", groupId = "matomo-log-consumer")
     public void dbTopic(ConsumerRecord<String, String> record){

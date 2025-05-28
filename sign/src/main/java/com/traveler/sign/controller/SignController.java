@@ -3,8 +3,7 @@ package com.traveler.sign.controller;
 
 import com.traveler.sign.dto.SignInRequestDto;
 import com.traveler.sign.dto.SignInResultDto;
-import com.traveler.sign.dto.SignUpRequestDto;
-import com.traveler.sign.dto.SignUpResultDto;
+import com.traveler.sign.dto.SignDto;
 import com.traveler.sign.service.CustomSignException;
 import com.traveler.sign.service.InvalidTokenException;
 import com.traveler.sign.service.SignService;
@@ -49,18 +48,20 @@ public class SignController {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        if(signInResultDto.getCode() == 0){
-            logger.info("[signIn] 정상적으로 로그인되었습니다. id : {}, accessToken : {}, refreshToken : {}", signIn.getLoginId(), signInResultDto.getAccessToken(), signInResultDto.getRefreshToken());
-        }
         return signInResultDto;
     }
 
     @PostMapping("/sign-up")
-    public SignUpResultDto signUp(@RequestBody SignUpRequestDto signUp){
+    public ResponseEntity<?> signUp(@RequestBody SignDto signUp){
         logger.info("[signUp] 회원가입을 수행합니다. id : {}, password : ****, email : {}, role : {}", signUp.getLoginId(), signUp.getEmail(), signUp.getRole());
-        SignUpResultDto signUpResultDto = signService.signUp(signUp.getLoginId(), signUp.getPassword(), signUp.getEmail(), signUp.getNickname(), signUp.getGender(), signUp.getRole());
+        signService.signUp(signUp.getLoginId(), signUp.getPassword(), signUp.getEmail(), signUp.getNickname(), signUp.getGender(), signUp.getRole());
         logger.info("[signUp] 회원가입을 완료했습니다. id : {}", signUp.getLoginId());
-        return signUpResultDto;
+        return ResponseEntity.ok("회원가입 완료");
+    }
+    @PostMapping("/update")
+    public ResponseEntity<?> updateMember(@RequestBody SignDto data){
+        signService.updateMember(data);
+        return ResponseEntity.ok("회원수정 완료");
     }
 
     @PostMapping("/sign-out")
@@ -83,7 +84,7 @@ public class SignController {
     }
 
     @PostMapping("/withdraw")
-    public ResponseEntity<String> withdraw(HttpServletRequest request, HttpServletResponse response){
+    public ResponseEntity<?> withdraw(HttpServletRequest request, HttpServletResponse response){
         String refreshToken = tokenService.getCookieValue(request, "refreshToken");
         signService.withdraw(refreshToken);
         
@@ -97,6 +98,8 @@ public class SignController {
 
         return ResponseEntity.ok("회원탈퇴 완료");
     }
+
+
 
     /*
      * 현재: 로그인 -> accessToken, refreshToken 생성 후 DB 저장 및 프론트에 전달.
@@ -127,6 +130,8 @@ public class SignController {
     public ResponseEntity<String> getNickname(@RequestBody Map<String, String> data){
         return ResponseEntity.ok(signService.getNickname(data.get("loginId")));
     }
+
+
 
     @ExceptionHandler(CustomSignException.class)
     public ResponseEntity<String> ExceptionHandler(CustomSignException e) {

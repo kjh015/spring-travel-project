@@ -1,23 +1,28 @@
 package com.traveler.sign.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
 public class KafkaProducerService {
-
-    @Value("${topic.name}")
-    private String topicName;
-
-    /* Kafka Template 을 이용해 Kafka Broker 전송 */
-
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final KafkaTemplate<String,String> kafkaTemplate;
 
-    public void sendMessageToKafka(String message) {
-        System.out.printf("Producer Message : %s%n",message);
-        this.kafkaTemplate.send(topicName,message);
+    public void updateNickname(String prev, String cur){
+        Map<String, String> nickname = new HashMap<>();
+        nickname.put("prev", prev);
+        nickname.put("cur", cur);
+        try {
+            this.kafkaTemplate.send("SIGN_NICKNAME_TOPIC", objectMapper.writeValueAsString(nickname));
+        } catch (JsonProcessingException e) {
+            System.err.println("Kafka message handling failed: " + e.getMessage());
+        }
     }
 }

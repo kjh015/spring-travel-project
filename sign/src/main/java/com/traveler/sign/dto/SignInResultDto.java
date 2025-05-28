@@ -1,19 +1,11 @@
 package com.traveler.sign.dto;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class SignInResultDto extends SignUpResultDto {
+@Data
+@Builder
+public class SignInResultDto {
     private String accessToken;
     private String refreshToken;
-
-    @Builder
-    public SignInResultDto(boolean success, int code, String msg, String accessToken, String refreshToken){
-        super(success, code, msg);
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
-    }
 }
