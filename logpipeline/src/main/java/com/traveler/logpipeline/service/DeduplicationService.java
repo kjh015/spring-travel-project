@@ -5,20 +5,25 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.logpipeline.dto.DeduplicationDto;
 import com.traveler.logpipeline.entity.Deduplication;
+import com.traveler.logpipeline.entity.LogPassHistory;
 import com.traveler.logpipeline.repository.DeduplicationRepository;
+import com.traveler.logpipeline.repository.LogPassHistoryRepository;
 import com.traveler.logpipeline.repository.ProcessRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DeduplicationService {
     private final DeduplicationRepository deduplicationRepository;
+    private final LogPassHistoryRepository logPassHistoryRepository;
     private final ProcessRepository processRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -86,6 +91,33 @@ public class DeduplicationService {
     public void removeDeduplication(Long deduplicationId){
         deduplicationRepository.deleteById(deduplicationId);
     }
+
+    public List<Deduplication> getActiveDeduplication(Long processId){
+        return deduplicationRepository.findAllByIsActiveTrueAndProcess_Id(processId);
+    }
+
+    @Transactional
+    public void addPassHistory(Deduplication ddp, Long processId, LocalDateTime expT, String userId){
+        LogPassHistory history = new LogPassHistory();
+        history.setDeduplication(ddp);
+        history.setProcess(processRepository.findById(processId).orElse(null));
+        history.setExpiredTime(expT);
+        history.setUserId(userId);
+        logPassHistoryRepository.save(history);
+    }
+
+    @Transactional
+    public void updatePassHistory(LogPassHistory history, LocalDateTime expT){
+        history.setExpiredTime(expT);
+        logPassHistoryRepository.save(history);
+    }
+
+    @Transactional
+    public Optional<LogPassHistory> getPassHistory(Long ddpId, String userId){
+        return logPassHistoryRepository.findByDeduplication_idAndUserId(ddpId, userId);
+
+    }
+
 
 
 

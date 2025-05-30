@@ -2,15 +2,10 @@ package com.traveler.logpipeline.kafka.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.traveler.logpipeline.entity.Filter;
-import com.traveler.logpipeline.entity.Format;
-import com.traveler.logpipeline.entity.LogFail;
-import com.traveler.logpipeline.entity.LogSuccess;
+import com.traveler.logpipeline.entity.*;
 import com.traveler.logpipeline.kafka.dto.LogDto;
-import com.traveler.logpipeline.service.FilterService;
-import com.traveler.logpipeline.service.FormatService;
-import com.traveler.logpipeline.service.LogFailService;
-import com.traveler.logpipeline.service.LogSuccessService;
+import com.traveler.logpipeline.service.*;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -18,9 +13,13 @@ import org.springframework.stereotype.Component;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.*;
 
 @Component
+@RequiredArgsConstructor
 public class KafkaConsumerService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final FormatService formatService;
@@ -28,14 +27,9 @@ public class KafkaConsumerService {
     private final LogSuccessService logSuccessService;
     private final LogFailService logFailService;
     private final KafkaTemplate<String,String> kafkaTemplate;
+    private final DeduplicationService deduplicationService;
+    private final LogFailByDeduplicationService logFailByDeduplicationService;
 
-    public KafkaConsumerService(FormatService formatService, FilterService filterService, LogSuccessService logSuccessService, LogFailService logFailService, KafkaTemplate<String, String> kafkaTemplate) {
-        this.formatService = formatService;
-        this.filterService = filterService;
-        this.logSuccessService = logSuccessService;
-        this.logFailService = logFailService;
-        this.kafkaTemplate = kafkaTemplate;
-    }
 
     static Long processId = 1L;
 
@@ -132,12 +126,15 @@ public class KafkaConsumerService {
             }
             if(success){
                 items.put("success", "true");
+                kafkaTemplate.send("DEDUPLICATION_TOPIC", objectMapper.writeValueAsString(items));
+
             }
             else{
                 items.put("success", "false");
-                items.put("failBy", failBy.toString());
+                items.put("failBy", "filter");
+                items.put("failID", failBy.toString());
+                kafkaTemplate.send("DB_TOPIC", objectMapper.writeValueAsString(items));
             }
-            kafkaTemplate.send("DB_TOPIC", objectMapper.writeValueAsString(items));
         } catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
@@ -147,10 +144,39 @@ public class KafkaConsumerService {
         System.out.println("Consumed Deduplication Topic: " + record.value());
         try{
             Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {});
-            /*
-            * 프론트에서 중복제거 시간 설정. 중복제거할 포맷 아이템과
-            *
-            * */
+            String userId = items.get("user_id");
+            List<Deduplication> ddps = deduplicationService.getActiveDeduplication(processId);
+
+            boolean success = true;
+
+            for(Deduplication ddp : ddps){
+                List<Map<String, String>> settings = objectMapper.readValue(ddp.getDeduplicationJson(), new TypeReference<>() {});
+                for(Map<String, String> setting : settings){
+                    if(items.get(setting.get("format")).equals(setting.get("value"))){
+                        Optional<LogPassHistory> _history = deduplicationService.getPassHistory(ddp.getId(), userId);
+                        if(_history.isPresent()){
+                            LogPassHistory history = _history.get();
+                            if(LocalDateTime.now().isAfter(history.getExpiredTime())){  //현재 시간이 만료 시간보다 지났다면
+                                //새로 기록하고 통과
+                                deduplicationService.updatePassHistory(history, createExpiredTime(setting));
+                            }
+                            else{
+                                //실패 테이블에 저장
+                                items.put("success", "false");
+                                items.put("failBy", "deduplication");
+                                items.put("failID", String.valueOf(ddp.getId()));
+                                success = false;
+                                break;
+                            }
+                        }
+                        else{
+                            deduplicationService.addPassHistory(ddp, processId, createExpiredTime(setting), userId);
+                        }
+                    }
+                }
+                if(!success) break;
+            }
+            kafkaTemplate.send("DB_TOPIC", objectMapper.writeValueAsString(items));
 
         }catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
@@ -171,9 +197,17 @@ public class KafkaConsumerService {
                 logSuccessService.addSuccessLog(log, processId);
             }
             else{
-                LogFail log = new LogFail();
-                log.setLogJson(objectMapper.writeValueAsString(items));
-                logFailService.addFailLog(log, processId, Long.parseLong(items.get("failBy")));
+                if(items.get("failBy").equalsIgnoreCase("filter")){
+                    LogFail log = new LogFail();
+                    log.setLogJson(objectMapper.writeValueAsString(items));
+                    logFailService.addFailLog(log, processId, Long.parseLong(items.get("failID")));
+                }
+                else{
+                    LogFailByDeduplication log = new LogFailByDeduplication();
+                    log.setLogJson(objectMapper.writeValueAsString(items));
+                    logFailByDeduplicationService.addFailLog(log, processId, Long.parseLong(items.get("failID")));
+                }
+
             }
         } catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
@@ -197,6 +231,21 @@ public class KafkaConsumerService {
         }
 
         return queryPairs;
+    }
+
+    public LocalDateTime createExpiredTime(Map<String, String> setting){
+        LocalDateTime now = LocalDateTime.now();
+        Period period = Period.of(
+                Integer.parseInt(setting.get("year")),
+                Integer.parseInt(setting.get("month")),
+                Integer.parseInt(setting.get("day"))
+        );
+        Duration duration = Duration.ofHours(Integer.parseInt(setting.get("hour")))
+                .plusMinutes(Integer.parseInt(setting.get("minute")))
+                .plusSeconds(Integer.parseInt(setting.get("second")));
+
+        LocalDateTime expiresTime = now.plus(period).plus(duration);
+        return expiresTime;
     }
 
 }

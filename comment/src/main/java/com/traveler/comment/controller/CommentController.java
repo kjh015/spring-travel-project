@@ -18,18 +18,18 @@ public class CommentController {
     //list, add, remove
     @GetMapping("/list")
     public List<CommentDto> getCommentListByBoard(@RequestParam String no){
-        return commentService.getCommentList(Long.parseLong(no));
+        return commentService.getCommentList(Long.valueOf(no));
     }
 
     @PostMapping("/add")
     public ResponseEntity<String> addComment(@RequestBody CommentDto data){
         commentService.addComment(data);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("댓글 작성완료");
     }
     @PostMapping("/remove")
     public ResponseEntity<String> removeComment(@RequestParam String commentId){
         commentService.removeComment(Long.valueOf(commentId));
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("댓글 삭제완료");
     }
     @ExceptionHandler(CustomCommentException.class)
     public ResponseEntity<String> exceptionComment(CustomCommentException e){

@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface DeduplicationRepository extends JpaRepository<Deduplication, Long> {
     List<Deduplication> findAllByProcess_Id(Long processId);
+    List<Deduplication> findAllByIsActiveTrueAndProcess_Id(Long processId);
 }

@@ -17,20 +17,29 @@ public class FavoriteService {
 
 
     @Transactional
-    public void toggleFavorite(FavoriteDto data){
+    public boolean toggleFavorite(FavoriteDto data){
         Long boardId = Long.valueOf(data.getBoardId());
         String nickname = data.getMemberNickname();
 
         Optional<Favorite> favorite = favoriteRepository.findByBoardIdAndMemberNickname(boardId, nickname);
         if (favorite.isPresent()) {
             favoriteRepository.delete(favorite.get());
+            return false;
         } else {
             Favorite newFavorite = new Favorite();
             newFavorite.setBoardId(boardId);
             newFavorite.setMemberNickname(nickname);
             favoriteRepository.save(newFavorite);
+            return true;
         }
     }
+    @Transactional
+    public boolean existsFavorite(FavoriteDto data){
+        Long boardId = Long.valueOf(data.getBoardId());
+        String nickname = data.getMemberNickname();
+        return favoriteRepository.existsByBoardIdAndMemberNickname(boardId, nickname);
+    }
+
 
     @Transactional
     public void updateNickname(String prevNickname, String curNickname){

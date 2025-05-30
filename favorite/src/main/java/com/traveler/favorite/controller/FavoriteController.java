@@ -16,8 +16,11 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     @PostMapping("/toggle")
-    public ResponseEntity<String> toggleFavorite(@RequestBody FavoriteDto data){
-        favoriteService.toggleFavorite(data);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> toggleFavorite(@RequestBody FavoriteDto data){
+        return ResponseEntity.ok().body(favoriteService.toggleFavorite(data));
+    }
+    @PostMapping("/exists")
+    public ResponseEntity<?> existsFavorite(@RequestBody FavoriteDto data){
+        return ResponseEntity.ok().body(favoriteService.existsFavorite(data));
     }
 }
