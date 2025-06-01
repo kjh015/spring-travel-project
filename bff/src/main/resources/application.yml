@@ -1,0 +1,46 @@
+server:
+  port: 8001
+
+spring:
+  application:
+    name: bff
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+
+board:
+  ribbon:
+    eureka:
+      enabled: true
+sign-api:
+  ribbon:
+    eureka:
+      enabled: true
+logpipeline:
+  ribbon:
+    eureka:
+      enabled: true
+comment:
+  ribbon:
+    eureka:
+      enabled: true
+favorite:
+  ribbon:
+    eureka:
+      enabled: true
+
+eureka:
+  instance:
+    hostname: localhost
+    instance-id: ${spring.application.name}:${server.port}
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+
