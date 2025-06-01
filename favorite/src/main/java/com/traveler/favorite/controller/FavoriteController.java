@@ -23,4 +23,9 @@ public class FavoriteController {
     public ResponseEntity<?> existsFavorite(@RequestBody FavoriteDto data){
         return ResponseEntity.ok().body(favoriteService.existsFavorite(data));
     }
+
+//    @PostMapping("/list")
+//    public ResponseEntity<?> getFavoriteList(){
+//
+//    }
 }

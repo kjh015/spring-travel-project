@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
-    @Query("SELECT new com.traveler.board.dto.BoardListDto(b.id, b.title, b.memberNickname, b.modifiedDate) FROM Board b")
+    @Query("SELECT new com.traveler.board.dto.BoardListDto(b.id, b.title, b.memberId, b.modifiedDate) FROM Board b")
     List<BoardListDto> findAllBoardListDto();
 
 }

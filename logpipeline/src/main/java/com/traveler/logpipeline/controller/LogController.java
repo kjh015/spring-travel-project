@@ -1,8 +1,6 @@
 package com.traveler.logpipeline.controller;
 
-import com.traveler.logpipeline.entity.LogFail;
-import com.traveler.logpipeline.entity.LogFailByDeduplication;
-import com.traveler.logpipeline.entity.LogSuccess;
+import com.traveler.logpipeline.dto.LogDto;
 import com.traveler.logpipeline.service.LogFailByDeduplicationService;
 import com.traveler.logpipeline.service.LogFailService;
 import com.traveler.logpipeline.service.LogSuccessService;
@@ -22,17 +20,17 @@ public class LogController {
     private final LogFailByDeduplicationService logFailByDeduplicationService;
 
     @GetMapping("/success")
-    public List<LogSuccess> listSuccessLogs(){
+    public List<LogDto> listSuccessLogs(){
         return logSuccessService.listSuccessLogs();
     }
 
     @GetMapping("/fail-filter")
-    public List<LogFail> listFailLogs(){
+    public List<LogDto> listFailLogs(){
         return logFailService.listFailLogs();
     }
 
     @GetMapping("/fail-deduplication")
-    public List<LogFailByDeduplication> listFailDdpLogs(){
+    public List<LogDto> listFailDdpLogs(){
         return logFailByDeduplicationService.listFailDdpLogs();
     }
 

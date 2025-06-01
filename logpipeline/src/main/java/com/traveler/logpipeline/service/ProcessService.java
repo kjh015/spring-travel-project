@@ -1,12 +1,14 @@
 package com.traveler.logpipeline.service;
 
 
+import com.traveler.logpipeline.dto.ProcessDto;
 import com.traveler.logpipeline.entity.Process;
 import com.traveler.logpipeline.repository.ProcessRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProcessService {
@@ -16,8 +18,15 @@ public class ProcessService {
         this.processRepository = processRepository;
     }
 
-    public List<Process> listProcesses(){
-        return processRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+    public List<ProcessDto> listProcesses(){
+        return processRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream()
+                .map(process -> ProcessDto.builder()
+                        .id(process.getId())
+                        .name(process.getName())
+                        .createdTime(process.getCreatedTime())
+                        .updatedTime(process.getUpdatedTime()).build()
+                )
+                .collect(Collectors.toList());
     }
     public void addProcess(Process process){
         processRepository.save(process);

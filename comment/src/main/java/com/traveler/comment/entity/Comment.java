@@ -17,7 +17,7 @@ public class Comment {
 
     private Long boardId;
 
-    private String memberNickname;
+    private Long memberId;
 
     @Column(length=500)
     private String content;

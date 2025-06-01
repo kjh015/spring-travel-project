@@ -2,7 +2,8 @@ package com.traveler.logpipeline.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.traveler.logpipeline.dto.FilterDto;
+import com.traveler.logpipeline.dto.FilterRequestDto;
+import com.traveler.logpipeline.dto.FilterResponseDto;
 import com.traveler.logpipeline.entity.Filter;
 import com.traveler.logpipeline.service.FilterService;
 import com.traveler.logpipeline.service.FormatService;
@@ -24,11 +25,11 @@ public class FilterController {
     }
 
     @GetMapping("/list")
-    public List<Filter> getFilterList(@RequestParam String processId){
+    public List<FilterResponseDto> getFilterList(@RequestParam String processId){
         return filterService.listFilters(Long.parseLong(processId));
     }
     @GetMapping("/view")
-    public Filter viewFilter(@RequestParam String filterId){
+    public FilterResponseDto viewFilter(@RequestParam String filterId){
         return filterService.viewFilter(Long.parseLong(filterId));
     }
     @GetMapping("/keys")
@@ -36,7 +37,7 @@ public class FilterController {
         return formatService.activeFormatKeys(Long.parseLong(processId));
     }
     @PostMapping("/add")
-    public ResponseEntity<String> addFilter(@RequestParam String processId, @RequestParam String name, @RequestParam String active, @RequestBody FilterDto data){
+    public ResponseEntity<String> addFilter(@RequestParam String processId, @RequestParam String name, @RequestParam String active, @RequestBody FilterRequestDto data){
         LinkedHashMap<String, String> fields = extractFields(data.getTokens());
         String fullCode = generateCode(fields, data.getExpression());
         try {
@@ -54,7 +55,7 @@ public class FilterController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<String> updateFilter(@RequestParam String filterId, @RequestParam String name, @RequestParam String active, @RequestBody FilterDto data){
+    public ResponseEntity<String> updateFilter(@RequestParam String filterId, @RequestParam String name, @RequestParam String active, @RequestBody FilterRequestDto data){
         LinkedHashMap<String, String> fields = extractFields(data.getTokens());
         String fullCode = generateCode(fields, data.getExpression());
         try {

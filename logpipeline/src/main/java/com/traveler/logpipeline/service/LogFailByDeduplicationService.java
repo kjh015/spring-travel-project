@@ -1,5 +1,6 @@
 package com.traveler.logpipeline.service;
 
+import com.traveler.logpipeline.dto.LogDto;
 import com.traveler.logpipeline.entity.LogFailByDeduplication;
 import com.traveler.logpipeline.repository.DeduplicationRepository;
 import com.traveler.logpipeline.repository.LogFailByDeduplicationRepository;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +23,15 @@ public class LogFailByDeduplicationService {
         log.setDeduplication(deduplicationRepository.findById(deduplicationId).orElse(null));
         logFailByDeduplicationRepository.save(log);
     }
-    public List<LogFailByDeduplication> listFailDdpLogs(){
-        return logFailByDeduplicationRepository.findAll();
+    public List<LogDto> listFailDdpLogs(){
+        return logFailByDeduplicationRepository.findAll().stream()
+                .map(log -> LogDto.builder()
+                        .id(log.getId())
+                        .process(log.getProcess().getName())
+                        .logJson(log.getLogJson())
+                        .deduplication(log.getDeduplication().getName())
+                        .createdTime(log.getCreatedTime()).build()
+                )
+                .collect(Collectors.toList());
     }
 }

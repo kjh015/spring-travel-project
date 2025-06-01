@@ -1,9 +1,9 @@
 package com.traveler.sign.controller;
 
 
+import com.traveler.sign.dto.SignDto;
 import com.traveler.sign.dto.SignInRequestDto;
 import com.traveler.sign.dto.SignInResultDto;
-import com.traveler.sign.dto.SignDto;
 import com.traveler.sign.service.CustomSignException;
 import com.traveler.sign.service.InvalidTokenException;
 import com.traveler.sign.service.SignService;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/sign-api")
@@ -127,8 +128,13 @@ public class SignController {
     }
 
     @PostMapping("/nickname")
-    public ResponseEntity<String> getNickname(@RequestBody Map<String, String> data){
+    public ResponseEntity<?> getNickname(@RequestBody Map<String, String> data){
         return ResponseEntity.ok(signService.getNickname(data.get("loginId")));
+    }
+
+    @PostMapping("/nickname-list")
+    public ResponseEntity<?> getNicknameList(@RequestBody Set<Long> IDs){
+        return ResponseEntity.ok(signService.getNicknameList(IDs));
     }
 
 

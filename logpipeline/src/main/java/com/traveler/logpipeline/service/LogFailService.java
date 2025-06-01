@@ -1,5 +1,6 @@
 package com.traveler.logpipeline.service;
 
+import com.traveler.logpipeline.dto.LogDto;
 import com.traveler.logpipeline.entity.LogFail;
 import com.traveler.logpipeline.repository.FilterRepository;
 import com.traveler.logpipeline.repository.LogFailRepository;
@@ -7,6 +8,7 @@ import com.traveler.logpipeline.repository.ProcessRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LogFailService {
@@ -25,9 +27,21 @@ public class LogFailService {
         log.setFilter(filterRepository.findById(filterId).orElse(null));
         logFailRepository.save(log);
     }
-    public List<LogFail> listFailLogs(){
-        return logFailRepository.findAll();
+    public List<LogDto> listFailLogs(){
+        return logFailRepository.findAll().stream()
+                .map(log -> LogDto.builder()
+                        .id(log.getId())
+                        .process(log.getProcess().getName())
+                        .logJson(log.getLogJson())
+                        .filter(log.getFilter().getName())
+                        .createdTime(log.getCreatedTime()).build()
+                )
+                .collect(Collectors.toList());
     }
+
+
+
+
     public List<LogFail> listFailLogsByProcess(Long processId){
         return logFailRepository.findAllByProcess_Id(processId);
     }

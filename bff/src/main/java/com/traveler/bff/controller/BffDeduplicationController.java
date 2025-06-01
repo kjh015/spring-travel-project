@@ -1,0 +1,45 @@
+package com.traveler.bff.controller;
+
+import com.traveler.bff.client.LogpipelineServiceClient;
+import com.traveler.bff.dto.service.DeduplicationDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/deduplication")
+@RequiredArgsConstructor
+public class BffDeduplicationController {
+    private final LogpipelineServiceClient logpipelineServiceClient;
+
+    @GetMapping("/list")
+    public List<DeduplicationDto> getDeduplicationList(@RequestParam String processId) {
+        return logpipelineServiceClient.getDeduplicationList(processId);
+    }
+
+    @GetMapping("/view")
+    public DeduplicationDto viewDeduplication(@RequestParam String deduplicationId) {
+        return logpipelineServiceClient.viewDeduplication(deduplicationId);
+    }
+
+    @PostMapping("/add")
+    public String addDeduplication(@RequestBody DeduplicationDto data) {
+        return logpipelineServiceClient.addDeduplication(data);
+    }
+
+    @PostMapping("/update")
+    public String updateDeduplication(@RequestBody DeduplicationDto data) {
+        return logpipelineServiceClient.updateDeduplication(data);
+    }
+
+    @PostMapping("/remove")
+    public String removeDeduplication(@RequestParam String deduplicationId) {
+        return logpipelineServiceClient.removeDeduplication(deduplicationId);
+    }
+
+    @GetMapping("/keys")
+    public List<String> getFormatList(@RequestParam String processId) {
+        return logpipelineServiceClient.getFormatFieldsD(processId);
+    }
+}

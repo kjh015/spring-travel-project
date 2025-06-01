@@ -19,7 +19,6 @@ public class BoardService {
 
     public List<BoardListDto> listArticles() throws DataAccessException{
         List<BoardListDto> boardList = boardRepository.findAllBoardListDto();
-
         return boardList;
     }
 
@@ -27,7 +26,7 @@ public class BoardService {
         Board board = new Board();
         board.setTitle(data.getTitle());
         board.setContent(data.getContent());
-        board.setMemberNickname(data.getMemberNickname());
+        board.setMemberId(data.getMemberId());
         System.out.println("tName: " + data.getTravelPlace());
         board.setTravelPlace(travelPlaceService.addAndGetTravelPlace(data.getCategory(), data.getRegion(), data.getTravelPlace(), data.getAddress()));
 
@@ -40,7 +39,7 @@ public class BoardService {
         dto.setNo(board.getId().toString());
         dto.setTitle(board.getTitle());
         dto.setContent(board.getContent());
-        dto.setMemberNickname(board.getMemberNickname());
+        dto.setMemberId(board.getMemberId());
         dto.setTravelPlace(board.getTravelPlace().getName());
         dto.setAddress(board.getTravelPlace().getAddress());
         dto.setRegion(board.getTravelPlace().getRegion().getName());
@@ -53,7 +52,7 @@ public class BoardService {
         board.setId(Long.parseLong(data.getNo()));
         board.setTitle(data.getTitle());
         board.setContent(data.getContent());
-        board.setMemberNickname(data.getMemberNickname());
+        board.setMemberId(data.getMemberId());
         board.setTravelPlace(travelPlaceService.editAndGetTravelPlace(board.getTravelPlace().getId(), data.getCategory(), data.getRegion(), data.getTravelPlace(), data.getAddress()));
 
         boardRepository.save(board);

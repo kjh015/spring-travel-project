@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class FavoriteDto {
-    private String boardId;
-    private String memberNickname;
+    private Long boardId;
+    private Long memberId;
 }

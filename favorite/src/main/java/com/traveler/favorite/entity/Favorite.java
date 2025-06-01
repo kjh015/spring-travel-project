@@ -18,7 +18,7 @@ public class Favorite {
 
     private Long boardId;
 
-    private String memberNickname;
+    private Long memberId;
 
     @CreationTimestamp
     private LocalDateTime createdTime;

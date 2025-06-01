@@ -2,12 +2,14 @@ package com.traveler.logpipeline.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.traveler.logpipeline.dto.FormatResponseDto;
 import com.traveler.logpipeline.entity.Format;
 import com.traveler.logpipeline.repository.FormatRepository;
 import com.traveler.logpipeline.repository.ProcessRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class FormatService {
@@ -20,12 +22,30 @@ public class FormatService {
         this.processRepository = processRepository;
     }
 
-    public List<Format> listFormats(Long processId){
-        return formatRepository.findAllByProcess_Id(processId);
+    public List<FormatResponseDto> listFormats(Long processId){
+        List<Format> formatList = formatRepository.findAllByProcess_Id(processId);
+        return formatList.stream().map(format -> FormatResponseDto.builder()
+                .id(format.getId())
+                .name(format.getName())
+                .isActive(format.isActive())
+                .updatedTime(format.getUpdatedTime())
+                .createdTime(format.getCreatedTime()).build()
+        ).collect(Collectors.toList());
     }
 
-    public Format viewFormat(Long formatId){
-        return formatRepository.findById(formatId).orElse(null);
+    public FormatResponseDto viewFormat(Long formatId){
+        Format format = formatRepository.findById(formatId).orElse(null);
+        if(format != null){
+            return FormatResponseDto.builder()
+                    .id(format.getId())
+                    .name(format.getName())
+                    .formatJson(format.getFormatJson())
+                    .defaultJson(format.getDefaultJson())
+                    .isActive(format.isActive())
+                    .updatedTime(format.getUpdatedTime())
+                    .createdTime(format.getCreatedTime()).build();
+        }
+        return null;
     }
 
     public void addFormat(Format format, Long processId){

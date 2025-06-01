@@ -3,7 +3,6 @@ package com.traveler.comment.service;
 import com.traveler.comment.dto.CommentDto;
 import com.traveler.comment.entity.Comment;
 import com.traveler.comment.repository.CommentRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,7 @@ public class CommentService {
             dto.setContent(comment.getContent());
             dto.setRating(comment.getRating().toString());
             dto.setCreatedTime(comment.getCreatedTime());
-            dto.setNickname(comment.getMemberNickname());
+            dto.setMemberId(comment.getMemberId());
             dtoList.add(dto);
         }
         return dtoList;
@@ -33,22 +32,22 @@ public class CommentService {
         Comment comment = new Comment();
         comment.setRating(Integer.valueOf(data.getRating()));
         comment.setContent(data.getContent());
-        comment.setBoardId(Long.valueOf(data.getNo()));
-        comment.setMemberNickname(data.getNickname());
+        comment.setBoardId(data.getNo());
+        comment.setMemberId(data.getMemberId());
         commentRepository.save(comment);
 
     }
     public void removeComment(Long commentId) throws CustomCommentException{
         commentRepository.deleteById(commentId);
     }
-    @Transactional
-    public void updateNickname(String prevNickname, String curNickname){
-        List<Comment> commentList = commentRepository.findAllByMemberNickname(prevNickname);
-        for(Comment comment : commentList){
-            comment.setMemberNickname(curNickname);
-        }
-
-    }
+//    @Transactional
+//    public void updateNickname(String prevNickname, String curNickname){
+//        List<Comment> commentList = commentRepository.findAllByMemberNickname(prevNickname);
+//        for(Comment comment : commentList){
+//            comment.setMemberId(curNickname);
+//        }
+//
+//    }
 
 
 }

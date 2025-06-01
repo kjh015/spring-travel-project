@@ -1,5 +1,6 @@
 package com.traveler.logpipeline.controller;
 
+import com.traveler.logpipeline.dto.ProcessDto;
 import com.traveler.logpipeline.service.ProcessService;
 import org.springframework.web.bind.annotation.*;
 import com.traveler.logpipeline.entity.Process;
@@ -17,7 +18,7 @@ public class ProcessController {
     }
 
     @GetMapping("/list")
-    public List<Process> getProcessList(){
+    public List<ProcessDto> getProcessList(){
         return processService.listProcesses();
 
     }

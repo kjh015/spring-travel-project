@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 
 @Data
 public class CommentDto {
-    private String no;
+    private Long no;
     private String content;
-    private String nickname;
+    private Long memberId;
     private String rating;
     private LocalDateTime createdTime;
 }

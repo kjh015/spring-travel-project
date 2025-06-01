@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
-    Optional<Favorite> findByBoardIdAndMemberNickname(Long boardId, String nickname);
-    List<Favorite> findAllByMemberNickname(String nickname);
-    boolean existsByBoardIdAndMemberNickname(Long boardId, String nickname);
+    Optional<Favorite> findByBoardIdAndMemberId(Long boardId, Long memberId);
+    List<Favorite> findAllByMemberId(Long memberId);
+    boolean existsByBoardIdAndMemberId(Long boardId, Long memberId);
 }

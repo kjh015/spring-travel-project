@@ -2,7 +2,8 @@ package com.traveler.logpipeline.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.traveler.logpipeline.dto.FormatDto;
+import com.traveler.logpipeline.dto.FormatRequestDto;
+import com.traveler.logpipeline.dto.FormatResponseDto;
 import com.traveler.logpipeline.entity.Format;
 import com.traveler.logpipeline.service.FormatService;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +22,16 @@ public class FormatController {
     }
 
     @GetMapping("/list")
-    public List<Format> getFormatList(@RequestParam String processId){
+    public List<FormatResponseDto> getFormatList(@RequestParam String processId){
         return formatService.listFormats(Long.parseLong(processId));
     }
     @GetMapping("/view")
-    public Format viewFormat(@RequestParam String formatId){
+    public FormatResponseDto viewFormat(@RequestParam String formatId){
         return formatService.viewFormat(Long.parseLong(formatId));
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addFormat(@RequestParam String processId, @RequestParam String name, @RequestParam String active, @RequestBody FormatDto formatData)  {
+    public ResponseEntity<String> addFormat(@RequestParam String processId, @RequestParam String name, @RequestParam String active, @RequestBody FormatRequestDto formatData)  {
         try {
             Format format = new Format();
             format.setName(name);
@@ -45,7 +46,7 @@ public class FormatController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<String> updateFormat(@RequestParam String formatId, @RequestParam String name, @RequestParam String active, @RequestBody FormatDto formatData){
+    public ResponseEntity<String> updateFormat(@RequestParam String formatId, @RequestParam String name, @RequestParam String active, @RequestBody FormatRequestDto formatData){
         try{
             Format format = new Format();
             format.setId(Long.parseLong(formatId));

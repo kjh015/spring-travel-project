@@ -10,6 +10,6 @@ import java.time.LocalDateTime;
 public class BoardListDto {
     private Long id;
     private String title;
-    private String memberNickname;
+    private Long memberId;
     private LocalDateTime modifiedDate;
 }

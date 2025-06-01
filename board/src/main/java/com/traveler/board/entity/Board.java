@@ -20,7 +20,7 @@ public class Board {
     @JoinColumn(name = "travel_place_id")
     private TravelPlace travelPlace;
 
-    private String memberNickname;
+    private Long memberId;
 
     @Column(length=100)
     private String title;
