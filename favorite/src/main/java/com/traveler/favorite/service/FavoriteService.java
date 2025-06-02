@@ -19,6 +19,7 @@ public class FavoriteService {
     public boolean toggleFavorite(FavoriteDto data){
         Long boardId = data.getBoardId();
         Long memberId = data.getMemberId();
+        if(memberId == null) return false;
 
         Optional<Favorite> favorite = favoriteRepository.findByBoardIdAndMemberId(boardId, memberId);
         if (favorite.isPresent()) {
@@ -36,6 +37,7 @@ public class FavoriteService {
     public boolean existsFavorite(FavoriteDto data){
         Long boardId = data.getBoardId();
         Long memberId = data.getMemberId();
+        if(memberId == null) return false;
         return favoriteRepository.existsByBoardIdAndMemberId(boardId, memberId);
     }
 

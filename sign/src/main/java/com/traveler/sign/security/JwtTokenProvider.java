@@ -8,18 +8,17 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -66,13 +65,6 @@ public class JwtTokenProvider {
         return token;
     }
 
-    public Authentication getAuthentication(String token){
-        logger.info("[getAuthentication] 토큰 인증 정보 조회 시작");
-        UserDetails userDetails = memberDetailsService.loadUserByUsername(this.getUsername(token));
-        logger.info("[getAuthentication] 토큰 인증 정보 조회 완료, UserDetails UserName : {}", userDetails.getUsername());
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-    }
-
     public String getUsername(String token){
         logger.info("[getUsername] 토큰 기반 회원 구별 정보 추출");
         String info = Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload().getSubject();
@@ -90,13 +82,6 @@ public class JwtTokenProvider {
             info = Collections.emptyList();
         }
         return info;
-    }
-
-    public Optional<String> resolveToken(HttpServletRequest request) {
-        logger.info("[resolveToken] HTTP 헤더에서 Token 값 추출");
-        return Optional.ofNullable(request.getHeader("Authorization"))
-                .filter(header -> header.startsWith("Bearer "))
-                .map(header -> header.substring(7));
     }
 
     // JWT 토큰의 유효성 + 만료일 체크

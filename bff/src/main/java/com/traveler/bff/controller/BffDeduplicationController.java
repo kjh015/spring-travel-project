@@ -3,6 +3,7 @@ package com.traveler.bff.controller;
 import com.traveler.bff.client.LogpipelineServiceClient;
 import com.traveler.bff.dto.service.DeduplicationDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,17 +25,17 @@ public class BffDeduplicationController {
     }
 
     @PostMapping("/add")
-    public String addDeduplication(@RequestBody DeduplicationDto data) {
+    public ResponseEntity<?> addDeduplication(@RequestBody DeduplicationDto data) {
         return logpipelineServiceClient.addDeduplication(data);
     }
 
     @PostMapping("/update")
-    public String updateDeduplication(@RequestBody DeduplicationDto data) {
+    public ResponseEntity<?> updateDeduplication(@RequestBody DeduplicationDto data) {
         return logpipelineServiceClient.updateDeduplication(data);
     }
 
     @PostMapping("/remove")
-    public String removeDeduplication(@RequestParam String deduplicationId) {
+    public ResponseEntity<?> removeDeduplication(@RequestParam String deduplicationId) {
         return logpipelineServiceClient.removeDeduplication(deduplicationId);
     }
 

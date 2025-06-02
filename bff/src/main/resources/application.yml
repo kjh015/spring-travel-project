@@ -16,7 +16,7 @@ board:
   ribbon:
     eureka:
       enabled: true
-sign-api:
+sign:
   ribbon:
     eureka:
       enabled: true

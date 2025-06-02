@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "favorite")
 public interface FavoriteServiceClient {
-    @PostMapping("/favorite-api/toggle")
-    Object toggleFavorite(@RequestBody FavoriteDto data);
+    @PostMapping("/favorite/toggle")
+    boolean toggleFavorite(@RequestBody FavoriteDto data);
 
-    @PostMapping("/favorite-api/exists")
-    Object existsFavorite(@RequestBody FavoriteDto data);
+    @PostMapping("/favorite/exists")
+    boolean existsFavorite(@RequestBody FavoriteDto data);
 }

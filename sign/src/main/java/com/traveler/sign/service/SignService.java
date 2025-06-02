@@ -98,8 +98,14 @@ public class SignService {
         }
     }
 
-    public String getNickname(String loginId){
+    public String getNicknameByLoginId(String loginId){
         return memberRepository.findNicknameByLoginId(loginId).orElseThrow(() -> new CustomSignException("닉네임이 없습니다."));
+    }
+    public String getNicknameById(Long id){
+        return memberRepository.findNicknameById(id).orElse(null);
+    }
+    public Long getIdByNickname(String nickname){
+        return memberRepository.findIdByNickname(nickname).orElse(null);
     }
 
     public Map<Long, String> getNicknameList(Set<Long> memberIds){

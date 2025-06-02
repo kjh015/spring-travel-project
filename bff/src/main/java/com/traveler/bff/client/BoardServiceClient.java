@@ -3,6 +3,7 @@ package com.traveler.bff.client;
 import com.traveler.bff.dto.service.BoardDto;
 import com.traveler.bff.dto.service.BoardListDto;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,11 +20,11 @@ public interface BoardServiceClient {
     BoardDto viewArticle(@RequestParam String no);
 
     @PostMapping("/board/add")
-    String addArticle(@RequestBody BoardDto data);
+    ResponseEntity<String> addArticle(@RequestBody BoardDto data);
 
     @PostMapping("/board/edit")
-    String editArticle(@RequestBody BoardDto data);
+    ResponseEntity<String> editArticle(@RequestBody BoardDto data);
 
     @PostMapping("/board/remove")
-    String removeArticle(@RequestParam String no);
+    ResponseEntity<String> removeArticle(@RequestParam String no);
 }

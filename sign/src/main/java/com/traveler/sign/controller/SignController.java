@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/sign-api")
+@RequestMapping("/sign")
 public class SignController {
     private final SignService signService;
     private final TokenService tokenService;
@@ -67,9 +67,10 @@ public class SignController {
 
     @PostMapping("/sign-out")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        logger.info("[signOut] 로그아웃");
+        logger.info("[signOut] 로그아웃 시작");
 
         String refreshToken = tokenService.getCookieValue(request, "refreshToken");
+        logger.info("[signOut] refreshToken: {}",  refreshToken);
         signService.signOut(refreshToken);
 
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
@@ -79,8 +80,7 @@ public class SignController {
                 .maxAge(0)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
-
-
+        logger.info("[signOut] 로그아웃 완료");
         return ResponseEntity.ok("로그아웃 완료");
     }
 
@@ -128,14 +128,25 @@ public class SignController {
     }
 
     @PostMapping("/nickname")
-    public ResponseEntity<?> getNickname(@RequestBody Map<String, String> data){
-        return ResponseEntity.ok(signService.getNickname(data.get("loginId")));
+    public ResponseEntity<?> getNicknameByLoginId(@RequestBody Map<String, String> data){
+        return ResponseEntity.ok(signService.getNicknameByLoginId(data.get("loginId")));
+    }
+
+    @PostMapping("/nickname-id")
+    public ResponseEntity<?> getNicknameById(@RequestBody Long id){
+        return ResponseEntity.ok(signService.getNicknameById(id));
+    }
+    @PostMapping("/id-nickname")
+    public ResponseEntity<?> getIdByNickname(@RequestBody String nickname){
+        return ResponseEntity.ok(signService.getIdByNickname(nickname));
     }
 
     @PostMapping("/nickname-list")
     public ResponseEntity<?> getNicknameList(@RequestBody Set<Long> IDs){
         return ResponseEntity.ok(signService.getNicknameList(IDs));
     }
+
+
 
 
 

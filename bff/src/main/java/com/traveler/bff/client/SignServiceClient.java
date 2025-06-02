@@ -4,39 +4,46 @@ import com.traveler.bff.dto.service.SignDto;
 import com.traveler.bff.dto.service.SignInRequestDto;
 import com.traveler.bff.dto.service.SignInResultDto;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.Map;
 import java.util.Set;
 
-@FeignClient(name = "sign-api")
+@FeignClient(name = "sign")
 public interface SignServiceClient {
-    @PostMapping("/sign-api/sign-in")
-    SignInResultDto signIn(@RequestBody SignInRequestDto signIn);
+    @PostMapping("/sign/sign-in")
+    ResponseEntity<SignInResultDto> signIn(@RequestBody SignInRequestDto signIn);
 
-    @PostMapping("/sign-api/sign-up")
-    String signUp(@RequestBody SignDto signUp);
+    @PostMapping("/sign/sign-up")
+    ResponseEntity<String> signUp(@RequestBody SignDto signUp);
 
-    @PostMapping("/sign-api/update")
-    String updateMember(@RequestBody SignDto data);
+    @PostMapping("/sign/update")
+    ResponseEntity<String> updateMember(@RequestBody SignDto data);
 
-    @PostMapping("/sign-api/sign-out")
-    String logout();
+    @PostMapping(value="/sign/sign-out", consumes = "application/json")
+    ResponseEntity<String> logout(@RequestHeader("Cookie") String cookieHeader);
 
-    @PostMapping("/sign-api/withdraw")
-    String withdraw();
+    @PostMapping("/sign/withdraw")
+    ResponseEntity<String> withdraw(@RequestHeader("Cookie") String cookieHeader);
 
-    @PostMapping("/sign-api/refresh")
-    Map<String, String> refreshToken();
+    @PostMapping("/sign/refresh")
+    Map<String, String> refreshToken(@RequestHeader("Cookie") String cookieHeader);
 
-    @PostMapping("/sign-api/test")
-    String testAccessToken();
+    @PostMapping("/sign/test")
+    ResponseEntity<String> testAccessToken();
 
-    @PostMapping("/sign-api/nickname")
-    String getNickname(@RequestBody Map<String, String> data);
+    @PostMapping("/sign/nickname")
+    String getNicknameByLoginId(@RequestBody Map<String, String> data);
 
-    @GetMapping("/sign-api/nickname-list")
+    @PostMapping("/sign/nickname-id")
+    String getNicknameById(@RequestBody Long id);
+    @PostMapping("/sign/id-nickname")
+    Long getIdByNickname(@RequestBody String nickname);
+
+    @GetMapping("/sign/nickname-list")
     Map<Long, String> getNicknameList(@RequestBody Set<Long> IDs);
 }

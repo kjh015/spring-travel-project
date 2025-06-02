@@ -2,6 +2,7 @@ package com.traveler.bff.client;
 
 import com.traveler.bff.dto.service.CommentDto;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,12 +12,12 @@ import java.util.List;
 
 @FeignClient(name = "comment")
 public interface CommentServiceClient {
-    @GetMapping("/comment-api/list")
+    @GetMapping("/comment/list")
     List<CommentDto> getCommentListByBoard(@RequestParam String no);
 
-    @PostMapping("/comment-api/add")
-    String addComment(@RequestBody CommentDto data);
+    @PostMapping("/comment/add")
+    ResponseEntity<String> addComment(@RequestBody CommentDto data);
 
-    @PostMapping("/comment-api/remove")
-    String removeComment(@RequestParam String commentId);
+    @PostMapping("/comment/remove")
+    ResponseEntity<String> removeComment(@RequestParam String commentId);
 }
