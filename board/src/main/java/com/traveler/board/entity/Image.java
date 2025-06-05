@@ -1,11 +1,10 @@
 package com.traveler.board.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -23,6 +22,11 @@ public class Image {
 
     private String name;
 
+    private String path;
+
     @CreationTimestamp
-    private LocalDateTime regDate;
+    private LocalDateTime createdTime;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedTime;
 }

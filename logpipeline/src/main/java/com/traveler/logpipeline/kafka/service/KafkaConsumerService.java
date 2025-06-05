@@ -21,19 +21,17 @@ import java.util.*;
 @Component
 @RequiredArgsConstructor
 public class KafkaConsumerService {
+    static Long processId = 1L;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final FormatService formatService;
     private final FilterService filterService;
     private final LogSuccessService logSuccessService;
     private final LogFailService logFailService;
-    private final KafkaTemplate<String,String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final DeduplicationService deduplicationService;
     private final LogFailByDeduplicationService logFailByDeduplicationService;
 
-
-    static Long processId = 1L;
-
-//    @KafkaListener(topics = "START_TOPIC", groupId = "matomo-log-consumer")
+    //    @KafkaListener(topics = "START_TOPIC", groupId = "matomo-log-consumer")
     public void startTopic2(ConsumerRecord<String, String> record) {
         System.out.println("Start Topic Consumed: " + record.value());
     }
@@ -41,6 +39,7 @@ public class KafkaConsumerService {
 
     @KafkaListener(topics = "START_TOPIC", groupId = "matomo-log-consumer")
     public void startTopic(ConsumerRecord<String, String> record) {
+        System.out.println("STC: " + record.value());
         try {
             LogDto log = objectMapper.readValue(record.value(), LogDto.class);
             System.out.println("Start Topic Consumed: " + log.toString());
@@ -55,9 +54,11 @@ public class KafkaConsumerService {
             //활성화 된 format만 추출
             List<Format> formats = formatService.activeFormats(processId);
             //로그의 데이터를 포매팅
-            for(Format format : formats){
-                Map<String, String> formatInfo = objectMapper.readValue(format.getFormatJson(), new TypeReference<>() {});
-                Map<String, String> defaultInfo = objectMapper.readValue(format.getDefaultJson(), new TypeReference<>() {});
+            for (Format format : formats) {
+                Map<String, String> formatInfo = objectMapper.readValue(format.getFormatJson(), new TypeReference<>() {
+                });
+                Map<String, String> defaultInfo = objectMapper.readValue(format.getDefaultJson(), new TypeReference<>() {
+                });
                 if (formatInfo == null || defaultInfo == null) return;
                 //DB: 바꿀이름-로그이름 / Log: 로그이름-값
                 formatInfo.forEach((key, value) -> {
@@ -74,10 +75,11 @@ public class KafkaConsumerService {
     }
 
     @KafkaListener(topics = "FILTER_TOPIC", groupId = "matomo-log-consumer")
-    public void filterTopic(ConsumerRecord<String, String> record){
+    public void filterTopic(ConsumerRecord<String, String> record) {
         System.out.println("Consumed Filter Topic: " + record.value());
         try {
-            Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {});
+            Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {
+            });
             List<Filter> filters = filterService.activeFilters(processId);
 
             boolean success = true;
@@ -85,8 +87,9 @@ public class KafkaConsumerService {
 
 
             //아이템이 활성화된 필터를 모두 거치도록
-            for(Filter filter : filters){
-                LinkedHashMap<String, String> fields = objectMapper.readValue(filter.getUsedField(), new TypeReference<>() {});
+            for (Filter filter : filters) {
+                LinkedHashMap<String, String> fields = objectMapper.readValue(filter.getUsedField(), new TypeReference<>() {
+                });
 
                 List<Class<?>> paramTypes = new ArrayList<>();
                 List<Object> paramValues = new ArrayList<>();
@@ -118,18 +121,17 @@ public class KafkaConsumerService {
                 });
                 String fullCode = filter.getSourceCode();
 
-                if(!JavaMethodExecutor.compileAndRunMethod(fullCode, paramTypes.toArray(Class[]::new), paramValues.toArray())){
+                if (!JavaMethodExecutor.compileAndRunMethod(fullCode, paramTypes.toArray(Class[]::new), paramValues.toArray())) {
                     success = false;
                     failBy = filter.getId();
                     break;
                 }
             }
-            if(success){
+            if (success) {
                 items.put("success", "true");
                 kafkaTemplate.send("DEDUPLICATION_TOPIC", objectMapper.writeValueAsString(items));
 
-            }
-            else{
+            } else {
                 items.put("success", "false");
                 items.put("failBy", "filter");
                 items.put("failID", failBy.toString());
@@ -139,70 +141,109 @@ public class KafkaConsumerService {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
     }
+
     @KafkaListener(topics = "DEDUPLICATION_TOPIC", groupId = "matomo-log-consumer")
-    public void deduplicationTopic(ConsumerRecord<String, String> record){
+    public void deduplicationTopic(ConsumerRecord<String, String> record) {
         System.out.println("Consumed Deduplication Topic: " + record.value());
-        try{
+        try {
             Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {});
             String userId = items.get("user_id");
             List<Deduplication> ddps = deduplicationService.getActiveDeduplication(processId);
 
-            boolean success = true;
+            boolean isPass = true;
+            outer: for (Deduplication ddp : ddps) {
+                List<Map<String, Object>> settings = objectMapper.readValue(ddp.getDeduplicationJson(), new TypeReference<>() {});
+                for (Map<String, Object> setting : settings) {
+                    List<Map<String, Object>> conditions = (List<Map<String, Object>>) setting.get("conditions");
+                    // 조건 중 "?"를 실제 값으로 치환
+                    boolean hit = true;
+                    for (Map<String, Object> cond : conditions) {
+                        if ("?".equals(cond.get("value"))) {
+                            cond.put("value", items.get((String) cond.get("format")));
+                        }
+                        String cFormat = (String) cond.get("format");
+                        String cValue = (String) cond.get("value");
+                        System.out.println("CF + CV: " + cFormat + cValue);
+                        System.out.println(items.get(cFormat));
+                        if(!items.get(cFormat).equals(cValue)){
+                            hit = false;
+                        }
+                    }
+                    if(!hit) {
+                        System.out.println("out!");
+                        continue;
+                    }
 
-            for(Deduplication ddp : ddps){
-                List<Map<String, String>> settings = objectMapper.readValue(ddp.getDeduplicationJson(), new TypeReference<>() {});
-                for(Map<String, String> setting : settings){
-                    if(items.get(setting.get("format")).equals(setting.get("value"))){
-                        Optional<LogPassHistory> _history = deduplicationService.getPassHistory(ddp.getId(), userId);
-                        if(_history.isPresent()){
-                            LogPassHistory history = _history.get();
-                            if(LocalDateTime.now().isAfter(history.getExpiredTime())){  //현재 시간이 만료 시간보다 지났다면
-                                //새로 기록하고 통과
-                                deduplicationService.updatePassHistory(history, createExpiredTime(setting));
-                            }
-                            else{
-                                //실패 테이블에 저장
-                                items.put("success", "false");
-                                items.put("failBy", "deduplication");
-                                items.put("failID", String.valueOf(ddp.getId()));
-                                success = false;
+                    List<LogPassHistory> histories = deduplicationService.getPassHistory(ddp.getId(), userId);
+                    boolean matchFound = false;
+                    for (LogPassHistory history : histories) {
+                        List<Map<String, String>> conditionLog = objectMapper.readValue(history.getLogJson(), new TypeReference<>() {});
+
+                        // 여기서 items와 conditionLog의 모든 쌍이 일치해야 함
+                        boolean allMatch = true;
+                        for (Map<String, String> cond : conditionLog) {
+                            String key = cond.get("format");
+                            String value = cond.get("value");
+                            if (!Objects.equals(items.get(key), value)) {
+                                allMatch = false;
                                 break;
                             }
                         }
-                        else{
-                            deduplicationService.addPassHistory(ddp, processId, createExpiredTime(setting), userId);
+
+                        if (allMatch) {
+                            matchFound = true;
+                            if (LocalDateTime.now().isAfter(history.getExpiredTime())) {
+                                System.out.println("---------------- history update: " + conditionLog);
+                                deduplicationService.updatePassHistory(history, createExpiredTime(setting));
+                            } else {
+                                System.out.println("---------------- history fail: " + conditionLog);
+                                items.put("success", "false");
+                                items.put("failBy", "deduplication");
+                                items.put("failID", String.valueOf(ddp.getId()));
+                                isPass = false;
+                            }
+                            break; // 더 이상 볼 필요 없음
                         }
                     }
+                    if (!matchFound && isPass) {
+                        // 일치하는 조합 없으면 새로 추가
+                        System.out.println("---------------- history add: " + conditions);
+                        deduplicationService.addPassHistory(
+                                ddp,
+                                processId,
+                                createExpiredTime(setting),
+                                userId,
+                                objectMapper.writeValueAsString(conditions)
+                        );
+                    }
+                    if (!isPass) break outer;
                 }
-                if(!success) break;
             }
             kafkaTemplate.send("DB_TOPIC", objectMapper.writeValueAsString(items));
-
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
 
     }
 
-    
+
     @KafkaListener(topics = "DB_TOPIC", groupId = "matomo-log-consumer")
-    public void dbTopic(ConsumerRecord<String, String> record){
+    public void dbTopic(ConsumerRecord<String, String> record) {
         System.out.println("Consumed DB Topic: " + record.value());
         try {
-            Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {});
+            Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {
+            });
             //DB 저장
-            if(items.get("success").equalsIgnoreCase("true")){
+            if (items.get("success").equalsIgnoreCase("true")) {
                 LogSuccess log = new LogSuccess();
                 log.setLogJson(objectMapper.writeValueAsString(items));
                 logSuccessService.addSuccessLog(log, processId);
-            }
-            else{
-                if(items.get("failBy").equalsIgnoreCase("filter")){
+            } else {
+                if (items.get("failBy").equalsIgnoreCase("filter")) {
                     LogFail log = new LogFail();
                     log.setLogJson(objectMapper.writeValueAsString(items));
                     logFailService.addFailLog(log, processId, Long.parseLong(items.get("failID")));
-                }
-                else{
+                } else {
                     LogFailByDeduplication log = new LogFailByDeduplication();
                     log.setLogJson(objectMapper.writeValueAsString(items));
                     logFailByDeduplicationService.addFailLog(log, processId, Long.parseLong(items.get("failID")));
@@ -212,7 +253,7 @@ public class KafkaConsumerService {
         } catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
-        
+
     }
 
     public Map<String, String> parseQueryParams(String pathWithQuery) {
@@ -233,16 +274,16 @@ public class KafkaConsumerService {
         return queryPairs;
     }
 
-    public LocalDateTime createExpiredTime(Map<String, String> setting){
+    public LocalDateTime createExpiredTime(Map<String, Object> setting) {
         LocalDateTime now = LocalDateTime.now();
         Period period = Period.of(
-                Integer.parseInt(setting.get("year")),
-                Integer.parseInt(setting.get("month")),
-                Integer.parseInt(setting.get("day"))
+                (int) setting.get("year"),
+                (int) setting.get("month"),
+                (int) setting.get("day")
         );
-        Duration duration = Duration.ofHours(Integer.parseInt(setting.get("hour")))
-                .plusMinutes(Integer.parseInt(setting.get("minute")))
-                .plusSeconds(Integer.parseInt(setting.get("second")));
+        Duration duration = Duration.ofHours((int) setting.get("hour"))
+                .plusMinutes((int) setting.get("minute"))
+                .plusSeconds((int) setting.get("second"));
 
         LocalDateTime expiresTime = now.plus(period).plus(duration);
         return expiresTime;

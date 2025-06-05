@@ -1,5 +1,7 @@
 package com.traveler.bff.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.bff.client.BoardServiceClient;
 import com.traveler.bff.client.SignServiceClient;
 import com.traveler.bff.dto.front.BoardFrontDto;
@@ -8,7 +10,9 @@ import com.traveler.bff.dto.service.BoardListDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +29,7 @@ public class BffBoardController {
     public List<BoardFrontDto> getArticleList() {
         List<BoardListDto> boardList = boardServiceClient.getArticleList();
         Set<Long> IDs = boardList.stream().map(BoardListDto::getMemberId).collect(Collectors.toSet());
-        Map<Long, String> nicknameList = signServiceClient.getNicknameList(IDs);
+        Map<Long, String> nicknameList = signServiceClient.getNicknameList(new ArrayList<>(IDs));
         return boardList.stream().map(board -> BoardFrontDto.builder()
                 .id(board.getId())
                 .title(board.getTitle())
@@ -46,11 +50,15 @@ public class BffBoardController {
                 .travelPlace(board.getTravelPlace())
                 .category(board.getCategory())
                 .memberNickname(signServiceClient.getNicknameById(board.getMemberId()))
+                .imagePaths(board.getImagePaths())
                 .build();
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addArticle(@RequestBody BoardFrontDto data) {
+    public ResponseEntity<?> addArticle(@RequestPart("board") BoardFrontDto data,
+                                        @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
+        System.out.println(data);
+        System.out.println(images);
         BoardDto board = BoardDto.builder()
                 .title(data.getTitle())
                 .content(data.getContent())
@@ -60,11 +68,14 @@ public class BffBoardController {
                 .region(data.getRegion())
                 .category(data.getCategory())
                 .build();
-        return boardServiceClient.addArticle(board);
+        ObjectMapper mapper = new ObjectMapper();
+        String boardJson = mapper.writeValueAsString(board);
+        return boardServiceClient.addArticle(boardJson, images);
     }
 
     @PostMapping("/edit")
-    public ResponseEntity<?> editArticle(@RequestBody BoardFrontDto data) {
+    public ResponseEntity<?> editArticle(@RequestPart("board") BoardFrontDto data,
+                                         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
         BoardDto board = BoardDto.builder()
                 .no(data.getId())
                 .title(data.getTitle())
@@ -75,7 +86,9 @@ public class BffBoardController {
                 .region(data.getRegion())
                 .category(data.getCategory())
                 .build();
-        return boardServiceClient.editArticle(board);
+        ObjectMapper mapper = new ObjectMapper();
+        String boardJson = mapper.writeValueAsString(board);
+        return boardServiceClient.editArticle(boardJson, images);
     }
 
     @PostMapping("/remove")

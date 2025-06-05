@@ -1,13 +1,9 @@
 package com.traveler.bff.dto.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Builder
@@ -19,7 +15,25 @@ public class DeduplicationDto {
     private String processId;
     private String name;
     private boolean active;
-    private List<Map<String, String>> rows;
+    private List<RowDto> rows;
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
+
+    @Getter
+    @Setter
+    public static class RowDto {
+        private List<ConditionDto> conditions;
+        private int year;
+        private int month;
+        private int day;
+        private int hour;
+        private int minute;
+        private int second;
+    }
+
+    @Getter @Setter
+    public static class ConditionDto {
+        private String format;
+        private String value;
+    }
 }

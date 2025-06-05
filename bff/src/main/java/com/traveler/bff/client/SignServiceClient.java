@@ -5,13 +5,10 @@ import com.traveler.bff.dto.service.SignInRequestDto;
 import com.traveler.bff.dto.service.SignInResultDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @FeignClient(name = "sign")
 public interface SignServiceClient {
@@ -44,6 +41,6 @@ public interface SignServiceClient {
     @PostMapping("/sign/id-nickname")
     Long getIdByNickname(@RequestBody String nickname);
 
-    @GetMapping("/sign/nickname-list")
-    Map<Long, String> getNicknameList(@RequestBody Set<Long> IDs);
+    @PostMapping("/sign/nickname-list")
+    Map<Long, String> getNicknameList(@RequestBody List<Long> IDs);
 }

@@ -2,6 +2,8 @@ package com.traveler.board.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class BoardDto {
     private String no;
@@ -12,4 +14,5 @@ public class BoardDto {
     private String address;
     private String category;
     private String region;
+    private List<String> imagePaths;
 }

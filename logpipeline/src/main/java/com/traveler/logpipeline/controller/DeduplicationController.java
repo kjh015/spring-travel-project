@@ -30,6 +30,8 @@ public class DeduplicationController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addDeduplication(@RequestBody DeduplicationDto data){
+        System.out.println("Data: ");
+        System.out.println(data);
         deduplicationService.addDeduplication(data);
         return ResponseEntity.ok().body("중복제거 설정 추가 완료");
     }

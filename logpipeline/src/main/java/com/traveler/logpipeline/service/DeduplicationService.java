@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,7 +45,7 @@ public class DeduplicationService {
     @Transactional
     public DeduplicationDto viewDeduplication(Long deduplicationId){
         Deduplication ddp = deduplicationRepository.findById(deduplicationId).orElseThrow(() -> new CustomLogException("존재하지 않는 중복제거 설정입니다."));
-        List<Map<String, String>> rows; // RowType은 rows의 실제 타입으로 수정
+        List<DeduplicationDto.RowDto> rows; // RowType은 rows의 실제 타입으로 수정
         try {
             rows = objectMapper.readValue(ddp.getDeduplicationJson(), new TypeReference<>() {});
         } catch (JsonProcessingException e) {
@@ -97,10 +95,11 @@ public class DeduplicationService {
     }
 
     @Transactional
-    public void addPassHistory(Deduplication ddp, Long processId, LocalDateTime expT, String userId){
+    public void addPassHistory(Deduplication ddp, Long processId, LocalDateTime expT, String userId, String logJson){
         LogPassHistory history = new LogPassHistory();
         history.setDeduplication(ddp);
         history.setProcess(processRepository.findById(processId).orElse(null));
+        history.setLogJson(logJson);
         history.setExpiredTime(expT);
         history.setUserId(userId);
         logPassHistoryRepository.save(history);
@@ -113,8 +112,8 @@ public class DeduplicationService {
     }
 
     @Transactional
-    public Optional<LogPassHistory> getPassHistory(Long ddpId, String userId){
-        return logPassHistoryRepository.findByDeduplication_idAndUserId(ddpId, userId);
+    public List<LogPassHistory> getPassHistory(Long ddpId, String userId){
+        return logPassHistoryRepository.findAllByDeduplication_idAndUserId(ddpId, userId);
 
     }
 

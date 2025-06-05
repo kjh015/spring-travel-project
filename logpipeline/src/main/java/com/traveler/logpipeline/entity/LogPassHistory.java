@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "log_pass_history", uniqueConstraints = @UniqueConstraint(columnNames = {"deduplication_id", "user_id"}))
 public class LogPassHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +22,9 @@ public class LogPassHistory {
     @ManyToOne
     @JoinColumn(name = "deduplication_id")
     private Deduplication deduplication;
+
+    @Column(columnDefinition = "TEXT")
+    private String logJson;
 
     private String userId;
 

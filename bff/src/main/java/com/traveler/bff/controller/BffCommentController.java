@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +25,7 @@ public class BffCommentController {
     public List<CommentFrontDto> getCommentListByBoard(@RequestParam String no) {
         List<CommentDto> commentList = commentServiceClient.getCommentListByBoard(no);
         Set<Long> IDs = commentList.stream().map(CommentDto::getMemberId).collect(Collectors.toSet());
-        Map<Long, String> nicknameList = signServiceClient.getNicknameList(IDs);
+        Map<Long, String> nicknameList = signServiceClient.getNicknameList(new ArrayList<>(IDs));
         return commentList.stream().map(comment -> CommentFrontDto.builder()
                 .id(comment.getId())
                 .no(comment.getNo())

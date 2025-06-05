@@ -25,7 +25,9 @@ public class BffDeduplicationController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addDeduplication(@RequestBody DeduplicationDto data) {
+    public ResponseEntity<String> addDeduplication(@RequestBody DeduplicationDto data) {
+        System.out.println("Data: ");
+        System.out.println(data);
         return logpipelineServiceClient.addDeduplication(data);
     }
 

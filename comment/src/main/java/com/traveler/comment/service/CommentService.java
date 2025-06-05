@@ -20,6 +20,8 @@ public class CommentService {
 
         for(Comment comment : commentList){
             CommentDto dto = new CommentDto();
+            dto.setId(comment.getId());
+            dto.setNo(comment.getBoardId());
             dto.setContent(comment.getContent());
             dto.setRating(comment.getRating().toString());
             dto.setCreatedTime(comment.getCreatedTime());

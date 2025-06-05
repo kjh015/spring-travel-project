@@ -3,6 +3,8 @@ package com.traveler.bff.dto.service;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class BoardDto {
@@ -14,4 +16,5 @@ public class BoardDto {
     private String address;
     private String category;
     private String region;
+    private List<String> imagePaths;
 }
