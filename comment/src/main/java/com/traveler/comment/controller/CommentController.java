@@ -31,6 +31,11 @@ public class CommentController {
         commentService.removeComment(Long.valueOf(commentId));
         return ResponseEntity.ok().body("댓글 삭제완료");
     }
+    @PostMapping("/list-member")
+    public List<CommentDto> getCommentListByMember(@RequestParam Long memberId){
+        return commentService.listCommentByMember(memberId);
+    }
+
     @ExceptionHandler(CustomCommentException.class)
     public ResponseEntity<String> exceptionComment(CustomCommentException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

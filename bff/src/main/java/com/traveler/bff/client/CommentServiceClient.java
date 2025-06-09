@@ -20,4 +20,7 @@ public interface CommentServiceClient {
 
     @PostMapping("/comment/remove")
     ResponseEntity<String> removeComment(@RequestParam String commentId);
+
+    @PostMapping("/comment/list-member")
+    List<CommentDto> getCommentListByMember(@RequestParam Long memberId);
 }

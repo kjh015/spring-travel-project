@@ -31,6 +31,11 @@ public class BoardController {
 
     Logger logger = LoggerFactory.getLogger(BoardController.class);
 
+    @GetMapping("/search")
+    public List<BoardListDto> getArticleListBySearch(@RequestParam String query){
+        return boardService.listArticlesBySearch(query);
+    }
+
     @GetMapping("/list")
     public List<BoardListDto> getArticleList(){
         return boardService.listArticles();
@@ -90,6 +95,21 @@ public class BoardController {
         return ResponseEntity.ok()
                 .header("Content-Type", Files.probeContentType(imagePath))
                 .body(resource);
+    }
+
+    @PostMapping("/list-part")
+    public List<BoardListDto> getListPart(@RequestParam List<Long> boardIDs){
+        return boardService.getListPart(boardIDs);
+    }
+    @PostMapping("/list-member")
+    public List<BoardListDto> getListByMember(@RequestParam Long memberId){
+        return boardService.getListByMember(memberId);
+    }
+
+    @PostMapping("/migrate-data")
+    public ResponseEntity<String> migrateData(){
+        boardService.migrateAll();
+        return ResponseEntity.ok().build();
     }
 
     @ExceptionHandler(CustomBoardException.class)

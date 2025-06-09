@@ -4,10 +4,9 @@ import com.traveler.favorite.dto.FavoriteDto;
 import com.traveler.favorite.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/favorite")
@@ -24,8 +23,8 @@ public class FavoriteController {
         return ResponseEntity.ok().body(favoriteService.existsFavorite(data));
     }
 
-//    @PostMapping("/list")
-//    public ResponseEntity<?> getFavoriteList(){
-//
-//    }
+    @PostMapping("/list")
+    public Set<Long> getFavoriteList(@RequestParam Long memberId){
+        return favoriteService.listFavorite(memberId);
+    }
 }

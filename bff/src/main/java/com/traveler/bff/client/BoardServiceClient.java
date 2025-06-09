@@ -13,6 +13,9 @@ import java.util.List;
 
 @FeignClient(name = "board", configuration = FormEncoderConfig.class)
 public interface BoardServiceClient {
+    @GetMapping("/board/search")
+    List<BoardListDto> getArticleListBySearch(@RequestParam String query);
+
     @GetMapping("/board/list")
     List<BoardListDto> getArticleList();
 
@@ -29,4 +32,13 @@ public interface BoardServiceClient {
 
     @PostMapping("/board/remove")
     ResponseEntity<String> removeArticle(@RequestParam String no);
+
+    @PostMapping("/board/list-part")
+    List<BoardListDto> getListPart(@RequestParam List<Long> boardIDs);
+
+    @PostMapping("/board/list-member")
+    List<BoardListDto> getListByMember(@RequestParam Long memberId);
+
+    @PostMapping("/board/migrate-data")
+    ResponseEntity<String> migrateData();
 }

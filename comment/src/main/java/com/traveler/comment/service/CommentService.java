@@ -6,8 +6,8 @@ import com.traveler.comment.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,20 +15,16 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
     public List<CommentDto> getCommentList(Long boardId) throws CustomCommentException{
-        List<Comment> commentList = commentRepository.findAllByBoardId(boardId);
-        List<CommentDto> dtoList = new ArrayList<>();
-
-        for(Comment comment : commentList){
-            CommentDto dto = new CommentDto();
-            dto.setId(comment.getId());
-            dto.setNo(comment.getBoardId());
-            dto.setContent(comment.getContent());
-            dto.setRating(comment.getRating().toString());
-            dto.setCreatedTime(comment.getCreatedTime());
-            dto.setMemberId(comment.getMemberId());
-            dtoList.add(dto);
-        }
-        return dtoList;
+        List<Comment> comments = commentRepository.findAllByBoardId(boardId);
+        return comments.stream().map(comment -> CommentDto.builder()
+                        .no(comment.getBoardId())
+                        .id(comment.getId())
+                        .memberId(comment.getMemberId())
+                        .createdTime(comment.getCreatedTime())
+                        .rating(String.valueOf(comment.getRating()))
+                        .content(comment.getContent())
+                        .build())
+                .collect(Collectors.toList());
     }
     public void addComment(CommentDto data) throws CustomCommentException{
         Comment comment = new Comment();
@@ -42,14 +38,20 @@ public class CommentService {
     public void removeComment(Long commentId) throws CustomCommentException{
         commentRepository.deleteById(commentId);
     }
-//    @Transactional
-//    public void updateNickname(String prevNickname, String curNickname){
-//        List<Comment> commentList = commentRepository.findAllByMemberNickname(prevNickname);
-//        for(Comment comment : commentList){
-//            comment.setMemberId(curNickname);
-//        }
-//
-//    }
+
+    public List<CommentDto> listCommentByMember(Long memberId){
+        List<Comment> comments = commentRepository.findAllByMemberId(memberId);
+        return comments.stream().map(comment -> CommentDto.builder()
+                .no(comment.getBoardId())
+                .id(comment.getId())
+                .memberId(comment.getMemberId())
+                .createdTime(comment.getCreatedTime())
+                .rating(String.valueOf(comment.getRating()))
+                .content(comment.getContent())
+                .build())
+                .collect(Collectors.toList());
+
+    }
 
 
 }

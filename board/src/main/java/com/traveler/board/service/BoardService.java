@@ -4,9 +4,11 @@ package com.traveler.board.service;
 import com.traveler.board.dto.BoardDto;
 import com.traveler.board.dto.BoardListDto;
 import com.traveler.board.entity.Board;
+import com.traveler.board.entity.BoardDocument;
 import com.traveler.board.entity.Image;
 import com.traveler.board.repository.BoardRepository;
 import com.traveler.board.repository.ImageRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
@@ -25,6 +27,18 @@ public class BoardService {
     @Qualifier("${image.storage.service}")
     private final ImageStorageService imageStorageService;
     private final TravelPlaceService travelPlaceService;
+    private final SearchService searchService;
+
+    public List<BoardListDto> listArticlesBySearch(String query) throws DataAccessException{
+        List<BoardDocument> result = searchService.search(query);
+        return result.stream().map(board -> BoardListDto.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .memberId(board.getMemberId())
+                .modifiedDate(board.getModifiedDate())
+                .build()
+        ).collect(Collectors.toList());
+    }
 
 
 
@@ -42,6 +56,7 @@ public class BoardService {
         board.setTravelPlace(travelPlaceService.addAndGetTravelPlace(data.getCategory(), data.getRegion(), data.getTravelPlace(), data.getAddress()));
         Board savedBoard = boardRepository.save(board);
         uploadImages(images, savedBoard);
+        searchService.saveToES(savedBoard);
     }
 
     public BoardDto viewArticle(long no){
@@ -63,6 +78,7 @@ public class BoardService {
         return dto;
     }
 
+    @Transactional
     public void editArticle(BoardDto data, List<MultipartFile> images){
         Board board = boardRepository.findById(Long.parseLong(data.getNo())).orElseThrow(RuntimeException::new);
         board.setId(Long.parseLong(data.getNo()));
@@ -80,12 +96,13 @@ public class BoardService {
                 throw new RuntimeException(e);
             }
         }
-
         // 2. 새 이미지 저장
         if (images != null && !images.isEmpty()) {
             uploadImages(images, board);
         }
-        boardRepository.save(board);
+        searchService.saveToES(board);
+//        Board savedBoard = boardRepository.save(board);
+//        searchService.saveToES(savedBoard);
     }
     public void removeArticle(Long no){
         boardRepository.deleteById(no);
@@ -108,6 +125,32 @@ public class BoardService {
         } catch (Exception e) {
             throw new CustomBoardException("이미지 업로드 실패");
         }
+    }
 
+    public List<BoardListDto> getListPart(List<Long> boardIDs){
+        List<Board> boards = boardRepository.findByIdIn(boardIDs);
+        return boards.stream().map(board -> BoardListDto.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .modifiedDate(board.getModifiedDate())
+                .memberId(board.getMemberId())
+                .build())
+                .collect(Collectors.toList());
+
+    }
+    public List<BoardListDto> getListByMember(Long memberId){
+        List<Board> boards = boardRepository.findAllByMemberId(memberId);
+        return boards.stream().map(board -> BoardListDto.builder()
+                        .id(board.getId())
+                        .title(board.getTitle())
+                        .modifiedDate(board.getModifiedDate())
+                        .memberId(board.getMemberId())
+                        .build())
+                .collect(Collectors.toList());
+
+    }
+    public void migrateAll(){
+        List<Board> boardList = boardRepository.findAll();
+        searchService.migrateAllBoardsToES(boardList);
     }
 }

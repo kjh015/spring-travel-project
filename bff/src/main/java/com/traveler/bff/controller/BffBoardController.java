@@ -8,6 +8,7 @@ import com.traveler.bff.dto.front.BoardFrontDto;
 import com.traveler.bff.dto.service.BoardDto;
 import com.traveler.bff.dto.service.BoardListDto;
 import lombok.RequiredArgsConstructor;
+import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +25,20 @@ import java.util.stream.Collectors;
 public class BffBoardController {
     private final BoardServiceClient boardServiceClient;
     private final SignServiceClient signServiceClient;
+
+    @GetMapping("/search")
+    public List<BoardFrontDto> getArticleListBySearch(@RequestParam String query) {
+        List<BoardListDto> boardList = boardServiceClient.getArticleListBySearch(query);
+        Set<Long> IDs = boardList.stream().map(BoardListDto::getMemberId).collect(Collectors.toSet());
+        Map<Long, String> nicknameList = signServiceClient.getNicknameList(new ArrayList<>(IDs));
+        return boardList.stream().map(board -> BoardFrontDto.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .memberNickname(nicknameList.get(board.getMemberId()))
+                .modifiedDate(board.getModifiedDate()).build()
+        ).collect(Collectors.toList());
+    }
+
 
     @GetMapping("/list")
     public List<BoardFrontDto> getArticleList() {
@@ -94,5 +109,15 @@ public class BffBoardController {
     @PostMapping("/remove")
     public ResponseEntity<?> removeArticle(@RequestParam String no) {
         return boardServiceClient.removeArticle(no);
+    }
+
+    @PostMapping("/migrate-data")
+    public ResponseEntity<?> migrateData(){
+        try{
+            boardServiceClient.migrateData();
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SC_SERVER_ERROR).build();
+        }
     }
 }
