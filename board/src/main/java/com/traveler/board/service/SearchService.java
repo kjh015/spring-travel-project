@@ -1,6 +1,8 @@
 package com.traveler.board.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.BulkRequest;
 import co.elastic.clients.elasticsearch.core.BulkResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,19 +21,40 @@ import java.util.List;
 public class SearchService {
     private final ElasticsearchClient elasticsearchClient;
     private final String indexName = "board";
+    private final int size = 10;
 
-    public List<BoardDocument> search(String keyword)  {
+    public List<BoardDocument> search(String keyword, String category, String region, String sort, String direction, int page) {
+        List<Query> filters = new ArrayList<>();
+        if (category != null && !category.isEmpty()) {
+            filters.add(Query.of(q -> q.term(t -> t.field("category").value(category))));
+        }
+        if (region != null && !region.isEmpty()) {
+            filters.add(Query.of(q -> q.term(t -> t.field("region").value(region))));
+        }
+
         SearchResponse<BoardDocument> response = null;
         try {
             response = elasticsearchClient.search(s -> s
                             .index(indexName)
-                            .query(q -> q
-                                    .multiMatch(m -> m
+                            .query(q -> q.bool(b -> b
+                                    .must(m -> m.multiMatch(mm -> mm
                                             .fields("title", "content", "travelPlace", "address")
                                             .query(keyword)
+                                    ))
+                                    .filter(filters)
+                            ))
+                            .sort(so -> so
+                                    .field(f -> f
+                                            .field(sort)
+                                            .order("asc".equalsIgnoreCase(direction)
+                                                    ? SortOrder.Asc
+                                                    : SortOrder.Desc
+                                            )
                                     )
-                            ),
-                    BoardDocument.class
+                            )
+                            .from(page * size)
+                            .size(size)
+                    ,BoardDocument.class
             );
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -64,6 +88,7 @@ public class SearchService {
             throw new RuntimeException(e);
         }
     }
+
     public void migrateAllBoardsToES(List<Board> boardList) {
         List<BoardDocument> esDocs = boardList.stream().map(board -> BoardDocument.builder()
                 .id(board.getId())
@@ -111,10 +136,6 @@ public class SearchService {
         }
 
     }
-
-
-
-
 
 
 }

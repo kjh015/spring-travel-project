@@ -2,6 +2,7 @@ package com.traveler.favorite.service;
 
 import com.traveler.favorite.dto.FavoriteDto;
 import com.traveler.favorite.entity.Favorite;
+import com.traveler.favorite.kafka.KafkaService;
 import com.traveler.favorite.repository.FavoriteRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
+    private final KafkaService kafkaService;
 
 
     @Transactional
@@ -26,13 +28,15 @@ public class FavoriteService {
 
         Optional<Favorite> favorite = favoriteRepository.findByBoardIdAndMemberId(boardId, memberId);
         if (favorite.isPresent()) {
+            kafkaService.updateFavoriteCount(favorite.get().getBoardId(), false);
             favoriteRepository.delete(favorite.get());
             return false;
         } else {
             Favorite newFavorite = new Favorite();
             newFavorite.setBoardId(boardId);
             newFavorite.setMemberId(memberId);
-            favoriteRepository.save(newFavorite);
+            Favorite savedFavorite = favoriteRepository.save(newFavorite);
+            kafkaService.updateFavoriteCount(savedFavorite.getBoardId(), true);
             return true;
         }
     }

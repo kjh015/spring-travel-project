@@ -27,8 +27,9 @@ public class BffBoardController {
     private final SignServiceClient signServiceClient;
 
     @GetMapping("/search")
-    public List<BoardFrontDto> getArticleListBySearch(@RequestParam String query) {
-        List<BoardListDto> boardList = boardServiceClient.getArticleListBySearch(query);
+    public List<BoardFrontDto> getArticleListBySearch(@RequestParam String keyword, @RequestParam String category, @RequestParam String region,
+                                                      @RequestParam String sort, @RequestParam String direction, @RequestParam String page) {
+        List<BoardListDto> boardList = boardServiceClient.getArticleListBySearch(keyword, category, region, sort, direction, page);
         Set<Long> IDs = boardList.stream().map(BoardListDto::getMemberId).collect(Collectors.toSet());
         Map<Long, String> nicknameList = signServiceClient.getNicknameList(new ArrayList<>(IDs));
         return boardList.stream().map(board -> BoardFrontDto.builder()
@@ -65,6 +66,10 @@ public class BffBoardController {
                 .travelPlace(board.getTravelPlace())
                 .category(board.getCategory())
                 .memberNickname(signServiceClient.getNicknameById(board.getMemberId()))
+                .ratingAvg(board.getRatingAvg())
+                .commentCount(board.getCommentCount())
+                .viewCount(board.getViewCount())
+                .favoriteCount(board.getFavoriteCount())
                 .imagePaths(board.getImagePaths())
                 .build();
     }

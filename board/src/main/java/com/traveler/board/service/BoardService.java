@@ -29,8 +29,8 @@ public class BoardService {
     private final TravelPlaceService travelPlaceService;
     private final SearchService searchService;
 
-    public List<BoardListDto> listArticlesBySearch(String query) throws DataAccessException{
-        List<BoardDocument> result = searchService.search(query);
+    public List<BoardListDto> listArticlesBySearch(String keyword, String category, String region, String sort, String direction, int page) throws DataAccessException{
+        List<BoardDocument> result = searchService.search(keyword, category, region, sort, direction, page);
         return result.stream().map(board -> BoardListDto.builder()
                 .id(board.getId())
                 .title(board.getTitle())
@@ -60,7 +60,7 @@ public class BoardService {
     }
 
     public BoardDto viewArticle(long no){
-        Board board = boardRepository.findById(no).orElseThrow(RuntimeException::new);
+        Board board = boardRepository.findById(no).orElseThrow(() -> new CustomBoardException("존재하지 않는 게시글입니다."));
         List<Image> images = imageRepository.findByBoard(board);
         List<String> imagePaths = images.stream()
                 .map(Image::getPath)
@@ -74,6 +74,10 @@ public class BoardService {
         dto.setAddress(board.getTravelPlace().getAddress());
         dto.setRegion(board.getTravelPlace().getRegion().getName());
         dto.setCategory(board.getTravelPlace().getCategory().getName());
+        dto.setRatingAvg(board.getRatingAvg());
+        dto.setFavoriteCount(board.getFavoriteCount());
+        dto.setCommentCount(board.getCommentCount());
+        dto.setViewCount(board.getViewCount());
         dto.setImagePaths(imagePaths);
         return dto;
     }
@@ -153,4 +157,42 @@ public class BoardService {
         List<Board> boardList = boardRepository.findAll();
         searchService.migrateAllBoardsToES(boardList);
     }
+
+    @Transactional
+    public void updateRatingAvg(Long boardId, Integer rating, boolean isAdd) {
+        Board board = boardRepository.findById(boardId).orElse(null);
+        if (board == null) return;
+
+        long commentCount = board.getCommentCount() == null ? 0L : board.getCommentCount();
+        double ratingAvg = board.getRatingAvg() == null ? 0.0 : board.getRatingAvg();
+        if(isAdd){
+            long newCommentCount = commentCount + 1;
+            double newRatingAvg = (ratingAvg * commentCount + rating) / newCommentCount;
+
+            board.setCommentCount(newCommentCount);
+            board.setRatingAvg(newRatingAvg);
+        }
+        else{
+            long newCommentCount = commentCount - 1;
+            double newRatingAvg = (ratingAvg * commentCount - rating) / newCommentCount;
+
+            board.setCommentCount(newCommentCount);
+            board.setRatingAvg(newRatingAvg);
+        }
+    }
+
+    @Transactional
+    public void updateFavoriteCount(Long boardId, boolean isAdd) {
+        Board board = boardRepository.findById(boardId).orElse(null);
+        if (board == null) return;
+
+        long favoriteCount = board.getFavoriteCount() == null ? 0L : board.getFavoriteCount();
+        board.setFavoriteCount(isAdd ? favoriteCount + 1 : favoriteCount - 1);
+    }
+
+    @Transactional
+    public void updateViewCount(Long boardId){
+        boardRepository.increaseViewCount(boardId);
+    }
+
 }

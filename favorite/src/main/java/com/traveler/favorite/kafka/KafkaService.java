@@ -1,10 +1,14 @@
 package com.traveler.favorite.kafka;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.favorite.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -13,19 +17,19 @@ public class KafkaService {
     private final KafkaTemplate<String,String> kafkaTemplate;
     private final FavoriteService favoriteService;
 
+    public void updateFavoriteCount(Long boardId, boolean isAdd){
+        try {
+            Map<String, String> newRating = new HashMap<>();
+            newRating.put("boardId", String.valueOf(boardId));
+            newRating.put("isAdd", String.valueOf(isAdd));
+            this.kafkaTemplate.send("FAVORITE_TOPIC", objectMapper.writeValueAsString(newRating));
+        } catch (JsonProcessingException e) {
+            System.err.println("Kafka message handling failed: " + e.getMessage());
+        }
+    }
 
 
-//    @KafkaListener(topics = "SIGN_NICKNAME_TOPIC", groupId = "travel-consumer-favorite")
-//    public void nicknameTopic(ConsumerRecord<String, String> record) {
-//        System.out.println("Consumed: " + record.value());
-//        try {
-//            Map<String, String> nickname = objectMapper.readValue(record.value(), new TypeReference<>() {});
-//            favoriteService.updateNickname(nickname.get("prev"), nickname.get("cur"));
-//            System.out.println("complete");
-//        } catch (Exception e) {
-//            System.err.println("Kafka message handling failed: " + e.getMessage());
-//        }
-//    }
+
 
 
 

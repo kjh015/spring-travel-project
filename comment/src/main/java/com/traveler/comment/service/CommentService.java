@@ -2,7 +2,9 @@ package com.traveler.comment.service;
 
 import com.traveler.comment.dto.CommentDto;
 import com.traveler.comment.entity.Comment;
+import com.traveler.comment.kafka.service.KafkaService;
 import com.traveler.comment.repository.CommentRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
+    private final KafkaService kafkaService;
 
     public List<CommentDto> getCommentList(Long boardId) throws CustomCommentException{
         List<Comment> comments = commentRepository.findAllByBoardId(boardId);
@@ -26,17 +29,22 @@ public class CommentService {
                         .build())
                 .collect(Collectors.toList());
     }
+    @Transactional
     public void addComment(CommentDto data) throws CustomCommentException{
         Comment comment = new Comment();
         comment.setRating(Integer.valueOf(data.getRating()));
         comment.setContent(data.getContent());
         comment.setBoardId(data.getNo());
         comment.setMemberId(data.getMemberId());
-        commentRepository.save(comment);
+        Comment savedComment = commentRepository.save(comment);
+        kafkaService.updateRatingAvg(savedComment.getBoardId(), savedComment.getRating(), true);
 
     }
+    @Transactional
     public void removeComment(Long commentId) throws CustomCommentException{
-        commentRepository.deleteById(commentId);
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CustomCommentException("존재하지 않는 댓글입니다."));
+        kafkaService.updateRatingAvg(comment.getBoardId(), comment.getRating(), false);
+        commentRepository.delete(comment);
     }
 
     public List<CommentDto> listCommentByMember(Long memberId){

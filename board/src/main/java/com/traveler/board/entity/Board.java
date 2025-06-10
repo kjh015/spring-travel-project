@@ -28,6 +28,14 @@ public class Board {
     @Column(length=2000)
     private String content;
 
+    private Double ratingAvg;
+
+    private Long viewCount;
+
+    private Long favoriteCount;
+
+    private Long commentCount;
+
     @CreationTimestamp
     private LocalDateTime regDate;
 

@@ -14,7 +14,8 @@ import java.util.List;
 @FeignClient(name = "board", configuration = FormEncoderConfig.class)
 public interface BoardServiceClient {
     @GetMapping("/board/search")
-    List<BoardListDto> getArticleListBySearch(@RequestParam String query);
+    List<BoardListDto> getArticleListBySearch(@RequestParam String keyword, @RequestParam String category, @RequestParam String region,
+                                              @RequestParam String sort, @RequestParam String direction, @RequestParam String page);
 
     @GetMapping("/board/list")
     List<BoardListDto> getArticleList();

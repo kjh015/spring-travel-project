@@ -17,6 +17,10 @@ public class BoardFrontDto {
     private String address;
     private String category;
     private String region;
+    private Double ratingAvg;
+    private Long viewCount;
+    private Long favoriteCount;
+    private Long commentCount;
     private LocalDateTime modifiedDate;
     private List<String> imagePaths;
 }

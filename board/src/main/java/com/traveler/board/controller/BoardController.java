@@ -32,8 +32,9 @@ public class BoardController {
     Logger logger = LoggerFactory.getLogger(BoardController.class);
 
     @GetMapping("/search")
-    public List<BoardListDto> getArticleListBySearch(@RequestParam String query){
-        return boardService.listArticlesBySearch(query);
+    public List<BoardListDto> getArticleListBySearch(@RequestParam String keyword, @RequestParam String category, @RequestParam String region,
+                                                     @RequestParam String sort, @RequestParam String direction, @RequestParam String page){
+        return boardService.listArticlesBySearch(keyword, category, region, sort, direction, Integer.parseInt(page));
     }
 
     @GetMapping("/list")
@@ -111,6 +112,8 @@ public class BoardController {
         boardService.migrateAll();
         return ResponseEntity.ok().build();
     }
+
+
 
     @ExceptionHandler(CustomBoardException.class)
     public ResponseEntity<String> exceptionComment(CustomBoardException e){

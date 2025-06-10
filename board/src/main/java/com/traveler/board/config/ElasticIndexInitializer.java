@@ -40,6 +40,10 @@ public class ElasticIndexInitializer {
                         .properties("region", p -> p.text(t -> t.analyzer("korean_nori")))
                         .properties("regDate", p -> p.date(d -> d))
                         .properties("modifiedDate", p -> p.date(d -> d))
+                        .properties("ratingAvg", p -> p.double_(n -> n))
+                        .properties("viewCount", p -> p.long_(n -> n))
+                        .properties("commentCount", p -> p.long_(n -> n))
+                        .properties("favoriteCount", p -> p.long_(n -> n))
                 )
 
         );

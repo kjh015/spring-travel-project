@@ -238,6 +238,10 @@ public class KafkaConsumerService {
                 LogSuccess log = new LogSuccess();
                 log.setLogJson(objectMapper.writeValueAsString(items));
                 logSuccessService.addSuccessLog(log, processId);
+                //Board DB에 조회수 증가
+                if(items.get("event_action").equals("view") && !items.get("게시판 번호").equals("null")){
+                    kafkaTemplate.send("VIEWCOUNT_TOPIC", items.get("게시판 번호"));
+                }
             } else {
                 if (items.get("failBy").equalsIgnoreCase("filter")) {
                     LogFail log = new LogFail();
