@@ -22,4 +22,8 @@ public class BoardDocument {
     private String region;
     private LocalDateTime regDate;
     private LocalDateTime modifiedDate;
+    private Double ratingAvg;
+    private Long viewCount;
+    private Long favoriteCount;
+    private Long commentCount;
 }

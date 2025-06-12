@@ -15,14 +15,16 @@ public class ElasticsearchConfig {
     @Bean
     public ElasticsearchClient elasticsearchClient() {
         RestClient restClient = RestClient.builder(
-                new HttpHost("localhost", 9200) // ES 주소/포트
+                new HttpHost("localhost", 9200)
         ).build();
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
+        mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         return new ElasticsearchClient(
                 new RestClientTransport(restClient, new JacksonJsonpMapper(mapper))
         );
     }
 }
+

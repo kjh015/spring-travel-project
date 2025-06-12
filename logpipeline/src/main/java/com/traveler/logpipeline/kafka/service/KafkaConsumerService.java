@@ -39,7 +39,6 @@ public class KafkaConsumerService {
 
     @KafkaListener(topics = "START_TOPIC", groupId = "matomo-log-consumer")
     public void startTopic(ConsumerRecord<String, String> record) {
-        System.out.println("STC: " + record.value());
         try {
             LogDto log = objectMapper.readValue(record.value(), LogDto.class);
             System.out.println("Start Topic Consumed: " + log.toString());
@@ -163,14 +162,11 @@ public class KafkaConsumerService {
                         }
                         String cFormat = (String) cond.get("format");
                         String cValue = (String) cond.get("value");
-                        System.out.println("CF + CV: " + cFormat + cValue);
-                        System.out.println(items.get(cFormat));
                         if(!items.get(cFormat).equals(cValue)){
                             hit = false;
                         }
                     }
                     if(!hit) {
-                        System.out.println("out!");
                         continue;
                     }
 
@@ -240,6 +236,7 @@ public class KafkaConsumerService {
                 logSuccessService.addSuccessLog(log, processId);
                 //Board DB에 조회수 증가
                 if(items.get("event_action").equals("view") && !items.get("게시판 번호").equals("null")){
+                    System.out.println("send to board - view count");
                     kafkaTemplate.send("VIEWCOUNT_TOPIC", items.get("게시판 번호"));
                 }
             } else {

@@ -1,6 +1,7 @@
 package com.traveler.sign.controller;
 
 
+import com.traveler.sign.dto.PasswordDto;
 import com.traveler.sign.dto.SignDto;
 import com.traveler.sign.dto.SignInRequestDto;
 import com.traveler.sign.dto.SignInResultDto;
@@ -54,8 +55,8 @@ public class SignController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@RequestBody SignDto signUp){
-        logger.info("[signUp] 회원가입을 수행합니다. id : {}, password : ****, email : {}, role : {}", signUp.getLoginId(), signUp.getEmail(), signUp.getRole());
-        signService.signUp(signUp.getLoginId(), signUp.getPassword(), signUp.getEmail(), signUp.getNickname(), signUp.getGender(), signUp.getRole());
+        logger.info("[signUp] 회원가입을 수행합니다. id : {}, password : ****, email : {}", signUp.getLoginId(), signUp.getEmail());
+        signService.signUp(signUp.getLoginId(), signUp.getPassword(), signUp.getEmail(), signUp.getNickname(), signUp.getGender());
         logger.info("[signUp] 회원가입을 완료했습니다. id : {}", signUp.getLoginId());
         return ResponseEntity.ok("회원가입 완료");
     }
@@ -64,6 +65,13 @@ public class SignController {
         signService.updateMember(data);
         return ResponseEntity.ok("회원수정 완료");
     }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody PasswordDto data){
+        signService.updatePassword(data);
+        return ResponseEntity.ok("비밀번호 변경 완료");
+    }
+
 
     @PostMapping("/sign-out")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
@@ -99,6 +107,24 @@ public class SignController {
 
         return ResponseEntity.ok("회원탈퇴 완료");
     }
+
+    @PostMapping("/detail")
+    public ResponseEntity<?> getMemberDetail(@RequestParam String loginId){
+        return ResponseEntity.ok().body(signService.getMemberDetail(loginId));
+    }
+
+    @PostMapping("/list")
+    public ResponseEntity<?> getMemberList(){
+        return ResponseEntity.ok().body(signService.getMemberList());
+    }
+
+    @PostMapping("/delegate")
+    public ResponseEntity<?> delegateAdmin(@RequestParam String loginId){
+        signService.delegateAdmin(loginId);
+        return ResponseEntity.ok().build();
+    }
+
+
 
 
 

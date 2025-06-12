@@ -32,8 +32,8 @@ public class JwtTokenProvider {
 
     @Value("${springboot.jwt.secret}")
     private String secretKey = "randomKey";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24;	   // 24시간
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;  // 7일
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 12;	   // 12시간
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 3;  // 3일
 
 
     @PostConstruct
@@ -59,8 +59,13 @@ public class JwtTokenProvider {
     public String createToken(String loginId, List<String> roles, long validity){
         logger.info("[createToken] 토큰 생성 시작");
         Date now = new Date();
-        String token = Jwts.builder().subject(loginId).claim("roles", roles).issuedAt(now)
-                .expiration(new Date(now.getTime() + validity)).signWith(getSigningKey()).compact();
+        String token = Jwts.builder()
+                .subject(loginId)
+                .claim("roles", roles)
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + validity))
+                .signWith(getSigningKey())
+                .compact();
         logger.info("[createToken] 토큰 생성 완료");
         return token;
     }

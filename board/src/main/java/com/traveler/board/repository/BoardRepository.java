@@ -15,8 +15,9 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     List<Board> findByIdIn(List<Long> boardIDs);
     List<Board> findAllByMemberId(Long memberId);
     @Modifying
-    @Query("UPDATE Board b SET b.viewCount = b.viewCount + 1 WHERE b.id = :id")
+    @Query("UPDATE Board b SET b.viewCount = COALESCE(b.viewCount, 0) + 1 WHERE b.id = :id")
     void increaseViewCount(Long id);
+
 
 
 

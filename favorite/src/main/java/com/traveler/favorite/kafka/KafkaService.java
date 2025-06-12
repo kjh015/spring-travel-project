@@ -2,7 +2,6 @@ package com.traveler.favorite.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.traveler.favorite.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,6 @@ import java.util.Map;
 public class KafkaService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final KafkaTemplate<String,String> kafkaTemplate;
-    private final FavoriteService favoriteService;
 
     public void updateFavoriteCount(Long boardId, boolean isAdd){
         try {

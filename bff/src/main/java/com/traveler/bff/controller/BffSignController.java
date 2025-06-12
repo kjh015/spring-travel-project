@@ -1,6 +1,7 @@
 package com.traveler.bff.controller;
 
 import com.traveler.bff.client.SignServiceClient;
+import com.traveler.bff.dto.service.PasswordDto;
 import com.traveler.bff.dto.service.SignDto;
 import com.traveler.bff.dto.service.SignInRequestDto;
 import com.traveler.bff.dto.service.SignInResultDto;
@@ -8,10 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -47,6 +45,11 @@ public class BffSignController {
     @PostMapping("/update")
     public ResponseEntity<?> updateMember(@RequestBody SignDto data) {
         return signServiceClient.updateMember(data);
+    }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody PasswordDto data){
+        return signServiceClient.updatePassword(data);
     }
 
     @PostMapping("/sign-out")
@@ -93,6 +96,22 @@ public class BffSignController {
         String cookieHeader = request.getHeader("Cookie");
         return signServiceClient.refreshToken(cookieHeader);
     }
+
+    @PostMapping("/detail")
+    public ResponseEntity<?> getMemberDetail(@RequestParam String loginId){
+        return signServiceClient.getMemberDetail(loginId);
+    }
+
+    @PostMapping("/list")
+    public ResponseEntity<?> getMemberList(){
+        return signServiceClient.getMemberList();
+    }
+
+    @PostMapping("/delegate")
+    public ResponseEntity<?> delegateAdmin(@RequestParam String loginId){
+        return signServiceClient.delegateAdmin(loginId);
+    }
+
 
     @PostMapping("/test")
     public ResponseEntity<?> testAccessToken() {

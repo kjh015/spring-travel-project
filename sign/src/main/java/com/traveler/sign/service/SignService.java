@@ -1,6 +1,7 @@
 package com.traveler.sign.service;
 
 
+import com.traveler.sign.dto.PasswordDto;
 import com.traveler.sign.dto.SignDto;
 import com.traveler.sign.dto.SignInResultDto;
 import com.traveler.sign.entity.Member;
@@ -13,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,34 +28,38 @@ public class SignService {
     private final KafkaProducerService kafkaProducerService;
 
     @Transactional
-    public void signUp(String loginId, String password, String email, String nickname, String gender, String role){
+    public void signUp(String loginId, String password, String email, String nickname, String gender){
         if (memberRepository.existsByLoginId(loginId)) {
             throw new CustomSignException("이미 가입되어 있는 유저입니다.");
         }
 
-        Member member;
+        Member member = Member.builder()
+                .loginId(loginId)
+                .password(passwordEncoder.encode(password))
+                .email(email)
+                .nickname(nickname)
+                .gender(gender)
+                .roles(Collections.singletonList("ROLE_USER"))
+                .build();
 
-        if(role.equalsIgnoreCase("admin")){
-            member = Member.builder().loginId(loginId).password(passwordEncoder.encode(password)).email(email).nickname(nickname)
-                    .gender(gender).roles(Collections.singletonList("ROLE_ADMIN")).build();
-        }
-        else{
-            member = Member.builder().loginId(loginId).password(passwordEncoder.encode(password)).email(email).nickname(nickname)
-                    .gender(gender).roles(Collections.singletonList("ROLE_USER")).build();
-        }
         memberRepository.save(member);
 
     }
     @Transactional
     public void updateMember(SignDto data){
         Member member = memberRepository.findByLoginId(data.getLoginId()).orElseThrow(() -> new CustomSignException("존재하지 않는 유저입니다."));
-        String prevNickname = member.getNickname();
 
-        member.setPassword(passwordEncoder.encode(data.getPassword()));
         member.setNickname(data.getNickname());
         member.setGender(data.getGender());
+    }
 
-        kafkaProducerService.updateNickname(prevNickname, member.getNickname());
+    @Transactional
+    public void updatePassword(PasswordDto data){
+        Member member = memberRepository.findByLoginId(data.getLoginId()).orElseThrow(() -> new CustomSignException("존재하지 않는 유저입니다."));
+        if(!passwordEncoder.matches(data.getCurPassword(), member.getPassword())) {
+            throw new CustomSignException("비밀번호가 일치하지 않습니다.");
+        }
+        member.setPassword(passwordEncoder.encode(data.getNewPassword()));
     }
 
 
@@ -73,10 +75,20 @@ public class SignService {
                 .refreshToken(jwtTokenProvider.createRefreshToken(String.valueOf(member.getLoginId()), member.getRoles()))
                 .build(); // null일 경우 대비하여 String.valueOf()로 감쌈
 
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setLoginId(loginId);
-        refreshToken.setRefreshToken(signInResultDto.getRefreshToken());
-        refreshTokenRepository.save(refreshToken);
+        Optional<RefreshToken> tokenOpt = refreshTokenRepository.findByLoginId(loginId);
+        if(tokenOpt.isPresent()){
+            RefreshToken refreshToken = tokenOpt.get();
+            refreshToken.setRefreshToken(signInResultDto.getRefreshToken());
+            refreshTokenRepository.save(refreshToken);
+        }
+        else{
+            RefreshToken refreshToken = new RefreshToken();
+            refreshToken.setLoginId(loginId);
+            refreshToken.setRefreshToken(signInResultDto.getRefreshToken());
+            refreshTokenRepository.save(refreshToken);
+        }
+
+
 
         return signInResultDto;
     }
@@ -96,6 +108,39 @@ public class SignService {
             refreshTokenRepository.deleteByLoginId(member.getLoginId());
             memberRepository.deleteById(member.getId());
         }
+    }
+
+    public SignDto getMemberDetail(String loginId){
+        Member member = memberRepository.findByLoginId(loginId).orElseThrow(() -> new CustomSignException("존재하지 않는 회원입니다."));
+        return SignDto.builder()
+                .loginId(member.getLoginId())
+                .email(member.getEmail())
+                .gender(member.getGender())
+                .nickname(member.getNickname())
+                .roles(member.getRoles())
+                .regDate(member.getRegDate())
+                .build();
+    }
+
+    public List<SignDto> getMemberList(){
+        List<Member> memberList = memberRepository.findAll();
+        return memberList.stream().map(member -> SignDto.builder()
+                .id(member.getId())
+                .loginId(member.getLoginId())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .gender(member.getGender())
+                .roles(member.getRoles())
+                .regDate(member.getRegDate())
+                .build()
+        ).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void delegateAdmin(String loginId){
+        Member member = memberRepository.findByLoginId(loginId).orElseThrow(() -> new CustomSignException("존재하지 않는 회원입니다."));
+        member.getRoles().add("ROLE_ADMIN");
+        memberRepository.save(member);
     }
 
     public String getNicknameByLoginId(String loginId){

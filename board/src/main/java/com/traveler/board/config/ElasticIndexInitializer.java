@@ -16,7 +16,7 @@ public class ElasticIndexInitializer {
 
     @PostConstruct
     public void createBoardIndexIfNotExists() throws Exception {
-        String indexName = "board";
+        String indexName = "board-test";
         // 인덱스 존재 체크
         boolean exists = elasticsearchClient.indices().exists(r -> r.index(indexName)).value();
         if (exists) return;

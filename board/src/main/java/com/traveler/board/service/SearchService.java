@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchService {
     private final ElasticsearchClient elasticsearchClient;
-    private final String indexName = "board";
+    private final String indexName = "board-test";
     private final int size = 10;
 
     public List<BoardDocument> search(String keyword, String category, String region, String sort, String direction, int page) {
@@ -32,15 +32,22 @@ public class SearchService {
             filters.add(Query.of(q -> q.term(t -> t.field("region").value(region))));
         }
 
-        SearchResponse<BoardDocument> response = null;
+        Query mustQuery;
+        if (keyword != null && !keyword.isEmpty()) {
+            mustQuery = Query.of(m -> m.multiMatch(mm -> mm
+                    .fields("title", "content", "travelPlace", "address")
+                    .query(keyword)
+            ));
+        } else {
+            mustQuery = Query.of(m -> m.matchAll(ma -> ma)); // <--- 핵심!
+        }
+
+        SearchResponse<BoardDocument> response;
         try {
             response = elasticsearchClient.search(s -> s
                             .index(indexName)
                             .query(q -> q.bool(b -> b
-                                    .must(m -> m.multiMatch(mm -> mm
-                                            .fields("title", "content", "travelPlace", "address")
-                                            .query(keyword)
-                                    ))
+                                    .must(mustQuery)
                                     .filter(filters)
                             ))
                             .sort(so -> so
@@ -54,7 +61,7 @@ public class SearchService {
                             )
                             .from(page * size)
                             .size(size)
-                    ,BoardDocument.class
+                    , BoardDocument.class
             );
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -63,6 +70,7 @@ public class SearchService {
                 .map(Hit::source)
                 .toList();
     }
+
 
     public void saveToES(Board board) {
         BoardDocument esDoc = BoardDocument.builder()
@@ -76,6 +84,10 @@ public class SearchService {
                 .category(board.getTravelPlace().getCategory().getName())
                 .regDate(board.getRegDate())
                 .modifiedDate(board.getModifiedDate())
+                .ratingAvg(0.0)
+                .commentCount(0L)
+                .favoriteCount(0L)
+                .viewCount(0L)
                 .build();
 
         try {
@@ -101,6 +113,10 @@ public class SearchService {
                 .category(board.getTravelPlace().getCategory().getName())
                 .regDate(board.getRegDate())
                 .modifiedDate(board.getModifiedDate())
+                .ratingAvg(board.getRatingAvg() != null ? board.getRatingAvg() : 0.0)
+                .commentCount(board.getCommentCount() != null ? board.getCommentCount() : 0L)
+                .favoriteCount(board.getFavoriteCount() != null ? board.getFavoriteCount() : 0L)
+                .viewCount(board.getViewCount() != null ? board.getViewCount() : 0L)
                 .build()
         ).toList();
 

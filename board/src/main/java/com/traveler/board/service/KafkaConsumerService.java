@@ -43,6 +43,7 @@ public class KafkaConsumerService {
 
     @KafkaListener(topics = "VIEWCOUNT_TOPIC", groupId = "travel-consumer-board")
     public void updateViewCount(String msg) throws IOException {
+        System.out.println("Consumed VIEWCOUNT msg: " + msg);
         Long boardId = Long.valueOf(msg);
         boardService.updateViewCount(boardId);
     }

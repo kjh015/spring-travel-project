@@ -1,11 +1,15 @@
 package com.traveler.bff.client;
 
+import com.traveler.bff.dto.service.PasswordDto;
 import com.traveler.bff.dto.service.SignDto;
 import com.traveler.bff.dto.service.SignInRequestDto;
 import com.traveler.bff.dto.service.SignInResultDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +25,9 @@ public interface SignServiceClient {
     @PostMapping("/sign/update")
     ResponseEntity<String> updateMember(@RequestBody SignDto data);
 
+    @PostMapping("/sign/update-password")
+    ResponseEntity<String> updatePassword(@RequestBody PasswordDto data);
+
     @PostMapping(value="/sign/sign-out", consumes = "application/json")
     ResponseEntity<String> logout(@RequestHeader("Cookie") String cookieHeader);
 
@@ -30,6 +37,14 @@ public interface SignServiceClient {
     @PostMapping("/sign/refresh")
     Map<String, String> refreshToken(@RequestHeader("Cookie") String cookieHeader);
 
+    @PostMapping("/sign/detail")
+    ResponseEntity<?> getMemberDetail(@RequestParam String loginId);
+
+    @PostMapping("/sign/list")
+    ResponseEntity<?> getMemberList();
+
+    @PostMapping("/sign/delegate")
+    ResponseEntity<?> delegateAdmin(@RequestParam String loginId);
     @PostMapping("/sign/test")
     ResponseEntity<String> testAccessToken();
 
