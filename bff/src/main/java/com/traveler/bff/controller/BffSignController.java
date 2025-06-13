@@ -102,12 +102,12 @@ public class BffSignController {
         return signServiceClient.getMemberDetail(loginId);
     }
 
-    @PostMapping("/list")
+    @PostMapping("/admin/list")
     public ResponseEntity<?> getMemberList(){
         return signServiceClient.getMemberList();
     }
 
-    @PostMapping("/delegate")
+    @PostMapping("/admin/delegate")
     public ResponseEntity<?> delegateAdmin(@RequestParam String loginId){
         return signServiceClient.delegateAdmin(loginId);
     }

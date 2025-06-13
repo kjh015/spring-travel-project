@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class KafkaService {
+public class KafkaProducerService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final KafkaTemplate<String,String> kafkaTemplate;
 

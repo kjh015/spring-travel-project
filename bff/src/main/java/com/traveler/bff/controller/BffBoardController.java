@@ -116,7 +116,7 @@ public class BffBoardController {
         return boardServiceClient.removeArticle(no);
     }
 
-    @PostMapping("/migrate-data")
+    @PostMapping("/admin/migrate-data")
     public ResponseEntity<?> migrateData(){
         try{
             boardServiceClient.migrateData();

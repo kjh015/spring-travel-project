@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/filter")
+@RequestMapping("/api/filter/admin")
 @RequiredArgsConstructor
 public class BffFilterController {
     private final LogpipelineServiceClient logpipelineServiceClient;

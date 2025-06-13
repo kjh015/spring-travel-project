@@ -28,6 +28,7 @@ public class BoardService {
     private final ImageStorageService imageStorageService;
     private final TravelPlaceService travelPlaceService;
     private final SearchService searchService;
+    private final KafkaProducerService kafkaProducerService;
 
     public List<BoardListDto> listArticlesBySearch(String keyword, String category, String region, String sort, String direction, int page) throws DataAccessException{
         List<BoardDocument> result = searchService.search(keyword, category, region, sort, direction, page);
@@ -47,6 +48,7 @@ public class BoardService {
         return boardList;
     }
 
+    @Transactional
     public void addArticle(BoardDto data, List<MultipartFile> images)throws DataAccessException{
 
         Board board = new Board();
@@ -109,7 +111,20 @@ public class BoardService {
 //        searchService.saveToES(savedBoard);
     }
     public void removeArticle(Long no){
-        boardRepository.deleteById(no);
+        Board board = boardRepository.findById(no).orElseThrow(() -> new CustomBoardException("존재하지 않는 게시글입니다."));
+        List<Image> existingImages = imageRepository.findByBoard(board);
+        for (Image img : existingImages) {
+            imageRepository.delete(img);
+            try {
+                imageStorageService.delete(img.getPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        boardRepository.delete(board);
+        searchService.deleteById(no);
+        kafkaProducerService.deleteBoard(no);
+
     }
 
     public void uploadImages(List<MultipartFile> files, Board board){

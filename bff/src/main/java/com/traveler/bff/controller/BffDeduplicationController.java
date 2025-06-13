@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/deduplication")
+@RequestMapping("/api/deduplication/admin")
 @RequiredArgsConstructor
 public class BffDeduplicationController {
     private final LogpipelineServiceClient logpipelineServiceClient;

@@ -45,13 +45,27 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     logger.info("인증 시작: {}", path);
                     logger.info("토큰: {}", token);
                     List<String> roles = jwtTokenProvider.getRoles(token);
-                    if (roles.isEmpty() || roles.stream().noneMatch(r -> r.equals("ROLE_USER") || r.equals("ROLE_ADMIN"))) {
+                    // (1) 관리자 전용 경로
+                    if (path.contains("/admin/")) {
+                        if (roles.contains("ROLE_ADMIN")) {
+                            logger.info("관리자 인증 성공: {}", path);
+                            return chain.filter(exchange);
+                        } else {
+                            logger.info("관리자 인증 실패(403): {}", roles);
+                            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                            return exchange.getResponse().setComplete();
+                        }
+                    }
+
+                    // (2) 일반 경로
+                    if (roles.contains("ROLE_USER") || roles.contains("ROLE_ADMIN")) {
+                        logger.info("인증 성공: {}", path);
+                        return chain.filter(exchange);
+                    } else {
                         logger.info("인증실패 - 유효하지 않은 권한 403: {}", roles);
                         exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
                         return exchange.getResponse().setComplete();
                     }
-                    logger.info("인증 성공: {}", path);
-                    return chain.filter(exchange); // 통과
                 })
                 .switchIfEmpty(Mono.defer(() -> {
                     logger.info("인증실패 - 유효하지 않은 인증 401");

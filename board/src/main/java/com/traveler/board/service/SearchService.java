@@ -153,5 +153,16 @@ public class SearchService {
 
     }
 
+    public void deleteById(Long boardId) {
+        try {
+            elasticsearchClient.delete(d -> d
+                    .index(indexName)
+                    .id(boardId.toString())
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }

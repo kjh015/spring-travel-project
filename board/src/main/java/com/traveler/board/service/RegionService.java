@@ -13,7 +13,7 @@ import java.util.List;
 public class RegionService {
     private final RegionRepository regionRepository;
 
-    private List<String> rList = new ArrayList<>(List.of("서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "경기"));
+    private List<String> rList = new ArrayList<>(List.of("강원", "경기", "대구", "부산", "서울", "인천", "전남", "제주", "기타"));
 
     public void initRegion(){
         for(String name : rList){

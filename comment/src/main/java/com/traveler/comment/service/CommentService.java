@@ -2,7 +2,7 @@ package com.traveler.comment.service;
 
 import com.traveler.comment.dto.CommentDto;
 import com.traveler.comment.entity.Comment;
-import com.traveler.comment.kafka.service.KafkaService;
+import com.traveler.comment.kafka.service.KafkaProducerService;
 import com.traveler.comment.repository.CommentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final KafkaService kafkaService;
+    private final KafkaProducerService kafkaService;
 
     public List<CommentDto> getCommentList(Long boardId) throws CustomCommentException{
         List<Comment> comments = commentRepository.findAllByBoardId(boardId);
@@ -59,6 +59,11 @@ public class CommentService {
                 .build())
                 .collect(Collectors.toList());
 
+    }
+
+    @Transactional
+    public void deleteCommentByBoard(Long boardId){
+        commentRepository.deleteAllByBoardId(boardId);
     }
 
 

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/format")
+@RequestMapping("/api/format/admin")
 @RequiredArgsConstructor
 public class BffFormatController {
     private final LogpipelineServiceClient logpipelineServiceClient;
