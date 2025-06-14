@@ -6,6 +6,7 @@ COPY . .
 RUN chmod +x ./gradlew
 ARG TARGET
 RUN ./gradlew :${TARGET}:build -x test
+RUN ls -l /app/${TARGET}/build/libs/
 
 FROM amazoncorretto:21.0.4
 WORKDIR /app
