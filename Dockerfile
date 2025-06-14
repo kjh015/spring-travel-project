@@ -3,8 +3,9 @@ ARG TARGET=board
 FROM maven:3.9.9-amazoncorretto-21-debian-bookworm AS builder
 WORKDIR /app
 
-COPY . .
 
+COPY . .
+RUN chmod +x ./gradlew
 ARG TARGET
 RUN ./gradlew :${TARGET}:build -x test
 RUN ls -l /app/${TARGET}/build/libs/
