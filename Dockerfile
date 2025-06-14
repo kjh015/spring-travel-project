@@ -7,11 +7,13 @@ COPY gradle gradle
 COPY gradlew .
 COPY gradle/wrapper/gradle-wrapper.properties gradle/wrapper/gradle-wrapper.properties
 
+RUN chmod +x ./gradlew
+
 # gradle 다운로드 캐시
 RUN ./gradlew --version
 
 COPY . .
-RUN chmod +x ./gradlew
+
 ARG TARGET
 RUN ./gradlew :${TARGET}:build -x test
 RUN ls -l /app/${TARGET}/build/libs/
