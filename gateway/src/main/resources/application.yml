@@ -7,30 +7,6 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: board
-          uri: lb://board/
-          predicates:
-            - Path=/board/**
-        - id: sign-api
-          uri: lb://sign-api/
-          predicates:
-            - Path=/sign-api/**, /kafka/**
-        - id: logpipeline
-          uri: lb://logpipeline/
-          predicates:
-            - Path=/format/**, /sse/**, /process/**, /filter/**, /log-db/**, /deduplication/**
-        - id: comment
-          uri: lb://comment/
-          predicates:
-            - Path=/comment-api/**
-        - id: favorite
-          uri: lb://favorite
-          predicates:
-            - Path=/favorite-api/**
-        - id: realtimepopular
-          uri: lb://realtimepopular
-          predicates:
-            - Path=/realtime-popular/**
         - id: bff
           uri: lb://bff
           predicates:
@@ -38,7 +14,7 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "http://localhost:3000"
+            allowedOrigins: "http://14.63.178.161"
             allowedHeaders:
               - "*"
             allowedMethods:
