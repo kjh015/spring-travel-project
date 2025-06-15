@@ -2,10 +2,20 @@ server:
   port: 8000
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  codec:
+    max-in-memory-size: 20MB
   application:
     name: gateway
   cloud:
     gateway:
+      httpclient:
+        max-initial-line-length: 8192
+        max-header-size: 16384
+        max-request-size: 20MB
       routes:
         - id: bff
           uri: lb://bff
