@@ -15,7 +15,7 @@ public class ElasticsearchConfig {
     @Bean
     public ElasticsearchClient elasticsearchClient() {
         RestClient restClient = RestClient.builder(
-                new HttpHost("localhost", 9200)
+                new HttpHost("14.63.178.161", 9200)
         ).build();
 
         ObjectMapper mapper = new ObjectMapper();
