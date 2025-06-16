@@ -128,18 +128,22 @@ public class BoardService {
     }
 
     public void uploadImages(List<MultipartFile> files, Board board){
-        if (files.isEmpty()) {
+        System.out.println("uploadImages: files = " + files); // 이거 찍어봐
+        if (files == null || files.isEmpty()) {
             throw new CustomBoardException("이미지 파일이 없습니다.");
         }
+        System.out.println("image upload proceed...");
         try {
             for (MultipartFile file : files) {
                 String path = imageStorageService.store(file);
+                System.out.println("image upload success...");
 
                 Image image = new Image();
                 image.setBoard(board);
                 image.setName(file.getOriginalFilename());
                 image.setPath(path);
                 imageRepository.save(image);
+                System.out.println("image save success proceed...");
             }
         } catch (Exception e) {
             throw new CustomBoardException("이미지 업로드 실패");

@@ -13,20 +13,26 @@ import java.util.UUID;
 
 @Service("localImageStorageService")
 public class LocalImageStorageService implements ImageStorageService {
-    private static final String UPLOAD_DIR = "C:/develop/project/spring/spring-travel-project/images";
+    private static final String UPLOAD_DIR = "/home/ubuntu/work/images";
 
     @Override
     public String store(MultipartFile file) throws IOException {
+        System.out.println("image store proceed... file = " + file.getOriginalFilename());
         String uuid = UUID.randomUUID().toString();
-        String ext = Objects.requireNonNull(file.getOriginalFilename())
-                .substring(file.getOriginalFilename().lastIndexOf('.'));
+        String ext = Objects.requireNonNull(file.getOriginalFilename()).substring(file.getOriginalFilename().lastIndexOf('.'));
         String fileName = uuid + ext;
         File dest = new File(UPLOAD_DIR, fileName);
-        dest.getParentFile().mkdirs();
-        file.transferTo(dest);
-        // 예: "/images/uuid.jpg"로 리턴
+        try {
+            dest.getParentFile().mkdirs();
+            file.transferTo(dest);
+        } catch (Exception e) {
+            System.err.println("파일 저장 에러: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
         return "/images/" + fileName;
     }
+
 
     @Override
     public void delete(String path) {

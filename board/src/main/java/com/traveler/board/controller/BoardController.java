@@ -54,6 +54,12 @@ public class BoardController {
     @PostMapping("/add")
     public ResponseEntity<String> addArticle(@RequestPart("board") String board,
                                              @RequestPart(value = "images", required = false) List<MultipartFile> images){
+        System.out.println("===== BoardController addArticle 진입 =====");
+        System.out.println("board: " + board);
+        System.out.println("images: " + images);
+        if (images != null) {
+            System.out.println("images.size: " + images.size());
+        }
         try{
             BoardDto data = new ObjectMapper().readValue(board, BoardDto.class);
             boardService.addArticle(data, images);
@@ -118,6 +124,11 @@ public class BoardController {
     @ExceptionHandler(CustomBoardException.class)
     public ResponseEntity<String> exceptionComment(CustomBoardException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<String> exceptionIO(IOException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IO Error:" + e.getMessage());
     }
 
 

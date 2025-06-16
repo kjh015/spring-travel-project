@@ -77,6 +77,7 @@ public class BffBoardController {
     @PostMapping("/add")
     public ResponseEntity<?> addArticle(@RequestPart("board") BoardFrontDto data,
                                         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
+        System.out.println("Board Add proceed..");
         System.out.println(data);
         System.out.println(images);
         BoardDto board = BoardDto.builder()
