@@ -26,10 +26,10 @@ public class SearchService {
     public List<BoardDocument> search(String keyword, String category, String region, String sort, String direction, int page) {
         List<Query> filters = new ArrayList<>();
         if (category != null && !category.isEmpty()) {
-            filters.add(Query.of(q -> q.term(t -> t.field("category").value(category))));
+            filters.add(Query.of(q -> q.match(t -> t.field("category").query(category))));
         }
         if (region != null && !region.isEmpty()) {
-            filters.add(Query.of(q -> q.term(t -> t.field("region").value(region))));
+            filters.add(Query.of(q -> q.match(t -> t.field("region").query(region))));
         }
 
         Query mustQuery;
