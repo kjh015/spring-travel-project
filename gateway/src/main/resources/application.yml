@@ -17,6 +17,14 @@ spring:
         max-header-size: 16384
         max-request-size: 20MB
       routes:
+        - id: board
+          uri: lb://board/
+          predicates:
+            - Path=/board/**
+        - id: realtimepopular
+          uri: lb://realtimepopular
+          predicates:
+            - Path=/realtime-popular/**
         - id: bff
           uri: lb://bff
           predicates:
