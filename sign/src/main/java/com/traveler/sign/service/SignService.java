@@ -39,7 +39,7 @@ public class SignService {
                 .email(email)
                 .nickname(nickname)
                 .gender(gender)
-                .roles(Collections.singletonList("ROLE_ADMIN"))
+                .roles(Collections.singletonList("ROLE_USER"))
                 .build();
 
         memberRepository.save(member);

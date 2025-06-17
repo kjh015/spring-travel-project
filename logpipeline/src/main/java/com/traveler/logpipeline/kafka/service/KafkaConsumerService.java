@@ -37,7 +37,7 @@ public class KafkaConsumerService {
     }
 
 
-    @KafkaListener(topics = "START_TOPIC", groupId = "matomo-log-consumer")
+    @KafkaListener(topics = "START_TOPIC", groupId = "matomo-log-consumers")
     public void startTopic(ConsumerRecord<String, String> record) {
         try {
             LogDto log = objectMapper.readValue(record.value(), LogDto.class);
@@ -69,11 +69,12 @@ public class KafkaConsumerService {
             //send
             kafkaTemplate.send("FILTER_TOPIC", objectMapper.writeValueAsString(items));
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
     }
 
-    @KafkaListener(topics = "FILTER_TOPIC", groupId = "matomo-log-consumer")
+    @KafkaListener(topics = "FILTER_TOPIC", groupId = "matomo-log-consumers")
     public void filterTopic(ConsumerRecord<String, String> record) {
         System.out.println("Consumed Filter Topic: " + record.value());
         try {
@@ -141,7 +142,7 @@ public class KafkaConsumerService {
         }
     }
 
-    @KafkaListener(topics = "DEDUPLICATION_TOPIC", groupId = "matomo-log-consumer")
+    @KafkaListener(topics = "DEDUPLICATION_TOPIC", groupId = "matomo-log-consumers")
     public void deduplicationTopic(ConsumerRecord<String, String> record) {
         System.out.println("Consumed Deduplication Topic: " + record.value());
         try {
@@ -223,7 +224,7 @@ public class KafkaConsumerService {
     }
 
 
-    @KafkaListener(topics = "DB_TOPIC", groupId = "matomo-log-consumer")
+    @KafkaListener(topics = "DB_TOPIC", groupId = "matomo-log-consumers")
     public void dbTopic(ConsumerRecord<String, String> record) {
         System.out.println("Consumed DB Topic: " + record.value());
         try {
