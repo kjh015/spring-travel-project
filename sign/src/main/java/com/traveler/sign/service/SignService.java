@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,17 +29,18 @@ public class SignService {
     private final KafkaProducerService kafkaProducerService;
 
     @Transactional
-    public void signUp(String loginId, String password, String email, String nickname, String gender){
-        if (memberRepository.existsByLoginId(loginId)) {
+    public void signUp(SignDto dto){
+        if (memberRepository.existsByLoginId(dto.getLoginId())) {
             throw new CustomSignException("이미 가입되어 있는 유저입니다.");
         }
 
         Member member = Member.builder()
-                .loginId(loginId)
-                .password(passwordEncoder.encode(password))
-                .email(email)
-                .nickname(nickname)
-                .gender(gender)
+                .loginId(dto.getLoginId())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .email(dto.getEmail())
+                .nickname(dto.getNickname())
+                .gender(dto.getGender())
+                .birthDate(dto.getBirthDate())
                 .roles(Collections.singletonList("ROLE_USER"))
                 .build();
 
@@ -118,7 +120,9 @@ public class SignService {
                 .gender(member.getGender())
                 .nickname(member.getNickname())
                 .roles(member.getRoles())
+//                .birthDate(member.getBirthDate())
                 .regDate(member.getRegDate())
+//                .age(calculateAge(member.getBirthDate()))
                 .build();
     }
 
@@ -131,6 +135,7 @@ public class SignService {
                 .nickname(member.getNickname())
                 .gender(member.getGender())
                 .roles(member.getRoles())
+                .birthDate(member.getBirthDate())
                 .regDate(member.getRegDate())
                 .build()
         ).collect(Collectors.toList());
@@ -160,4 +165,16 @@ public class SignService {
                 .collect(Collectors.toMap(Member::getId, Member::getNickname));
 
     }
+
+    public int calculateAge(LocalDate birth) {
+        LocalDate today = LocalDate.now();
+        int age = today.getYear() - birth.getYear();
+        // 생일이 아직 안지났으면 1년 빼기
+        if (today.getMonthValue() < birth.getMonthValue() ||
+                (today.getMonthValue() == birth.getMonthValue() && today.getDayOfMonth() < birth.getDayOfMonth())) {
+            age--;
+        }
+        return age;
+    }
+
 }

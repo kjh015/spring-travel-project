@@ -36,8 +36,18 @@ public class BffBoardController {
                 .id(board.getId())
                 .title(board.getTitle())
                 .memberNickname(nicknameList.get(board.getMemberId()))
-                .modifiedDate(board.getModifiedDate()).build()
+                .modifiedDate(board.getModifiedDate())
+                .category(board.getCategory())
+                .region(board.getRegion())
+                .build()
         ).collect(Collectors.toList());
+    }
+    @GetMapping("/autocomplete")
+    public List<String> autocomplete(@RequestParam String keyword) {
+        System.out.println("auto keyword: " + keyword);
+        List<String> res = boardServiceClient.autocomplete(keyword);
+        System.out.println("result: " + res.toString());
+        return res;
     }
 
 

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,5 +19,8 @@ public class SignDto {
     private String nickname;
     private String gender;
     private List<String> roles;
+    private LocalDate birthDate;
     private LocalDateTime regDate;
+    private Integer age;
+
 }

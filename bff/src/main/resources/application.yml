@@ -38,6 +38,10 @@ favorite:
   ribbon:
     eureka:
       enabled: true
+monitoring:
+  ribbon:
+    eureka:
+      enabled: true
 
 eureka:
   instance:

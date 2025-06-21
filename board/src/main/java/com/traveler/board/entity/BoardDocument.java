@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class BoardDocument {
     private Long id;
     private String title;
+    private String titleChosung;
     private String content;
     private Long memberId;
     private String travelPlace;
