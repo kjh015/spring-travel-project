@@ -154,16 +154,18 @@ public class KafkaConsumerService {
                 List<Map<String, Object>> settings = objectMapper.readValue(ddp.getDeduplicationJson(), new TypeReference<>() {});
                 for (Map<String, Object> setting : settings) {
                     List<Map<String, Object>> conditions = (List<Map<String, Object>>) setting.get("conditions");
-                    // 조건 중 "?"를 실제 값으로 치환
+
                     boolean hit = true;
                     for (Map<String, Object> cond : conditions) {
-                        if ("?".equals(cond.get("value"))) {
+                        // 조건 중 "?"를 실제 값으로 치환
+                        if ("?".equals(cond.get("value")) && items.get((String)cond.get("format")) != null) {
                             cond.put("value", items.get((String) cond.get("format")));
                         }
                         String cFormat = (String) cond.get("format");
                         String cValue = (String) cond.get("value");
-                        if(!items.get(cFormat).equals(cValue)){
+                        if(items.get(cFormat) == null || !items.get(cFormat).equals(cValue)){
                             hit = false;
+                            break;
                         }
                     }
                     if(!hit) {

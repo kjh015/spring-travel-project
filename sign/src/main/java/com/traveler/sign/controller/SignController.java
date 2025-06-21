@@ -1,10 +1,7 @@
 package com.traveler.sign.controller;
 
 
-import com.traveler.sign.dto.PasswordDto;
-import com.traveler.sign.dto.SignDto;
-import com.traveler.sign.dto.SignInRequestDto;
-import com.traveler.sign.dto.SignInResultDto;
+import com.traveler.sign.dto.*;
 import com.traveler.sign.service.CustomSignException;
 import com.traveler.sign.service.InvalidTokenException;
 import com.traveler.sign.service.SignService;
@@ -56,7 +53,7 @@ public class SignController {
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@RequestBody SignDto signUp){
         logger.info("[signUp] 회원가입을 수행합니다. id : {}, password : ****, email : {}", signUp.getLoginId(), signUp.getEmail());
-        signService.signUp(signUp.getLoginId(), signUp.getPassword(), signUp.getEmail(), signUp.getNickname(), signUp.getGender());
+        signService.signUp(signUp);
         logger.info("[signUp] 회원가입을 완료했습니다. id : {}", signUp.getLoginId());
         return ResponseEntity.ok("회원가입 완료");
     }
@@ -177,8 +174,9 @@ public class SignController {
 
 
     @ExceptionHandler(CustomSignException.class)
-    public ResponseEntity<String> ExceptionHandler(CustomSignException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    public ResponseEntity<ErrorResponse> ExceptionHandler(CustomSignException e) {
+        ErrorResponse err = new ErrorResponse(0, e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
     }
 
 

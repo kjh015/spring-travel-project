@@ -5,6 +5,7 @@ import com.traveler.bff.dto.service.PasswordDto;
 import com.traveler.bff.dto.service.SignDto;
 import com.traveler.bff.dto.service.SignInRequestDto;
 import com.traveler.bff.dto.service.SignInResultDto;
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +22,7 @@ public class BffSignController {
     private final SignServiceClient signServiceClient;
 
     @PostMapping("/sign-in")
-    public ResponseEntity<SignInResultDto> signIn(@RequestBody SignInRequestDto signIn) {
+    public ResponseEntity<SignInResultDto> signIn(@RequestBody SignInRequestDto signIn) throws FeignException {
         ResponseEntity<SignInResultDto> response = signServiceClient.signIn(signIn);
 
         // sign-api 응답의 Set-Cookie 헤더 추출
@@ -32,7 +33,6 @@ public class BffSignController {
         if (setCookieHeaders != null) {
             builder.header(HttpHeaders.SET_COOKIE, setCookieHeaders.toArray(new String[0]));
         }
-
         // 최종 바디(토큰 등) 포함해서 반환
         return builder.body(response.getBody());
     }
@@ -121,5 +121,12 @@ public class BffSignController {
     @PostMapping("/nickname")
     public String getNickname(@RequestBody Map<String, String> data) {
         return signServiceClient.getNicknameByLoginId(data);
+    }
+
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<?> handleFeignError(FeignException ex) {
+        // 서비스 오류 body
+        String errorBody = ex.contentUTF8();
+        return ResponseEntity.status(ex.status()).body(errorBody);
     }
 }

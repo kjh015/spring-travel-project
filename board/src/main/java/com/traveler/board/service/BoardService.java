@@ -37,6 +37,8 @@ public class BoardService {
                 .title(board.getTitle())
                 .memberId(board.getMemberId())
                 .modifiedDate(board.getModifiedDate())
+                .category(board.getCategory())
+                .region(board.getRegion())
                 .build()
         ).collect(Collectors.toList());
     }
@@ -44,8 +46,16 @@ public class BoardService {
 
 
     public List<BoardListDto> listArticles() throws DataAccessException{
-        List<BoardListDto> boardList = boardRepository.findAllBoardListDto();
-        return boardList;
+        List<Board> boardList = boardRepository.findAll();
+        return boardList.stream().map(board -> BoardListDto.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .memberId(board.getMemberId())
+                .modifiedDate(board.getModifiedDate())
+                .category(board.getTravelPlace().getCategory().getName())
+                .region(board.getTravelPlace().getRegion().getName())
+                .build()
+        ).collect(Collectors.toList());
     }
 
     @Transactional
@@ -149,11 +159,13 @@ public class BoardService {
     public List<BoardListDto> getListPart(List<Long> boardIDs){
         List<Board> boards = boardRepository.findByIdIn(boardIDs);
         return boards.stream().map(board -> BoardListDto.builder()
-                .id(board.getId())
-                .title(board.getTitle())
-                .modifiedDate(board.getModifiedDate())
-                .memberId(board.getMemberId())
-                .build())
+                        .id(board.getId())
+                        .title(board.getTitle())
+                        .modifiedDate(board.getModifiedDate())
+                        .memberId(board.getMemberId())
+                        .category(board.getTravelPlace().getCategory().getName())
+                        .region(board.getTravelPlace().getRegion().getName())
+                        .build())
                 .collect(Collectors.toList());
 
     }
@@ -164,6 +176,8 @@ public class BoardService {
                         .title(board.getTitle())
                         .modifiedDate(board.getModifiedDate())
                         .memberId(board.getMemberId())
+                        .category(board.getTravelPlace().getCategory().getName())
+                        .region(board.getTravelPlace().getRegion().getName())
                         .build())
                 .collect(Collectors.toList());
 

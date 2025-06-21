@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +40,8 @@ public class Member implements UserDetails {
     private String nickname;
 
     private String gender;
+
+    private LocalDate birthDate;
 
     @ElementCollection(fetch=FetchType.EAGER)
     @Builder.Default

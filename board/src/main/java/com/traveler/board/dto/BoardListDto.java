@@ -14,4 +14,6 @@ public class BoardListDto {
     private String title;
     private Long memberId;
     private LocalDateTime modifiedDate;
+    private String category;
+    private String region;
 }
