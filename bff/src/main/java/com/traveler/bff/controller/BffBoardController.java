@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.bff.client.BoardServiceClient;
 import com.traveler.bff.client.SignServiceClient;
 import com.traveler.bff.dto.front.BoardFrontDto;
+import com.traveler.bff.dto.front.SearchFrontDto;
 import com.traveler.bff.dto.service.BoardDto;
 import com.traveler.bff.dto.service.BoardListDto;
+import com.traveler.bff.dto.service.SearchResultDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,20 +29,24 @@ public class BffBoardController {
     private final SignServiceClient signServiceClient;
 
     @GetMapping("/search")
-    public List<BoardFrontDto> getArticleListBySearch(@RequestParam String keyword, @RequestParam String category, @RequestParam String region,
-                                                      @RequestParam String sort, @RequestParam String direction, @RequestParam String page) {
-        List<BoardListDto> boardList = boardServiceClient.getArticleListBySearch(keyword, category, region, sort, direction, page);
-        Set<Long> IDs = boardList.stream().map(BoardListDto::getMemberId).collect(Collectors.toSet());
+    public SearchFrontDto getArticleListBySearch(@RequestParam String keyword, @RequestParam String category, @RequestParam String region,
+                                                 @RequestParam String sort, @RequestParam String direction, @RequestParam String page) {
+        SearchResultDto searchResult = boardServiceClient.getArticleListBySearch(keyword, category, region, sort, direction, page);
+        Set<Long> IDs = searchResult.getResult().stream().map(BoardListDto::getMemberId).collect(Collectors.toSet());
         Map<Long, String> nicknameList = signServiceClient.getNicknameList(new ArrayList<>(IDs));
-        return boardList.stream().map(board -> BoardFrontDto.builder()
+        List<BoardFrontDto> boardList = searchResult.getResult().stream().map(board -> BoardFrontDto.builder()
                 .id(board.getId())
                 .title(board.getTitle())
                 .memberNickname(nicknameList.get(board.getMemberId()))
                 .modifiedDate(board.getModifiedDate())
                 .category(board.getCategory())
                 .region(board.getRegion())
+                .viewCount(board.getViewCount())
+                .ratingAvg(board.getRatingAvg())
                 .build()
-        ).collect(Collectors.toList());
+        ).toList();
+        return new SearchFrontDto(boardList, searchResult.getTotalHits());
+
     }
     @GetMapping("/autocomplete")
     public List<String> autocomplete(@RequestParam String keyword) {

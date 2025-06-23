@@ -1,10 +1,11 @@
 package com.traveler.board.service;
 
 
+import com.traveler.board.dto.BoardDocumentDto;
 import com.traveler.board.dto.BoardDto;
 import com.traveler.board.dto.BoardListDto;
+import com.traveler.board.dto.SearchResultDto;
 import com.traveler.board.entity.Board;
-import com.traveler.board.entity.BoardDocument;
 import com.traveler.board.entity.Image;
 import com.traveler.board.repository.BoardRepository;
 import com.traveler.board.repository.ImageRepository;
@@ -30,17 +31,22 @@ public class BoardService {
     private final SearchService searchService;
     private final KafkaProducerService kafkaProducerService;
 
-    public List<BoardListDto> listArticlesBySearch(String keyword, String category, String region, String sort, String direction, int page) throws DataAccessException{
-        List<BoardDocument> result = searchService.search(keyword, category, region, sort, direction, page);
-        return result.stream().map(board -> BoardListDto.builder()
+    public SearchResultDto listArticlesBySearch(String keyword, String category, String region, String sort, String direction, int page) throws DataAccessException{
+        BoardDocumentDto searchResult = searchService.search(keyword, category, region, sort, direction, page);
+
+        List<BoardListDto> result = searchResult.getResult().stream().map(board -> BoardListDto.builder()
                 .id(board.getId())
                 .title(board.getTitle())
                 .memberId(board.getMemberId())
                 .modifiedDate(board.getModifiedDate())
                 .category(board.getCategory())
                 .region(board.getRegion())
+                .viewCount(board.getViewCount())
+                .ratingAvg(board.getRatingAvg())
                 .build()
-        ).collect(Collectors.toList());
+        ).toList();
+        Long totalHits = searchResult.getTotalHits();
+        return new SearchResultDto(result, totalHits);
     }
 
 

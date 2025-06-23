@@ -10,6 +10,7 @@ import co.elastic.clients.elasticsearch.core.BulkRequest;
 import co.elastic.clients.elasticsearch.core.BulkResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.traveler.board.dto.BoardDocumentDto;
 import com.traveler.board.entity.Board;
 import com.traveler.board.entity.BoardDocument;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class SearchService {
     private final String indexName = "board-test5";
     private final int size = 10;
 
-    public List<BoardDocument> search(String keyword, String category, String region, String sort, String direction, int page) {
+    public BoardDocumentDto search(String keyword, String category, String region, String sort, String direction, int page) {
         List<Query> filters = new ArrayList<>();
         if (category != null && !category.isEmpty()) {
             filters.add(Query.of(q -> q.term(t -> t.field("category").value(category))));
@@ -115,9 +116,15 @@ public class SearchService {
             throw new RuntimeException(e);
         }
 
-        return response.hits().hits().stream()
+        List<BoardDocument> result = response.hits().hits().stream()
                 .map(Hit::source)
                 .toList();
+        long totalHits = 0L;
+        if (response.hits().total() != null) {
+            totalHits = response.hits().total().value();
+        }
+
+        return new BoardDocumentDto(result, totalHits);
     }
 
 
