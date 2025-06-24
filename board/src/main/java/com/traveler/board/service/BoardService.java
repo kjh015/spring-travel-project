@@ -36,7 +36,7 @@ public class BoardService {
                 .id(board.getId())
                 .title(board.getTitle())
                 .memberId(board.getMemberId())
-                .modifiedDate(board.getModifiedDate().toLocalDateTime())
+                .modifiedDate(board.getModifiedDate())
                 .category(board.getCategory())
                 .region(board.getRegion())
                 .build()
