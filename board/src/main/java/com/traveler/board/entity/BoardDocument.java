@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
 @Builder
@@ -21,8 +21,8 @@ public class BoardDocument {
     private String address;
     private String category;
     private String region;
-    private LocalDateTime regDate;
-    private LocalDateTime modifiedDate;
+    private OffsetDateTime regDate;
+    private OffsetDateTime modifiedDate;
     private Double ratingAvg;
     private Long viewCount;
     private Long favoriteCount;

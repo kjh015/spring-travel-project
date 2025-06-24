@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -207,8 +208,8 @@ public class SearchService {
                 .region(board.getTravelPlace().getRegion().getName())
                 .travelPlace(board.getTravelPlace().getName())
                 .category(board.getTravelPlace().getCategory().getName())
-                .regDate(board.getRegDate())
-                .modifiedDate(board.getModifiedDate())
+                .regDate(board.getRegDate().atZone(ZoneId.of("Asia/Seoul")).toOffsetDateTime())
+                .modifiedDate(board.getModifiedDate().atZone(ZoneId.of("Asia/Seoul")).toOffsetDateTime())
                 .ratingAvg(0.0)
                 .commentCount(0L)
                 .favoriteCount(0L)
@@ -237,8 +238,8 @@ public class SearchService {
                 .region(board.getTravelPlace().getRegion().getName())
                 .travelPlace(board.getTravelPlace().getName())
                 .category(board.getTravelPlace().getCategory().getName())
-                .regDate(board.getRegDate())
-                .modifiedDate(board.getModifiedDate())
+                .regDate(board.getRegDate().atZone(ZoneId.of("Asia/Seoul")).toOffsetDateTime())
+                .modifiedDate(board.getModifiedDate().atZone(ZoneId.of("Asia/Seoul")).toOffsetDateTime())
                 .ratingAvg(board.getRatingAvg() != null ? board.getRatingAvg() : 0.0)
                 .commentCount(board.getCommentCount() != null ? board.getCommentCount() : 0L)
                 .favoriteCount(board.getFavoriteCount() != null ? board.getFavoriteCount() : 0L)
