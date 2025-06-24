@@ -146,7 +146,7 @@ public class BoardService {
         try {
             for (MultipartFile file : files) {
                 String path = imageStorageService.store(file);
-                System.out.println("image upload success...");
+                System.out.println("image upload success... path: " + path);
 
                 Image image = new Image();
                 image.setBoard(board);

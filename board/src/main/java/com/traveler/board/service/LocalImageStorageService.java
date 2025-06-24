@@ -18,6 +18,7 @@ public class LocalImageStorageService implements ImageStorageService {
     @Override
     public String store(MultipartFile file) throws IOException {
         System.out.println("image store proceed... file = " + file.getOriginalFilename());
+        System.out.println("upload_dir: " + UPLOAD_DIR);
         String uuid = UUID.randomUUID().toString();
         String ext = Objects.requireNonNull(file.getOriginalFilename()).substring(file.getOriginalFilename().lastIndexOf('.'));
         String fileName = uuid + ext;
