@@ -6,6 +6,7 @@ import com.traveler.logpipeline.dto.FormatRequestDto;
 import com.traveler.logpipeline.dto.FormatResponseDto;
 import com.traveler.logpipeline.entity.Format;
 import com.traveler.logpipeline.service.FormatService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,13 +14,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/format")
+@RequiredArgsConstructor
 public class FormatController {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
     private final FormatService formatService;
 
-    public FormatController(FormatService formatService) {
-        this.formatService = formatService;
-    }
 
     @GetMapping("/list")
     public List<FormatResponseDto> getFormatList(@RequestParam String processId){

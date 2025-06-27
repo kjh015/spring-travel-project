@@ -35,19 +35,4 @@ public class LogController {
     }
 
 
-
-
-//    @GetMapping("/success-process")
-//    public List<LogSuccess> listSuccessLogsByProcess(@RequestParam String processId){
-//        return logSuccessService.listSuccessLogsByProcess(Long.parseLong(processId));
-//    }
-//    @GetMapping("/fail-process")
-//    public List<LogFail> listFailLogsByProcess(@RequestParam String processId){
-//        return logFailService.listFailLogsByProcess(Long.parseLong(processId));
-//    }
-//    @GetMapping("/fail-filter")
-//    public List<LogFail> listFailLogsByFilter(@RequestParam String filterId){
-//        return logFailService.listFailLogsByFilter(Long.parseLong(filterId));
-//    }
-
 }

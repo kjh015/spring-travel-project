@@ -2,6 +2,7 @@ package com.traveler.logpipeline.controller;
 
 import com.traveler.logpipeline.dto.ProcessDto;
 import com.traveler.logpipeline.service.ProcessService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.traveler.logpipeline.entity.Process;
 
@@ -10,12 +11,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/process")
+@RequiredArgsConstructor
 public class ProcessController {
     private final ProcessService processService;
 
-    public ProcessController(ProcessService processService) {
-        this.processService = processService;
-    }
 
     @GetMapping("/list")
     public List<ProcessDto> getProcessList(){

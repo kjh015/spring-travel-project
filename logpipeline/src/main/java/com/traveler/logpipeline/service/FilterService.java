@@ -4,20 +4,17 @@ import com.traveler.logpipeline.dto.FilterResponseDto;
 import com.traveler.logpipeline.entity.Filter;
 import com.traveler.logpipeline.repository.FilterRepository;
 import com.traveler.logpipeline.repository.ProcessRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class FilterService {
     private final FilterRepository filterRepository;
     private final ProcessRepository processRepository;
-
-    public FilterService(FilterRepository filterRepository, ProcessRepository processRepository) {
-        this.filterRepository = filterRepository;
-        this.processRepository = processRepository;
-    }
 
     public List<FilterResponseDto> listFilters(Long processId){
         List<Filter> filterList = filterRepository.findAllByProcess_Id(processId);

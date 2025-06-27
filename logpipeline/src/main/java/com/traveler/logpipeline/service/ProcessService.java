@@ -4,18 +4,16 @@ package com.traveler.logpipeline.service;
 import com.traveler.logpipeline.dto.ProcessDto;
 import com.traveler.logpipeline.entity.Process;
 import com.traveler.logpipeline.repository.ProcessRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProcessService {
     private final ProcessRepository processRepository;
-
-    public ProcessService(ProcessRepository processRepository) {
-        this.processRepository = processRepository;
-    }
 
     public List<ProcessDto> listProcesses(){
         return processRepository.findAll().stream()

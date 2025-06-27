@@ -23,7 +23,7 @@ public class DeduplicationService {
     private final DeduplicationRepository deduplicationRepository;
     private final LogPassHistoryRepository logPassHistoryRepository;
     private final ProcessRepository processRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
 
     @Transactional

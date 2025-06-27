@@ -6,21 +6,18 @@ import com.traveler.logpipeline.dto.FormatResponseDto;
 import com.traveler.logpipeline.entity.Format;
 import com.traveler.logpipeline.repository.FormatRepository;
 import com.traveler.logpipeline.repository.ProcessRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class FormatService {
     private final FormatRepository formatRepository;
     private final ProcessRepository processRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public FormatService(FormatRepository formatRepository, ProcessRepository processRepository) {
-        this.formatRepository = formatRepository;
-        this.processRepository = processRepository;
-    }
+    private final ObjectMapper objectMapper;
 
     public List<FormatResponseDto> listFormats(Long processId){
         List<Format> formatList = formatRepository.findAllByProcess_Id(processId);

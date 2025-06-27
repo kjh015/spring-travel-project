@@ -22,7 +22,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class KafkaConsumerService {
     static Long processId = 1L;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
     private final FormatService formatService;
     private final FilterService filterService;
     private final LogSuccessService logSuccessService;

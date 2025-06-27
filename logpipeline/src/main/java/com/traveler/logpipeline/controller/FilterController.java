@@ -7,22 +7,21 @@ import com.traveler.logpipeline.dto.FilterResponseDto;
 import com.traveler.logpipeline.entity.Filter;
 import com.traveler.logpipeline.service.FilterService;
 import com.traveler.logpipeline.service.FormatService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/filter")
+@RequiredArgsConstructor
 public class FilterController {
     private final FilterService filterService;
     private final FormatService formatService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public FilterController(FilterService filterService, FormatService formatService) {
-        this.filterService = filterService;
-        this.formatService = formatService;
-    }
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/list")
     public List<FilterResponseDto> getFilterList(@RequestParam String processId){
