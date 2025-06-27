@@ -21,7 +21,12 @@ public class LogController {
 
     @GetMapping("/success")
     public List<LogDto> listSuccessLogs(){
-        return logSuccessService.listSuccessLogs();
+        List<LogDto> log = logSuccessService.listSuccessLogs();
+        System.out.println("-----------------------------");
+        System.out.println("Success Log: ");
+        System.out.println(log);
+        System.out.println("-----------------------------");
+        return log;
     }
 
     @GetMapping("/fail-filter")
