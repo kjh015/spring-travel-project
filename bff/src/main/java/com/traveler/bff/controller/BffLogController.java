@@ -17,7 +17,12 @@ public class BffLogController {
 
     @GetMapping("/success")
     public List<LogDto> listSuccessLogs() {
-        return logpipelineServiceClient.listSuccessLogs();
+        List<LogDto> log = logpipelineServiceClient.listSuccessLogs();
+        System.out.println("-----------------------------");
+        System.out.println("Success Log: ");
+        System.out.println(log);
+        System.out.println("-----------------------------");
+        return log;
     }
 
     @GetMapping("/fail-filter")
