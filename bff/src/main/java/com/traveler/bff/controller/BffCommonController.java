@@ -29,37 +29,43 @@ public class BffCommonController {
     private final CommentServiceClient commentServiceClient;
 
     @PostMapping("/my-favorite")
-    public List<BoardFrontDto> getFavoriteListByMember(@RequestParam String nickname){
+    public List<BoardFrontDto> getFavoriteListByMember(@RequestParam String nickname) {
         //nickname -> id
         //id -> fav list -> fav list에서 가져온 boardList를 get요청 -> front 전달
         Long memberId = signServiceClient.getIdByNickname(nickname);
         Set<Long> boardIDs = favoriteServiceClient.getFavoriteList(memberId);
         List<BoardListDto> boardList = boardServiceClient.getListPart(new ArrayList<>(boardIDs));
         return boardList.stream().map(board -> BoardFrontDto.builder()
-                .id(board.getId())
-                .memberNickname(signServiceClient.getNicknameById(board.getMemberId()))
-                .title(board.getTitle())
-                .modifiedDate(board.getModifiedDate())
-                .build())
+                        .id(board.getId())
+                        .memberNickname(signServiceClient.getNicknameById(board.getMemberId()))
+                        .title(board.getTitle())
+                        .modifiedDate(board.getModifiedDate())
+                        .category(board.getCategory())
+                        .region(board.getRegion())
+                        .viewCount(board.getViewCount())
+                        .ratingAvg(board.getRatingAvg())
+                        .build())
                 .collect(Collectors.toList());
 
     }
+
     @PostMapping("/my-comment")
-    public List<CommentFrontDto> getCommentListByMember(@RequestParam String nickname){
+    public List<CommentFrontDto> getCommentListByMember(@RequestParam String nickname) {
         Long memberId = signServiceClient.getIdByNickname(nickname);
         List<CommentDto> comments = commentServiceClient.getCommentListByMember(memberId);
         return comments.stream().map(comment -> CommentFrontDto.builder()
-                .no(comment.getNo())
-                .id(comment.getId())
-                .nickname(signServiceClient.getNicknameById(comment.getMemberId()))
-                .createdTime(comment.getCreatedTime())
-                .rating(String.valueOf(comment.getRating()))
-                .content(comment.getContent())
-                .build())
+                        .no(comment.getNo())
+                        .id(comment.getId())
+                        .nickname(signServiceClient.getNicknameById(comment.getMemberId()))
+                        .createdTime(comment.getCreatedTime())
+                        .rating(String.valueOf(comment.getRating()))
+                        .content(comment.getContent())
+                        .build())
                 .collect(Collectors.toList());
     }
+
     @PostMapping("/my-board")
-    public List<BoardFrontDto> getBoardListByMember(@RequestParam String nickname){
+    public List<BoardFrontDto> getBoardListByMember(@RequestParam String nickname) {
         Long memberId = signServiceClient.getIdByNickname(nickname);
         List<BoardListDto> boardList = boardServiceClient.getListByMember(memberId);
         return boardList.stream().map(board -> BoardFrontDto.builder()
@@ -67,6 +73,10 @@ public class BffCommonController {
                         .memberNickname(signServiceClient.getNicknameById(board.getMemberId()))
                         .title(board.getTitle())
                         .modifiedDate(board.getModifiedDate())
+                        .category(board.getCategory())
+                        .region(board.getRegion())
+                        .viewCount(board.getViewCount())
+                        .ratingAvg(board.getRatingAvg())
                         .build())
                 .collect(Collectors.toList());
 

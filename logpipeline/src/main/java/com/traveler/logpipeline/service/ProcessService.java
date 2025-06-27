@@ -4,7 +4,6 @@ package com.traveler.logpipeline.service;
 import com.traveler.logpipeline.dto.ProcessDto;
 import com.traveler.logpipeline.entity.Process;
 import com.traveler.logpipeline.repository.ProcessRepository;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public class ProcessService {
     }
 
     public List<ProcessDto> listProcesses(){
-        return processRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream()
+        return processRepository.findAll().stream()
                 .map(process -> ProcessDto.builder()
                         .id(process.getId())
                         .name(process.getName())

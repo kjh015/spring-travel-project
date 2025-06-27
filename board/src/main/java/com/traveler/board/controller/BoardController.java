@@ -1,9 +1,11 @@
 package com.traveler.board.controller;
 
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.board.dto.BoardDto;
 import com.traveler.board.dto.BoardListDto;
+import com.traveler.board.dto.SearchResultDto;
 import com.traveler.board.service.BoardService;
 import com.traveler.board.service.CustomBoardException;
 import com.traveler.board.service.SearchService;
@@ -36,9 +38,9 @@ public class BoardController {
     Logger logger = LoggerFactory.getLogger(BoardController.class);
 
     @GetMapping("/search")
-    public List<BoardListDto> getArticleListBySearch(@RequestParam String keyword, @RequestParam String category, @RequestParam String region,
-                                                     @RequestParam String sort, @RequestParam String direction, @RequestParam String page){
-        return boardService.listArticlesBySearch(keyword, category, region, sort, direction, Integer.parseInt(page));
+    public ResponseEntity<SearchResultDto> getArticleListBySearch(@RequestParam String keyword, @RequestParam String category, @RequestParam String region,
+                                                                  @RequestParam String sort, @RequestParam String direction, @RequestParam String page){
+        return ResponseEntity.ok().body(boardService.listArticlesBySearch(keyword, category, region, sort, direction, Integer.parseInt(page)));
     }
     @GetMapping("/autocomplete")
     public List<String> autocomplete(@RequestParam String keyword) {
@@ -95,10 +97,16 @@ public class BoardController {
 
     @PostMapping("/edit")
     public ResponseEntity<String> editArticle(@RequestPart("board") String board,
-                                              @RequestPart(value = "images", required = false) List<MultipartFile> images){
+                                              @RequestPart(value = "images", required = false) List<MultipartFile> images,
+                                              @RequestPart(value = "existingImages", required = false) String existingImagesJson){
         try{
             BoardDto data = new ObjectMapper().readValue(board, BoardDto.class);
-            boardService.editArticle(data, images);
+            // parse existingImages
+            List<String> existingImages = new ArrayList<>();
+            if (existingImagesJson != null && !existingImagesJson.isBlank()) {
+                existingImages = new ObjectMapper().readValue(existingImagesJson, new TypeReference<List<String>>() {});
+            }
+            boardService.editArticle(data, images, existingImages);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

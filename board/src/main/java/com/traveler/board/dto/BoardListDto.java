@@ -16,4 +16,6 @@ public class BoardListDto {
     private LocalDateTime modifiedDate;
     private String category;
     private String region;
+    private Double ratingAvg;
+    private Long viewCount;
 }
