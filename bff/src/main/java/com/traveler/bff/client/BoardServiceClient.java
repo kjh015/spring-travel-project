@@ -36,7 +36,8 @@ public interface BoardServiceClient {
 
     @PostMapping(value = "/board/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<String> editArticle(@RequestPart("board") String data,
-                                       @RequestPart(value = "images", required = false) List<MultipartFile> images);
+                                       @RequestPart(value = "images", required = false) List<MultipartFile> images,
+                                       @RequestPart(value = "existingImages", required = false) String existingImagesJson);
 
     @PostMapping("/board/remove")
     ResponseEntity<String> removeArticle(@RequestParam String no);

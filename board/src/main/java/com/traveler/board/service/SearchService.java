@@ -9,6 +9,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.BulkRequest;
 import co.elastic.clients.elasticsearch.core.BulkResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.traveler.board.dto.BoardDocumentDto;
 import com.traveler.board.entity.Board;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -198,10 +200,84 @@ public class SearchService {
                 .collect(Collectors.toList());
     }
 
+    public void updateComment(Board board){
+        try {
+            elasticsearchClient.update(
+                    UpdateRequest.of(u -> u
+                            .index(indexName)
+                            .id(board.getId().toString())
+                            .doc(Map.of(
+                                    "ratingAvg", board.getRatingAvg(),
+                                    "commentCount", board.getCommentCount()
+                            ))
 
+                    ),
+                    BoardDocument.class
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    public void updateFavoriteCount(Board board){
+        try {
+            elasticsearchClient.update(
+                    UpdateRequest.of(u -> u
+                            .index(indexName)
+                            .id(board.getId().toString())
+                            .doc(Map.of("favoriteCount", board.getFavoriteCount()))
+                    ),
+                    BoardDocument.class
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    public void updateViewCount(Board board){
+        try {
+            elasticsearchClient.update(
+                    UpdateRequest.of(u -> u
+                            .index(indexName)
+                            .id(board.getId().toString())
+                            .doc(Map.of("viewCount", board.getViewCount()))
+                    ),
+                    BoardDocument.class
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    public void updateES(Board board){
+        BoardDocument esDoc = BoardDocument.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .titleChosung(getChosung(board.getTitle()))
+                .content(board.getContent())
+                .memberId(board.getMemberId())
+                .address(board.getTravelPlace().getAddress())
+                .region(board.getTravelPlace().getRegion().getName())
+                .travelPlace(board.getTravelPlace().getName())
+                .category(board.getTravelPlace().getCategory().getName())
+                .regDate(board.getRegDate())
+                .modifiedDate(board.getModifiedDate())
+                .ratingAvg(board.getRatingAvg())
+                .commentCount(board.getCommentCount())
+                .favoriteCount(board.getFavoriteCount())
+                .viewCount(board.getViewCount())
+                .build();
+
+        try {
+            elasticsearchClient.index(i -> i
+                    .index(indexName) // 인덱스명
+                    .id(esDoc.getId().toString())
+                    .document(esDoc)
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void saveToES(Board board) {
         BoardDocument esDoc = BoardDocument.builder()

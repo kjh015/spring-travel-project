@@ -60,6 +60,8 @@ public class BoardService {
                 .modifiedDate(board.getModifiedDate())
                 .category(board.getTravelPlace().getCategory().getName())
                 .region(board.getTravelPlace().getRegion().getName())
+                .viewCount(board.getViewCount())
+                .ratingAvg(board.getRatingAvg())
                 .build()
         ).collect(Collectors.toList());
     }
@@ -101,30 +103,29 @@ public class BoardService {
     }
 
     @Transactional
-    public void editArticle(BoardDto data, List<MultipartFile> images){
+    public void editArticle(BoardDto data, List<MultipartFile> images, List<String> existingImages){
         Board board = boardRepository.findById(Long.parseLong(data.getNo())).orElseThrow(RuntimeException::new);
-        board.setId(Long.parseLong(data.getNo()));
         board.setTitle(data.getTitle());
         board.setContent(data.getContent());
         board.setMemberId(data.getMemberId());
         board.setTravelPlace(travelPlaceService.editAndGetTravelPlace(board.getTravelPlace().getId(), data.getCategory(), data.getRegion(), data.getTravelPlace(), data.getAddress()));
 
-        List<Image> existingImages = imageRepository.findByBoard(board);
-        for (Image img : existingImages) {
-            imageRepository.delete(img);
-            try {
-                imageStorageService.delete(img.getPath());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        List<Image> dbImages = imageRepository.findByBoard(board);
+        for (Image img : dbImages) {
+            if (existingImages == null || !existingImages.contains(img.getPath())) {
+                imageRepository.delete(img);
+                try {
+                    imageStorageService.delete(img.getPath());
+                } catch (IOException e) {
+                    System.err.println("이미지 삭제 실패: " + img.getPath());
+                }
             }
         }
         // 2. 새 이미지 저장
         if (images != null && !images.isEmpty()) {
             uploadImages(images, board);
         }
-        searchService.saveToES(board);
-//        Board savedBoard = boardRepository.save(board);
-//        searchService.saveToES(savedBoard);
+        searchService.updateES(board);
     }
     public void removeArticle(Long no){
         Board board = boardRepository.findById(no).orElseThrow(() -> new CustomBoardException("존재하지 않는 게시글입니다."));
@@ -171,6 +172,8 @@ public class BoardService {
                         .memberId(board.getMemberId())
                         .category(board.getTravelPlace().getCategory().getName())
                         .region(board.getTravelPlace().getRegion().getName())
+                        .viewCount(board.getViewCount())
+                        .ratingAvg(board.getRatingAvg())
                         .build())
                 .collect(Collectors.toList());
 
@@ -184,6 +187,8 @@ public class BoardService {
                         .memberId(board.getMemberId())
                         .category(board.getTravelPlace().getCategory().getName())
                         .region(board.getTravelPlace().getRegion().getName())
+                        .viewCount(board.getViewCount())
+                        .ratingAvg(board.getRatingAvg())
                         .build())
                 .collect(Collectors.toList());
 
@@ -194,9 +199,9 @@ public class BoardService {
     }
 
     @Transactional
-    public void updateRatingAvg(Long boardId, Integer rating, boolean isAdd) {
+    public Board updateRatingAvg(Long boardId, Integer rating, boolean isAdd) {
         Board board = boardRepository.findById(boardId).orElse(null);
-        if (board == null) return;
+        if (board == null) return null;
 
         long commentCount = board.getCommentCount() == null ? 0L : board.getCommentCount();
         double ratingAvg = board.getRatingAvg() == null ? 0.0 : board.getRatingAvg();
@@ -214,20 +219,23 @@ public class BoardService {
             board.setCommentCount(newCommentCount);
             board.setRatingAvg(newRatingAvg);
         }
+        return boardRepository.save(board);
     }
 
     @Transactional
-    public void updateFavoriteCount(Long boardId, boolean isAdd) {
+    public Board updateFavoriteCount(Long boardId, boolean isAdd) {
         Board board = boardRepository.findById(boardId).orElse(null);
-        if (board == null) return;
+        if (board == null) return null;
 
         long favoriteCount = board.getFavoriteCount() == null ? 0L : board.getFavoriteCount();
         board.setFavoriteCount(isAdd ? favoriteCount + 1 : favoriteCount - 1);
+        return boardRepository.save(board);
     }
 
     @Transactional
-    public void updateViewCount(Long boardId){
+    public Board updateViewCount(Long boardId){
         boardRepository.increaseViewCount(boardId);
+        return boardRepository.findById(boardId).orElse(null);
     }
 
 }

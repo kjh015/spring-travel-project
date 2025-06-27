@@ -66,7 +66,12 @@ public class BffBoardController {
                 .id(board.getId())
                 .title(board.getTitle())
                 .memberNickname(nicknameList.get(board.getMemberId()))
-                .modifiedDate(board.getModifiedDate()).build()
+                .modifiedDate(board.getModifiedDate())
+                .category(board.getCategory())
+                .region(board.getRegion())
+                .viewCount(board.getViewCount())
+                .ratingAvg(board.getRatingAvg())
+                .build()
         ).collect(Collectors.toList());
     }
 
@@ -111,7 +116,8 @@ public class BffBoardController {
 
     @PostMapping("/edit")
     public ResponseEntity<?> editArticle(@RequestPart("board") BoardFrontDto data,
-                                         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
+                                         @RequestPart(value = "images", required = false) List<MultipartFile> images,
+                                         @RequestPart(value = "existingImages", required = false) String existingImagesJson) throws JsonProcessingException {
         BoardDto board = BoardDto.builder()
                 .no(data.getId())
                 .title(data.getTitle())
@@ -124,7 +130,7 @@ public class BffBoardController {
                 .build();
         ObjectMapper mapper = new ObjectMapper();
         String boardJson = mapper.writeValueAsString(board);
-        return boardServiceClient.editArticle(boardJson, images);
+        return boardServiceClient.editArticle(boardJson, images, existingImagesJson);
     }
 
     @PostMapping("/remove")
