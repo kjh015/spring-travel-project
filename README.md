@@ -29,7 +29,11 @@ Trip Now: 실시간 인기 여행지 공유 웹사이트
 - **Data Processing & Analytics**: Matomo, Fluentd, Kafka, Elasticsearch, Logstash, Kibana
 - **DevOps**: Docker, KT Cloud, Jenkins, DockerHub, GitHub
 
+## 진행 기간
+2025년 4월 22일 ~ 2025년 6월 27일
+
 ## 역할
+팀원 2명 중 백엔드 담당
 
 - 백엔드 전체 개발
     - MSA 구조 설계, 게시판 및 회원 서비스 API 개발, 로그 수집 및 활용 프로세스 구현
