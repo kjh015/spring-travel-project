@@ -51,6 +51,7 @@ https://github.com/user-attachments/assets/3151ec71-ab2f-4521-9814-075f17e4ac33
 
 https://github.com/user-attachments/assets/85740613-ce1c-4dd7-b9c7-dffdc2f5380e
 
+(README 초안)
 
 
 
