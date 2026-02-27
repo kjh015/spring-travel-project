@@ -21,6 +21,9 @@ Trip Now: 실시간 인기 여행지 공유 웹사이트
 ## 시스템 구성도
 <img width="738" height="834" alt="TripNow 시스템구성도" src="https://github.com/user-attachments/assets/fda865c3-299a-441a-a0cd-de319f2f5202" />
 
+## 실시간 사용자 로그 데이터 수집 및 정제 파이프라인
+<img width="1370" height="626" alt="실시간 사용자 로그 데이터 수집 및 정제 파이프라인" src="https://github.com/user-attachments/assets/3ab3cd84-8e16-4c50-b952-6776312d4e2c" />
+
 ## 사용 기술 및 도구
 
 - **Frontend**: React, Nginx, JavaScript
