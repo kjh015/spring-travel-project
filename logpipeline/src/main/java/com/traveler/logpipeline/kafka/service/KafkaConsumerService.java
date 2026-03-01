@@ -5,18 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.logpipeline.entity.*;
 import com.traveler.logpipeline.kafka.dto.LogDto;
 import com.traveler.logpipeline.service.*;
-import lombok.RequiredArgsConstructor;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
-
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.*;
+import lombok.RequiredArgsConstructor;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -36,37 +35,36 @@ public class KafkaConsumerService {
         System.out.println("Start Topic Consumed: " + record.value());
     }
 
-
     @KafkaListener(topics = "START_TOPIC", groupId = "matomo-log-consumer")
     public void startTopic(ConsumerRecord<String, String> record) {
         try {
             LogDto log = objectMapper.readValue(record.value(), LogDto.class);
             System.out.println("Start Topic Consumed: " + log.toString());
-            //log에서 query 부분 추출
+            // log에서 query 부분 추출
             Map<String, String> query = parseQueryParams(log.getPath());
 
             System.out.println(query);
 
-            //send할 Map
+            // send할 Map
             Map<String, String> items = new HashMap<>();
 
-            //활성화 된 format만 추출
+            // 활성화 된 format만 추출
             List<Format> formats = formatService.activeFormats(processId);
-            //로그의 데이터를 포매팅
+            // 로그의 데이터를 포매팅
             for (Format format : formats) {
-                Map<String, String> formatInfo = objectMapper.readValue(format.getFormatJson(), new TypeReference<>() {
-                });
-                Map<String, String> defaultInfo = objectMapper.readValue(format.getDefaultJson(), new TypeReference<>() {
-                });
+                Map<String, String> formatInfo =
+                        objectMapper.readValue(format.getFormatJson(), new TypeReference<>() {});
+                Map<String, String> defaultInfo =
+                        objectMapper.readValue(format.getDefaultJson(), new TypeReference<>() {});
                 if (formatInfo == null || defaultInfo == null) return;
-                //DB: 바꿀이름-로그이름 / Log: 로그이름-값
+                // DB: 바꿀이름-로그이름 / Log: 로그이름-값
                 formatInfo.forEach((key, value) -> {
                     items.put(key, query.getOrDefault(value, null));
                     query.remove(value);
                 });
                 items.putAll(defaultInfo);
             }
-            //send
+            // send
             kafkaTemplate.send("FILTER_TOPIC", objectMapper.writeValueAsString(items));
         } catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
@@ -77,18 +75,16 @@ public class KafkaConsumerService {
     public void filterTopic(ConsumerRecord<String, String> record) {
         System.out.println("Consumed Filter Topic: " + record.value());
         try {
-            Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {
-            });
+            Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {});
             List<Filter> filters = filterService.activeFilters(processId);
 
             boolean success = true;
             Long failBy = 0L;
 
-
-            //아이템이 활성화된 필터를 모두 거치도록
+            // 아이템이 활성화된 필터를 모두 거치도록
             for (Filter filter : filters) {
-                LinkedHashMap<String, String> fields = objectMapper.readValue(filter.getUsedField(), new TypeReference<>() {
-                });
+                LinkedHashMap<String, String> fields =
+                        objectMapper.readValue(filter.getUsedField(), new TypeReference<>() {});
 
                 List<Class<?>> paramTypes = new ArrayList<>();
                 List<Object> paramValues = new ArrayList<>();
@@ -120,7 +116,8 @@ public class KafkaConsumerService {
                 });
                 String fullCode = filter.getSourceCode();
 
-                if (!JavaMethodExecutor.compileAndRunMethod(fullCode, paramTypes.toArray(Class[]::new), paramValues.toArray())) {
+                if (!JavaMethodExecutor.compileAndRunMethod(
+                        fullCode, paramTypes.toArray(Class[]::new), paramValues.toArray())) {
                     success = false;
                     failBy = filter.getId();
                     break;
@@ -150,32 +147,35 @@ public class KafkaConsumerService {
             List<Deduplication> ddps = deduplicationService.getActiveDeduplication(processId);
 
             boolean isPass = true;
-            outer: for (Deduplication ddp : ddps) {
-                List<Map<String, Object>> settings = objectMapper.readValue(ddp.getDeduplicationJson(), new TypeReference<>() {});
+            outer:
+            for (Deduplication ddp : ddps) {
+                List<Map<String, Object>> settings =
+                        objectMapper.readValue(ddp.getDeduplicationJson(), new TypeReference<>() {});
                 for (Map<String, Object> setting : settings) {
                     List<Map<String, Object>> conditions = (List<Map<String, Object>>) setting.get("conditions");
 
                     boolean hit = true;
                     for (Map<String, Object> cond : conditions) {
                         // 조건 중 "?"를 실제 값으로 치환
-                        if ("?".equals(cond.get("value")) && items.get((String)cond.get("format")) != null) {
+                        if ("?".equals(cond.get("value")) && items.get((String) cond.get("format")) != null) {
                             cond.put("value", items.get((String) cond.get("format")));
                         }
                         String cFormat = (String) cond.get("format");
                         String cValue = (String) cond.get("value");
-                        if(items.get(cFormat) == null || !items.get(cFormat).equals(cValue)){
+                        if (items.get(cFormat) == null || !items.get(cFormat).equals(cValue)) {
                             hit = false;
                             break;
                         }
                     }
-                    if(!hit) {
+                    if (!hit) {
                         continue;
                     }
 
                     List<LogPassHistory> histories = deduplicationService.getPassHistory(ddp.getId(), userId);
                     boolean matchFound = false;
                     for (LogPassHistory history : histories) {
-                        List<Map<String, String>> conditionLog = objectMapper.readValue(history.getLogJson(), new TypeReference<>() {});
+                        List<Map<String, String>> conditionLog =
+                                objectMapper.readValue(history.getLogJson(), new TypeReference<>() {});
 
                         // 여기서 items와 conditionLog의 모든 쌍이 일치해야 함
                         boolean allMatch = true;
@@ -211,8 +211,7 @@ public class KafkaConsumerService {
                                 processId,
                                 createExpiredTime(setting),
                                 userId,
-                                objectMapper.writeValueAsString(conditions)
-                        );
+                                objectMapper.writeValueAsString(conditions));
                     }
                     if (!isPass) break outer;
                 }
@@ -221,23 +220,21 @@ public class KafkaConsumerService {
         } catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
-
     }
-
 
     @KafkaListener(topics = "DB_TOPIC", groupId = "matomo-log-consumer")
     public void dbTopic(ConsumerRecord<String, String> record) {
         System.out.println("Consumed DB Topic: " + record.value());
         try {
-            Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {
-            });
-            //DB 저장
+            Map<String, String> items = objectMapper.readValue(record.value(), new TypeReference<>() {});
+            // DB 저장
             if (items.get("success").equalsIgnoreCase("true")) {
                 LogSuccess log = new LogSuccess();
                 log.setLogJson(objectMapper.writeValueAsString(items));
                 logSuccessService.addSuccessLog(log, processId);
-                //Board DB에 조회수 증가
-                if(items.get("event_action").equals("view") && !items.get("게시판 번호").equals("null")){
+                // Board DB에 조회수 증가
+                if (items.get("event_action").equals("view")
+                        && !items.get("게시판 번호").equals("null")) {
                     System.out.println("send to board - view count");
                     kafkaTemplate.send("VIEWCOUNT_TOPIC", items.get("게시판 번호"));
                 }
@@ -251,12 +248,10 @@ public class KafkaConsumerService {
                     log.setLogJson(objectMapper.writeValueAsString(items));
                     logFailByDeduplicationService.addFailLog(log, processId, Long.parseLong(items.get("failID")));
                 }
-
             }
         } catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
-
     }
 
     public Map<String, String> parseQueryParams(String pathWithQuery) {
@@ -279,11 +274,7 @@ public class KafkaConsumerService {
 
     public LocalDateTime createExpiredTime(Map<String, Object> setting) {
         LocalDateTime now = LocalDateTime.now();
-        Period period = Period.of(
-                (int) setting.get("year"),
-                (int) setting.get("month"),
-                (int) setting.get("day")
-        );
+        Period period = Period.of((int) setting.get("year"), (int) setting.get("month"), (int) setting.get("day"));
         Duration duration = Duration.ofHours((int) setting.get("hour"))
                 .plusMinutes((int) setting.get("minute"))
                 .plusSeconds((int) setting.get("second"));
@@ -291,5 +282,4 @@ public class KafkaConsumerService {
         LocalDateTime expiresTime = now.plus(period).plus(duration);
         return expiresTime;
     }
-
 }

@@ -1,12 +1,11 @@
 package com.traveler.board.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -22,10 +21,10 @@ public class Board {
 
     private Long memberId;
 
-    @Column(length=100)
+    @Column(length = 100)
     private String title;
 
-    @Column(length=2000)
+    @Column(length = 2000)
     private String content;
 
     private Double ratingAvg;
@@ -41,8 +40,4 @@ public class Board {
 
     @UpdateTimestamp
     private LocalDateTime modifiedDate;
-
-
-
-
 }

@@ -1,5 +1,6 @@
 package com.traveler.gateway.security;
 
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
@@ -27,21 +26,24 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getPath().toString();
-        if (path.startsWith("/api/sign/sign-in") || path.startsWith("/api/sign/sign-up")
+        if (path.startsWith("/api/sign/sign-in")
+                || path.startsWith("/api/sign/sign-up")
                 || path.startsWith("/api/sign/check-duplicate")
                 || path.startsWith("/api/sign/refresh")
-                || path.startsWith("/api/board/list") || path.startsWith("/api/board/view")
-                || path.startsWith("/api/board/search") || path.startsWith("/api/board/autocomplete")
+                || path.startsWith("/api/board/list")
+                || path.startsWith("/api/board/view")
+                || path.startsWith("/api/board/search")
+                || path.startsWith("/api/board/autocomplete")
                 || path.startsWith("/api/favorite/exists")
                 || path.startsWith("/api/comment/list")
                 || path.startsWith("/realtime-popular/")
-                || path.startsWith("/board/images/")
-        ) {
+                || path.startsWith("/board/images/")) {
             logger.info("Authentication Pass: {}", path);
             return chain.filter(exchange); // 인증 안 거침
         }
         // 아래에서 JWT 검사, 실패시 401/403 응답
-        return jwtTokenProvider.resolveToken(exchange.getRequest())
+        return jwtTokenProvider
+                .resolveToken(exchange.getRequest())
                 .filter(jwtTokenProvider::validateToken)
                 .flatMap(token -> {
                     logger.info("인증 시작: {}", path);
@@ -75,6 +77,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     return exchange.getResponse().setComplete();
                 }));
     }
+
     @Override
-    public int getOrder() { return -1; }
+    public int getOrder() {
+        return -1;
+    }
 }

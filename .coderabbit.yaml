@@ -1,0 +1,7 @@
+language: "ko" # 한국어로 리뷰 받기
+reviews:
+  profile: "chill" # 조금 더 부드러운 말투로 설정 (기본은 professional)
+  auto_review:
+    enabled: true
+chat:  
+  auto_reply: true # PR 본문에 요약 내용을 자동으로 생성할지 여부
