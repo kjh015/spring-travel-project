@@ -42,6 +42,11 @@ public class BffSignController {
         return signServiceClient.signUp(signUp);
     }
 
+    @GetMapping("/check-duplicate")
+    public ResponseEntity<?> checkDuplicate(@RequestParam("type") String type, @RequestParam("value") String value){
+        return signServiceClient.checkDuplicate(type, value);
+    }
+
     @PostMapping("/update")
     public ResponseEntity<?> updateMember(@RequestBody SignDto data) {
         return signServiceClient.updateMember(data);

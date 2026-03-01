@@ -31,7 +31,13 @@ public class SignService {
     @Transactional
     public void signUp(SignDto dto){
         if (memberRepository.existsByLoginId(dto.getLoginId())) {
-            throw new CustomSignException("이미 가입되어 있는 유저입니다.");
+            throw new CustomSignException("가입되어 있는 ID 입니다.");
+        }
+        if (memberRepository.existsByNickname(dto.getNickname())) {
+            throw new CustomSignException("사용 중인 닉네임입니다.");
+        }
+        if (memberRepository.existsByEmail(dto.getEmail())) {
+            throw new CustomSignException("가입되어 있는 이메일입니다.");
         }
 
         Member member = Member.builder()
@@ -47,19 +53,36 @@ public class SignService {
         memberRepository.save(member);
 
     }
+    public boolean existsByLoginId(String loginId) {
+        return memberRepository.existsByLoginId(loginId);
+    }
+
+    public boolean existsByEmail(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+
+    public boolean existsByNickname(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
+
+
     @Transactional
     public void updateMember(SignDto data){
-        Member member = memberRepository.findByLoginId(data.getLoginId()).orElseThrow(() -> new CustomSignException("존재하지 않는 유저입니다."));
+        Member member = memberRepository.findByLoginId(data.getLoginId()).orElseThrow(() -> new CustomSignException("존재하지 않는 ID 입니다."));
+        String newNickname = data.getNickname();
+        if(!member.getNickname().equals(newNickname)){
+            if(memberRepository.existsByNickname(newNickname)) throw new CustomSignException("이미 사용중인 닉네임입니다.");
+            member.setNickname(data.getNickname());
+        }
 
-        member.setNickname(data.getNickname());
-        member.setGender(data.getGender());
+
     }
 
     @Transactional
     public void updatePassword(PasswordDto data){
-        Member member = memberRepository.findByLoginId(data.getLoginId()).orElseThrow(() -> new CustomSignException("존재하지 않는 유저입니다."));
+        Member member = memberRepository.findByLoginId(data.getLoginId()).orElseThrow(() -> new CustomSignException("존재하지 않는 ID 입니다."));
         if(!passwordEncoder.matches(data.getCurPassword(), member.getPassword())) {
-            throw new CustomSignException("비밀번호가 일치하지 않습니다.");
+            throw new CustomSignException("현재 비밀번호가 일치하지 않습니다.");
         }
         member.setPassword(passwordEncoder.encode(data.getNewPassword()));
     }
@@ -106,23 +129,23 @@ public class SignService {
     public void withdraw(String refreshToken){
         if (refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
             String loginId = jwtTokenProvider.getUsername(refreshToken);
-            Member member = memberRepository.findByLoginId(loginId).orElseThrow(() -> new CustomSignException("이미 삭제된 회원이거나 존재하지 않는 회원입니다."));
+            Member member = memberRepository.findByLoginId(loginId).orElseThrow(() -> new CustomSignException("이미 삭제된 ID 이거나 존재하지 않는 ID 입니다."));
             refreshTokenRepository.deleteByLoginId(member.getLoginId());
             memberRepository.deleteById(member.getId());
         }
     }
 
     public SignDto getMemberDetail(String loginId){
-        Member member = memberRepository.findByLoginId(loginId).orElseThrow(() -> new CustomSignException("존재하지 않는 회원입니다."));
+        Member member = memberRepository.findByLoginId(loginId).orElseThrow(() -> new CustomSignException("존재하지 않는 ID 입니다."));
         return SignDto.builder()
                 .loginId(member.getLoginId())
                 .email(member.getEmail())
                 .gender(member.getGender())
                 .nickname(member.getNickname())
                 .roles(member.getRoles())
-//                .birthDate(member.getBirthDate())
+                .birthDate(member.getBirthDate())
                 .regDate(member.getRegDate())
-//                .age(calculateAge(member.getBirthDate()))
+                .age(calculateAge(member.getBirthDate()))
                 .build();
     }
 
@@ -143,7 +166,7 @@ public class SignService {
 
     @Transactional
     public void delegateAdmin(String loginId){
-        Member member = memberRepository.findByLoginId(loginId).orElseThrow(() -> new CustomSignException("존재하지 않는 회원입니다."));
+        Member member = memberRepository.findByLoginId(loginId).orElseThrow(() -> new CustomSignException("존재하지 않는 ID 입니다."));
         member.getRoles().add("ROLE_ADMIN");
         memberRepository.save(member);
     }
@@ -167,6 +190,7 @@ public class SignService {
     }
 
     public int calculateAge(LocalDate birth) {
+        if(birth == null) return -1;
         LocalDate today = LocalDate.now();
         int age = today.getYear() - birth.getYear();
         // 생일이 아직 안지났으면 1년 빼기

@@ -55,18 +55,40 @@ public class SignController {
         logger.info("[signUp] 회원가입을 수행합니다. id : {}, password : ****, email : {}", signUp.getLoginId(), signUp.getEmail());
         signService.signUp(signUp);
         logger.info("[signUp] 회원가입을 완료했습니다. id : {}", signUp.getLoginId());
-        return ResponseEntity.ok("회원가입 완료");
+        return ResponseEntity.ok(Map.of("message", "회원가입 완료"));
     }
+    @GetMapping("/check-duplicate")
+    public ResponseEntity<?> checkDuplicate(@RequestParam("type") String type, @RequestParam("value") String value) {
+        boolean exists;
+        switch (type) {
+            case "loginId":
+                exists = signService.existsByLoginId(value);
+                break;
+            case "email":
+                exists = signService.existsByEmail(value);
+                break;
+            case "nickname":
+                exists = signService.existsByNickname(value);
+                break;
+            default:
+                throw new CustomSignException("허용되지 않는 type: " + type);
+        }
+        return ResponseEntity.ok(Map.of("exists", exists));
+    }
+
+
     @PostMapping("/update")
     public ResponseEntity<?> updateMember(@RequestBody SignDto data){
         signService.updateMember(data);
-        return ResponseEntity.ok("회원수정 완료");
+
+        return ResponseEntity.ok(Map.of("message", "회원수정 완료"));
+
     }
 
     @PostMapping("/update-password")
     public ResponseEntity<?> updatePassword(@RequestBody PasswordDto data){
         signService.updatePassword(data);
-        return ResponseEntity.ok("비밀번호 변경 완료");
+        return ResponseEntity.ok(Map.of("message", "비밀번호 변경 완료"));
     }
 
 
@@ -86,7 +108,7 @@ public class SignController {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
         logger.info("[signOut] 로그아웃 완료");
-        return ResponseEntity.ok("로그아웃 완료");
+        return ResponseEntity.ok(Map.of("message", "로그아웃 완료"));
     }
 
     @PostMapping("/withdraw")
@@ -102,7 +124,7 @@ public class SignController {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
 
-        return ResponseEntity.ok("회원탈퇴 완료");
+        return ResponseEntity.ok(Map.of("message", "회원탈퇴 완료"));
     }
 
     @PostMapping("/detail")

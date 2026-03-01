@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,8 @@ public class AggregationService {
 
     // boardNo별로 집계 후, 가중치 연산해서 반환
     public Map<String, Long> getPopularBoards() throws IOException {
+        // 실존 boardID 추출
+        Set<String> aliveBoardIds = getAliveBoardIds();
         // 1. Aggregation 쿼리 생성
         SearchRequest searchRequest = SearchRequest.of(s -> s
                 .index("logstash-*")
@@ -39,6 +43,7 @@ public class AggregationService {
 
                 )
         );
+
         // 2. 쿼리 실행
         SearchResponse<Void> res = esClient.search(searchRequest, Void.class);
         // 3. 결과 파싱
@@ -49,6 +54,8 @@ public class AggregationService {
             var byBoardAgg = agg.sterms();
             for (var bucket : byBoardAgg.buckets().array()) {
                 String boardNo = bucket.key().stringValue();
+                // 삭제된 boardID는 skip
+                if (!aliveBoardIds.contains(boardNo)) continue;
 
                 // 하위 agg에서 집계값 파싱
                 long views = getFilterDocCount(bucket, "views_board");
@@ -68,6 +75,8 @@ public class AggregationService {
                 long score = (long)(views * 1 + addFavorites * 3 + addComments * 2 + stayTimeSum * 0.1 - removeFavorites * 2.5 - removeComments * 1.5);
                 System.out.printf("boardId: %s, score: %d\n", boardNo, score);
                 System.out.println();
+//                if(boardNo.equals("10")) score -= 350;
+//                if(boardNo.equals("11")) score -= 100;
 
                 result.put(boardNo, score);
             }
@@ -200,6 +209,26 @@ public class AggregationService {
         }
         return 0.0;
     }
+
+    // 1. board 인덱스에서 boardId만 뽑아오기
+    public Set<String> getAliveBoardIds() throws IOException {
+        SearchRequest req = SearchRequest.of(s -> s
+                .index("board-test5")
+                .source(src -> src.filter(f -> f.includes("id")))
+                .size(10000) // 충분히 크게 (운영이라면 Scroll API)
+        );
+        SearchResponse<Map> res = esClient.search(req, Map.class);
+
+        Set<String> boardIds = new HashSet<>();
+        res.hits().hits().forEach(hit -> {
+            Map doc = hit.source();
+            if(doc == null) return;
+            Object id = doc.get("id");
+            if (id != null) boardIds.add(String.valueOf(id));
+        });
+        return boardIds;
+    }
+
 
 
 

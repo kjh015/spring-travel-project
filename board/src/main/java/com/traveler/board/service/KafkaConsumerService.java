@@ -2,6 +2,7 @@ package com.traveler.board.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.traveler.board.entity.Board;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,6 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KafkaConsumerService {
     private final BoardService boardService;
+    private final SearchService searchService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @KafkaListener(topics = "COMMENT_TOPIC", groupId = "travel-consumer-board")
@@ -23,7 +25,12 @@ public class KafkaConsumerService {
             Long boardId = Long.valueOf(newRating.get("boardId"));
             Integer rating = Integer.valueOf(newRating.get("rating"));
             boolean isAdd = Boolean.parseBoolean(newRating.get("isAdd"));
-            boardService.updateRatingAvg(boardId, rating, isAdd);
+            Board savedBoard = boardService.updateRatingAvg(boardId, rating, isAdd);
+            if(savedBoard != null){
+                searchService.updateComment(savedBoard);
+            }
+
+
         } catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
@@ -35,7 +42,10 @@ public class KafkaConsumerService {
             Map<String, String> newFavorite = objectMapper.readValue(record.value(), new TypeReference<>() {});
             Long boardId = Long.valueOf(newFavorite.get("boardId"));
             boolean isAdd = Boolean.parseBoolean(newFavorite.get("isAdd"));
-            boardService.updateFavoriteCount(boardId, isAdd);
+            Board savedBoard = boardService.updateFavoriteCount(boardId, isAdd);
+            if(savedBoard != null){
+                searchService.updateFavoriteCount(savedBoard);
+            }
         } catch (Exception e) {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
@@ -45,6 +55,9 @@ public class KafkaConsumerService {
     public void updateViewCount(String msg) throws IOException {
         System.out.println("Consumed VIEWCOUNT msg: " + msg);
         Long boardId = Long.valueOf(msg);
-        boardService.updateViewCount(boardId);
+        Board savedBoard = boardService.updateViewCount(boardId);
+        if(savedBoard != null){
+            searchService.updateViewCount(savedBoard);
+        }
     }
 }

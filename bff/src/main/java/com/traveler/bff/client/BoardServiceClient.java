@@ -3,10 +3,14 @@ package com.traveler.bff.client;
 import com.traveler.bff.config.FormEncoderConfig;
 import com.traveler.bff.dto.service.BoardDto;
 import com.traveler.bff.dto.service.BoardListDto;
+import com.traveler.bff.dto.service.SearchResultDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -14,8 +18,8 @@ import java.util.List;
 @FeignClient(name = "board", configuration = FormEncoderConfig.class)
 public interface BoardServiceClient {
     @GetMapping("/board/search")
-    List<BoardListDto> getArticleListBySearch(@RequestParam String keyword, @RequestParam String category, @RequestParam String region,
-                                              @RequestParam String sort, @RequestParam String direction, @RequestParam String page);
+    SearchResultDto getArticleListBySearch(@RequestParam String keyword, @RequestParam String category, @RequestParam String region,
+                                                           @RequestParam String sort, @RequestParam String direction, @RequestParam String page);
 
     @GetMapping("/board/autocomplete")
     public List<String> autocomplete(@RequestParam String keyword);
@@ -32,7 +36,8 @@ public interface BoardServiceClient {
 
     @PostMapping(value = "/board/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<String> editArticle(@RequestPart("board") String data,
-                                       @RequestPart(value = "images", required = false) List<MultipartFile> images);
+                                       @RequestPart(value = "images", required = false) List<MultipartFile> images,
+                                       @RequestPart(value = "existingImages", required = false) String existingImagesJson);
 
     @PostMapping("/board/remove")
     ResponseEntity<String> removeArticle(@RequestParam String no);
