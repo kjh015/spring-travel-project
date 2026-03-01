@@ -5,18 +5,15 @@ import com.traveler.sign.repository.RefreshTokenRepository;
 import com.traveler.sign.security.JwtTokenProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class TokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
-
-
 
     public String reissueAccessToken(String refreshToken) {
         // 토큰 자체가 유효한지 검사
@@ -28,7 +25,8 @@ public class TokenService {
         String loginId = jwtTokenProvider.getUsername(refreshToken);
 
         // DB에 저장된 refreshToken과 비교
-        RefreshToken saved = refreshTokenRepository.findByLoginId(loginId)
+        RefreshToken saved = refreshTokenRepository
+                .findByLoginId(loginId)
                 .orElseThrow(() -> new InvalidTokenException("저장된 refreshToken 없음"));
 
         if (!saved.getRefreshToken().equals(refreshToken)) {
@@ -51,7 +49,4 @@ public class TokenService {
         }
         return null;
     }
-
-
-
 }

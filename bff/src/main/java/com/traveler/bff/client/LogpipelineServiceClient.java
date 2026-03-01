@@ -1,14 +1,13 @@
 package com.traveler.bff.client;
 
 import com.traveler.bff.dto.service.*;
+import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 @FeignClient(name = "logpipeline")
 public interface LogpipelineServiceClient {
@@ -24,7 +23,7 @@ public interface LogpipelineServiceClient {
     @PostMapping("/process/remove")
     void removeProcess(@RequestParam String processId);
 
-    //format
+    // format
     @GetMapping("/format/list")
     List<FormatResponseDto> getFormatList(@RequestParam String processId);
 
@@ -32,15 +31,23 @@ public interface LogpipelineServiceClient {
     FormatResponseDto viewFormat(@RequestParam String formatId);
 
     @PostMapping("/format/add")
-    ResponseEntity<String> addFormat(@RequestParam String processId, @RequestParam String name, @RequestParam String active, @RequestBody FormatRequestDto formatData);
+    ResponseEntity<String> addFormat(
+            @RequestParam String processId,
+            @RequestParam String name,
+            @RequestParam String active,
+            @RequestBody FormatRequestDto formatData);
 
     @PostMapping("/format/update")
-    ResponseEntity<String> updateFormat(@RequestParam String formatId, @RequestParam String name, @RequestParam String active, @RequestBody FormatRequestDto formatData);
+    ResponseEntity<String> updateFormat(
+            @RequestParam String formatId,
+            @RequestParam String name,
+            @RequestParam String active,
+            @RequestBody FormatRequestDto formatData);
 
     @PostMapping("/format/remove")
     ResponseEntity<String> removeFormat(@RequestParam String formatId);
 
-    //filter
+    // filter
     @GetMapping("/filter/list")
     List<FilterResponseDto> getFilterList(@RequestParam String processId);
 
@@ -51,15 +58,23 @@ public interface LogpipelineServiceClient {
     List<String> getFormatFieldsF(@RequestParam String processId);
 
     @PostMapping("/filter/add")
-    ResponseEntity<String> addFilter(@RequestParam String processId, @RequestParam String name, @RequestParam String active, @RequestBody FilterRequestDto data);
+    ResponseEntity<String> addFilter(
+            @RequestParam String processId,
+            @RequestParam String name,
+            @RequestParam String active,
+            @RequestBody FilterRequestDto data);
 
     @PostMapping("/filter/update")
-    ResponseEntity<String> updateFilter(@RequestParam String filterId, @RequestParam String name, @RequestParam String active, @RequestBody FilterRequestDto data);
+    ResponseEntity<String> updateFilter(
+            @RequestParam String filterId,
+            @RequestParam String name,
+            @RequestParam String active,
+            @RequestBody FilterRequestDto data);
 
     @PostMapping("/filter/remove")
     ResponseEntity<String> removeFilter(@RequestParam String filterId);
 
-    //dedup
+    // dedup
     @GetMapping("/deduplication/list")
     List<DeduplicationDto> getDeduplicationList(@RequestParam String processId);
 
@@ -78,7 +93,7 @@ public interface LogpipelineServiceClient {
     @GetMapping("/deduplication/keys")
     List<String> getFormatFieldsD(@RequestParam String processId);
 
-    //db
+    // db
     @GetMapping("/log-db/success")
     List<LogDto> listSuccessLogs();
 

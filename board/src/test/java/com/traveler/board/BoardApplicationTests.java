@@ -22,26 +22,24 @@ class BoardApplicationTests {
 
     @BeforeEach
     void setUp() {
-        //Statistics 객체 가져오기
+        // Statistics 객체 가져오기
         statistics = em.unwrap(Session.class).getSessionFactory().getStatistics();
         statistics.clear(); // 이전 테스트의 통계 기록 초기화
-
     }
 
-//    @Test
-//    void countQueriesWithoutBatchSizeTest() {
-//        System.out.println("--- Fetch Join 적용 테스트 시작 ---");
-//
-//        long beforeQueryCount = statistics.getPrepareStatementCount();
-//
-//        boardService.listArticlesFetchJoin();
-//
-//        long afterQueryCount = statistics.getPrepareStatementCount();
-//
-//        System.out.println("실행된 쿼리 수: " + (afterQueryCount - beforeQueryCount));
-//        System.out.println("------------------------------------");
-//    }
-
+    //    @Test
+    //    void countQueriesWithoutBatchSizeTest() {
+    //        System.out.println("--- Fetch Join 적용 테스트 시작 ---");
+    //
+    //        long beforeQueryCount = statistics.getPrepareStatementCount();
+    //
+    //        boardService.listArticlesFetchJoin();
+    //
+    //        long afterQueryCount = statistics.getPrepareStatementCount();
+    //
+    //        System.out.println("실행된 쿼리 수: " + (afterQueryCount - beforeQueryCount));
+    //        System.out.println("------------------------------------");
+    //    }
 
     @Test
     void performanceComparisonTest() {
@@ -55,6 +53,4 @@ class BoardApplicationTests {
 
         System.out.println(stopWatch.prettyPrint());
     }
-
-
 }

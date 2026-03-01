@@ -17,8 +17,4 @@ public class RefreshToken {
 
     @Column(nullable = false)
     private String refreshToken;
-
-
-
-
 }

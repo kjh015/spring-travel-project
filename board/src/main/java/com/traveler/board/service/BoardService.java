@@ -1,6 +1,5 @@
 package com.traveler.board.service;
 
-
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.traveler.board.dto.BoardDocumentDto;
 import com.traveler.board.dto.BoardDto;
@@ -10,6 +9,9 @@ import com.traveler.board.entity.Board;
 import com.traveler.board.entity.Image;
 import com.traveler.board.repository.BoardRepository;
 import com.traveler.board.repository.ImageRepository;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
@@ -17,73 +19,73 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository boardRepository;
     private final ImageRepository imageRepository;
+
     @Qualifier("${image.storage.service}")
     private final ImageStorageService imageStorageService;
+
     private final TravelPlaceService travelPlaceService;
     private final SearchService searchService;
     private final KafkaProducerService kafkaProducerService;
     private final JPAQueryFactory queryFactory;
 
-    public SearchResultDto listArticlesBySearch(String keyword, String category, String region, String sort, String direction, int page) throws DataAccessException{
+    public SearchResultDto listArticlesBySearch(
+            String keyword, String category, String region, String sort, String direction, int page)
+            throws DataAccessException {
         BoardDocumentDto searchResult = searchService.search(keyword, category, region, sort, direction, page);
 
-        List<BoardListDto> result = searchResult.getResult().stream().map(board -> BoardListDto.builder()
-                .id(board.getId())
-                .title(board.getTitle())
-                .memberId(board.getMemberId())
-                .modifiedDate(board.getModifiedDate())
-                .category(board.getCategory())
-                .region(board.getRegion())
-                .viewCount(board.getViewCount())
-                .ratingAvg(board.getRatingAvg())
-                .build()
-        ).toList();
+        List<BoardListDto> result = searchResult.getResult().stream()
+                .map(board -> BoardListDto.builder()
+                        .id(board.getId())
+                        .title(board.getTitle())
+                        .memberId(board.getMemberId())
+                        .modifiedDate(board.getModifiedDate())
+                        .category(board.getCategory())
+                        .region(board.getRegion())
+                        .viewCount(board.getViewCount())
+                        .ratingAvg(board.getRatingAvg())
+                        .build())
+                .toList();
         Long totalHits = searchResult.getTotalHits();
         return new SearchResultDto(result, totalHits);
     }
 
-
-
-
     @Transactional
-    public List<BoardListDto> listArticlesFetchJoin() throws DataAccessException{
+    public List<BoardListDto> listArticlesFetchJoin() throws DataAccessException {
         List<Board> boardList = boardRepository.findAllWithFetchJoin();
-        return boardList.stream().map(board -> BoardListDto.builder()
-                .id(board.getId())
-                .title(board.getTitle())
-                .memberId(board.getMemberId())
-                .modifiedDate(board.getModifiedDate())
-                .category(board.getTravelPlace().getCategory().getName())
-                .region(board.getTravelPlace().getRegion().getName())
-                .viewCount(board.getViewCount())
-                .ratingAvg(board.getRatingAvg())
-                .build()
-        ).collect(Collectors.toList());
+        return boardList.stream()
+                .map(board -> BoardListDto.builder()
+                        .id(board.getId())
+                        .title(board.getTitle())
+                        .memberId(board.getMemberId())
+                        .modifiedDate(board.getModifiedDate())
+                        .category(board.getTravelPlace().getCategory().getName())
+                        .region(board.getTravelPlace().getRegion().getName())
+                        .viewCount(board.getViewCount())
+                        .ratingAvg(board.getRatingAvg())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public List<BoardListDto> listArticles() throws DataAccessException{
+    public List<BoardListDto> listArticles() throws DataAccessException {
         List<Board> boardList = boardRepository.findAll();
-        return boardList.stream().map(board -> BoardListDto.builder()
-                .id(board.getId())
-                .title(board.getTitle())
-                .memberId(board.getMemberId())
-                .modifiedDate(board.getModifiedDate())
-                .category(board.getTravelPlace().getCategory().getName())
-                .region(board.getTravelPlace().getRegion().getName())
-                .viewCount(board.getViewCount())
-                .ratingAvg(board.getRatingAvg())
-                .build()
-        ).collect(Collectors.toList());
+        return boardList.stream()
+                .map(board -> BoardListDto.builder()
+                        .id(board.getId())
+                        .title(board.getTitle())
+                        .memberId(board.getMemberId())
+                        .modifiedDate(board.getModifiedDate())
+                        .category(board.getTravelPlace().getCategory().getName())
+                        .region(board.getTravelPlace().getRegion().getName())
+                        .viewCount(board.getViewCount())
+                        .ratingAvg(board.getRatingAvg())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public List<BoardListDto> listArticlesQueryDsl() {
@@ -95,26 +97,24 @@ public class BoardService {
         return boardRepository.findBoardList();
     }
 
-
     @Transactional
-    public void addArticle(BoardDto data, List<MultipartFile> images)throws DataAccessException{
+    public void addArticle(BoardDto data, List<MultipartFile> images) throws DataAccessException {
 
         Board board = new Board();
         board.setTitle(data.getTitle());
         board.setContent(data.getContent());
         board.setMemberId(data.getMemberId());
-        board.setTravelPlace(travelPlaceService.addAndGetTravelPlace(data.getCategory(), data.getRegion(), data.getTravelPlace(), data.getAddress()));
+        board.setTravelPlace(travelPlaceService.addAndGetTravelPlace(
+                data.getCategory(), data.getRegion(), data.getTravelPlace(), data.getAddress()));
         Board savedBoard = boardRepository.save(board);
         uploadImages(images, savedBoard);
         searchService.saveToES(savedBoard);
     }
 
-    public BoardDto viewArticle(long no){
+    public BoardDto viewArticle(long no) {
         Board board = boardRepository.findById(no).orElseThrow(() -> new CustomBoardException("존재하지 않는 게시글입니다."));
         List<Image> images = imageRepository.findByBoard(board);
-        List<String> imagePaths = images.stream()
-                .map(Image::getPath)
-                .collect(Collectors.toList());
+        List<String> imagePaths = images.stream().map(Image::getPath).collect(Collectors.toList());
         BoardDto dto = new BoardDto();
         dto.setNo(board.getId().toString());
         dto.setTitle(board.getTitle());
@@ -133,12 +133,17 @@ public class BoardService {
     }
 
     @Transactional
-    public void editArticle(BoardDto data, List<MultipartFile> images, List<String> existingImages){
+    public void editArticle(BoardDto data, List<MultipartFile> images, List<String> existingImages) {
         Board board = boardRepository.findById(Long.parseLong(data.getNo())).orElseThrow(RuntimeException::new);
         board.setTitle(data.getTitle());
         board.setContent(data.getContent());
         board.setMemberId(data.getMemberId());
-        board.setTravelPlace(travelPlaceService.editAndGetTravelPlace(board.getTravelPlace().getId(), data.getCategory(), data.getRegion(), data.getTravelPlace(), data.getAddress()));
+        board.setTravelPlace(travelPlaceService.editAndGetTravelPlace(
+                board.getTravelPlace().getId(),
+                data.getCategory(),
+                data.getRegion(),
+                data.getTravelPlace(),
+                data.getAddress()));
 
         List<Image> dbImages = imageRepository.findByBoard(board);
         for (Image img : dbImages) {
@@ -157,7 +162,8 @@ public class BoardService {
         }
         searchService.updateES(board);
     }
-    public void removeArticle(Long no){
+
+    public void removeArticle(Long no) {
         Board board = boardRepository.findById(no).orElseThrow(() -> new CustomBoardException("존재하지 않는 게시글입니다."));
         List<Image> existingImages = imageRepository.findByBoard(board);
         for (Image img : existingImages) {
@@ -171,10 +177,9 @@ public class BoardService {
         boardRepository.delete(board);
         searchService.deleteById(no);
         kafkaProducerService.deleteBoard(no);
-
     }
 
-    public void uploadImages(List<MultipartFile> files, Board board){
+    public void uploadImages(List<MultipartFile> files, Board board) {
         if (files.isEmpty()) {
             throw new CustomBoardException("이미지 파일이 없습니다.");
         }
@@ -193,9 +198,10 @@ public class BoardService {
         }
     }
 
-    public List<BoardListDto> getListPart(List<Long> boardIDs){
+    public List<BoardListDto> getListPart(List<Long> boardIDs) {
         List<Board> boards = boardRepository.findByIdIn(boardIDs);
-        return boards.stream().map(board -> BoardListDto.builder()
+        return boards.stream()
+                .map(board -> BoardListDto.builder()
                         .id(board.getId())
                         .title(board.getTitle())
                         .modifiedDate(board.getModifiedDate())
@@ -206,11 +212,12 @@ public class BoardService {
                         .ratingAvg(board.getRatingAvg())
                         .build())
                 .collect(Collectors.toList());
-
     }
-    public List<BoardListDto> getListByMember(Long memberId){
+
+    public List<BoardListDto> getListByMember(Long memberId) {
         List<Board> boards = boardRepository.findAllByMemberId(memberId);
-        return boards.stream().map(board -> BoardListDto.builder()
+        return boards.stream()
+                .map(board -> BoardListDto.builder()
                         .id(board.getId())
                         .title(board.getTitle())
                         .modifiedDate(board.getModifiedDate())
@@ -221,9 +228,9 @@ public class BoardService {
                         .ratingAvg(board.getRatingAvg())
                         .build())
                 .collect(Collectors.toList());
-
     }
-    public void migrateAll(){
+
+    public void migrateAll() {
         List<Board> boardList = boardRepository.findAll();
         searchService.migrateAllBoardsToES(boardList);
     }
@@ -235,14 +242,13 @@ public class BoardService {
 
         long commentCount = board.getCommentCount() == null ? 0L : board.getCommentCount();
         double ratingAvg = board.getRatingAvg() == null ? 0.0 : board.getRatingAvg();
-        if(isAdd){
+        if (isAdd) {
             long newCommentCount = commentCount + 1;
             double newRatingAvg = (ratingAvg * commentCount + rating) / newCommentCount;
 
             board.setCommentCount(newCommentCount);
             board.setRatingAvg(newRatingAvg);
-        }
-        else{
+        } else {
             long newCommentCount = commentCount - 1;
             double newRatingAvg = (ratingAvg * commentCount - rating) / newCommentCount;
 
@@ -263,9 +269,8 @@ public class BoardService {
     }
 
     @Transactional
-    public Board updateViewCount(Long boardId){
+    public Board updateViewCount(Long boardId) {
         boardRepository.increaseViewCount(boardId);
         return boardRepository.findById(boardId).orElse(null);
     }
-
 }
