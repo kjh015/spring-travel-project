@@ -1,16 +1,16 @@
 package com.traveler.comment.kafka.service;
 
 import com.traveler.comment.service.CommentService;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
 public class KafkaConsumerService {
     private final CommentService commentService;
+
     @KafkaListener(topics = "BOARD_TOPIC", groupId = "travel-consumer-comment")
     public void deleteBoard(String msg) throws IOException {
         try {

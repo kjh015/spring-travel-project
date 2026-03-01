@@ -1,4 +1,4 @@
-rootProject.name = 'spring-travel-project'
+rootProject.name = 'TripNow'
 include("board")
 include("sign")
 include("discovery")

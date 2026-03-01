@@ -29,7 +29,7 @@ public class BffFavoriteController {
     @PostMapping("/exists")
     public boolean existsFavorite(@RequestBody FavoriteFrontDto data) {
         Long memberId = null;
-        if(data.getMemberNickname() != null){
+        if (data.getMemberNickname() != null) {
             memberId = signServiceClient.getIdByNickname(data.getMemberNickname());
         }
         FavoriteDto favorite = FavoriteDto.builder()

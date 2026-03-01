@@ -1,12 +1,11 @@
 package com.traveler.logpipeline.sse.service;
 
 import com.traveler.logpipeline.kafka.dto.LogDto;
-import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
 public class SseService {
@@ -19,9 +18,7 @@ public class SseService {
         emitter.onCompletion(() -> emitters.remove(emitter));
         emitter.onTimeout(() -> emitters.remove(emitter));
         try {
-            emitter.send(SseEmitter.event()
-                    .name("connect")
-                    .data("connected")); //503 에러 방지를 위한 더미 데이터
+            emitter.send(SseEmitter.event().name("connect").data("connected")); // 503 에러 방지를 위한 더미 데이터
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -38,4 +35,3 @@ public class SseService {
         }
     }
 }
-

@@ -1,8 +1,7 @@
 package com.traveler.bff.dto.service;
 
-import lombok.Data;
-
 import java.util.Map;
+import lombok.Data;
 
 @Data
 public class FormatRequestDto {

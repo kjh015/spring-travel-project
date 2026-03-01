@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-//@BatchSize(size = 100)
+// @BatchSize(size = 100)
 public class Region {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
