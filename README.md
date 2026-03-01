@@ -1,3 +1,7 @@
+<div align="center">
+  <a href="https://impossible-scraper-904.notion.site/316dd40f05d7806dae8be53c02820534?v=316dd40f05d78054a92b000ce82d3127&source=copy_link" title="TripNow 리팩토링 일지">TripNow 리팩토링 일지</a>
+</div>
+
 # 서경 SW아카데미 25-1학기 프로젝트
 
 로그 데이터 수집을 통한 고객 데이터 활용 및 분석
