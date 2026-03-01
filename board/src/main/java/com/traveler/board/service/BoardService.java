@@ -1,6 +1,7 @@
 package com.traveler.board.service;
 
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.traveler.board.dto.BoardDocumentDto;
 import com.traveler.board.dto.BoardDto;
 import com.traveler.board.dto.BoardListDto;
@@ -9,11 +10,11 @@ import com.traveler.board.entity.Board;
 import com.traveler.board.entity.Image;
 import com.traveler.board.repository.BoardRepository;
 import com.traveler.board.repository.ImageRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ public class BoardService {
     private final TravelPlaceService travelPlaceService;
     private final SearchService searchService;
     private final KafkaProducerService kafkaProducerService;
+    private final JPAQueryFactory queryFactory;
 
     public SearchResultDto listArticlesBySearch(String keyword, String category, String region, String sort, String direction, int page) throws DataAccessException{
         BoardDocumentDto searchResult = searchService.search(keyword, category, region, sort, direction, page);
@@ -51,6 +53,24 @@ public class BoardService {
 
 
 
+
+    @Transactional
+    public List<BoardListDto> listArticlesFetchJoin() throws DataAccessException{
+        List<Board> boardList = boardRepository.findAllWithFetchJoin();
+        return boardList.stream().map(board -> BoardListDto.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .memberId(board.getMemberId())
+                .modifiedDate(board.getModifiedDate())
+                .category(board.getTravelPlace().getCategory().getName())
+                .region(board.getTravelPlace().getRegion().getName())
+                .viewCount(board.getViewCount())
+                .ratingAvg(board.getRatingAvg())
+                .build()
+        ).collect(Collectors.toList());
+    }
+
+    @Transactional
     public List<BoardListDto> listArticles() throws DataAccessException{
         List<Board> boardList = boardRepository.findAll();
         return boardList.stream().map(board -> BoardListDto.builder()
@@ -65,6 +85,16 @@ public class BoardService {
                 .build()
         ).collect(Collectors.toList());
     }
+
+    public List<BoardListDto> listArticlesQueryDsl() {
+        return boardRepository.findBoardList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<BoardListDto> listArticlesQueryDslReadOnly() {
+        return boardRepository.findBoardList();
+    }
+
 
     @Transactional
     public void addArticle(BoardDto data, List<MultipartFile> images)throws DataAccessException{
