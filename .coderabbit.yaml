@@ -1,7 +1,14 @@
-language: "ko" # 한국어로 리뷰 받기
+language: ko-KR
 reviews:
-  profile: "chill" # 조금 더 부드러운 말투로 설정 (기본은 professional)
+  base_branches:
+    - "main"
+    - "develop"
+  profile: professional
+  high_level_summary: true
+  review_status: true
+  request_changes_workflow: false
   auto_review:
     enabled: true
+    drafts: true
 chat:  
-  auto_reply: true # PR 본문에 요약 내용을 자동으로 생성할지 여부
+  auto_reply: true
