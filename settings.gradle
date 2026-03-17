@@ -1,4 +1,8 @@
-rootProject.name = 'spring-travel-project'
+rootProject.name = 'TripNow'
+include("common-module:core")
+include("common-module:api")
+include("common-module:db")
+include("post")
 include("board")
 include("sign")
 include("discovery")

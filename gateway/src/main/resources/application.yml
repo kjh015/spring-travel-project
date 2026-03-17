@@ -7,6 +7,10 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: post
+          uri: lb://post
+          predicates:
+            - Path=/api/v1/posts/**
         - id: board
           uri: lb://board/
           predicates:
@@ -35,6 +39,8 @@ spring:
           uri: lb://bff
           predicates:
             - Path=/api/**
+
+
       globalcors:
         cors-configurations:
           '[/**]':
@@ -59,3 +65,11 @@ eureka:
 springboot:
   jwt:
     secret: qwertyuiopasdfghjklzxcvbnm!qwertyuiopasdfghjklzxcvbnm
+
+
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Post Service
+        url: /api/v1/posts/v3/api-docs/post

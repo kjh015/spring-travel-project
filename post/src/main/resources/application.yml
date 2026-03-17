@@ -1,0 +1,45 @@
+server:
+  port: 1234
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: "post"
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        #default_batch_fetch_size: 100
+
+swagger:
+  info:
+    paths-to-match:
+      - "/api/v1/posts/**"
+      - "/api/v1/comments/**"
+      - "/api/v1/favorites/**"
+
+springdoc:
+  api-docs:
+    path: /api/v1/posts/v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+#openapi:
+#  service:
+#    url: http://localhost:8000/api/v1/posts
+
+
+
+
