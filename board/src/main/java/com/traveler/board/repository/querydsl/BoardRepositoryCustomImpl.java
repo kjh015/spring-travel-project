@@ -1,16 +1,15 @@
 package com.traveler.board.repository.querydsl;
 
-import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.traveler.board.dto.BoardListDto;
-import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-
 import static com.traveler.board.entity.QBoard.board;
 import static com.traveler.board.entity.QCategory.category;
 import static com.traveler.board.entity.QRegion.region;
 import static com.traveler.board.entity.QTravelPlace.travelPlace;
+
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.traveler.board.dto.BoardListDto;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
@@ -20,7 +19,8 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     @Override
     public List<BoardListDto> findBoardList() {
         return queryFactory
-                .select(Projections.constructor(BoardListDto.class,
+                .select(Projections.constructor(
+                        BoardListDto.class,
                         board.id,
                         board.title,
                         board.memberId,
@@ -28,8 +28,7 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
                         travelPlace.category.name,
                         travelPlace.region.name,
                         board.viewCount,
-                        board.ratingAvg
-                ))
+                        board.ratingAvg))
                 .from(board)
                 .join(board.travelPlace, travelPlace)
                 .join(travelPlace.category, category)

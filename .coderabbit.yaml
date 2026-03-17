@@ -1,0 +1,14 @@
+language: ko-KR
+reviews:
+  base_branches:
+    - "main"
+    - "develop"
+  profile: assertive
+  high_level_summary: true
+  review_status: true
+  request_changes_workflow: false
+  auto_review:
+    enabled: true
+    drafts: true
+chat:  
+  auto_reply: true

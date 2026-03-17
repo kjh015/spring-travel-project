@@ -12,9 +12,9 @@ public class TravelPlaceService {
     private final CategoryService categoryService;
     private final RegionService regionService;
 
-    public TravelPlace addAndGetTravelPlace(String category, String region, String name, String address){
-        if(categoryService.isEmpty()) categoryService.initCategory();
-        if(regionService.isEmpty()) regionService.initRegion();
+    public TravelPlace addAndGetTravelPlace(String category, String region, String name, String address) {
+        if (categoryService.isEmpty()) categoryService.initCategory();
+        if (regionService.isEmpty()) regionService.initRegion();
 
         TravelPlace travelPlace = new TravelPlace();
         travelPlace.setCategory(categoryService.getCategory(category));
@@ -35,5 +35,4 @@ public class TravelPlaceService {
         travelPlace.setAddress(address);
         return travelPlaceRepository.save(travelPlace);
     }
-
 }

@@ -1,12 +1,11 @@
 package com.traveler.realtimepopular.service;
 
 import com.traveler.realtimepopular.dto.PopularScoreResult;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +38,6 @@ public class PopularService {
                 .toList();
     }
 
-
     public List<PopularScoreResult> getTopPopularCategories(int topN) throws IOException {
         Map<String, Long> all = aggregationService.getPopularCategories();
 
@@ -49,8 +47,8 @@ public class PopularService {
                 .map(entry -> PopularScoreResult.builder()
                         .category(entry.getKey())
                         .score(entry.getValue())
-                        .build()
-                ).toList();
+                        .build())
+                .toList();
     }
 
     public List<PopularScoreResult> getTopPopularRegions(int topN) throws IOException {
@@ -62,7 +60,7 @@ public class PopularService {
                 .map(entry -> PopularScoreResult.builder()
                         .region(entry.getKey())
                         .score(entry.getValue())
-                        .build()
-                ).toList();
+                        .build())
+                .toList();
     }
 }

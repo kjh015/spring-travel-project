@@ -1,15 +1,13 @@
 package com.traveler.bff.dto.service;
 
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.*;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class DeduplicationDto {
     private String id;
     private String processId;
@@ -31,7 +29,8 @@ public class DeduplicationDto {
         private int second;
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     public static class ConditionDto {
         private String format;
         private String value;

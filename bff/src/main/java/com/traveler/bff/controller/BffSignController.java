@@ -7,13 +7,12 @@ import com.traveler.bff.dto.service.SignInRequestDto;
 import com.traveler.bff.dto.service.SignInResultDto;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/sign")
@@ -43,7 +42,7 @@ public class BffSignController {
     }
 
     @GetMapping("/check-duplicate")
-    public ResponseEntity<?> checkDuplicate(@RequestParam("type") String type, @RequestParam("value") String value){
+    public ResponseEntity<?> checkDuplicate(@RequestParam("type") String type, @RequestParam("value") String value) {
         return signServiceClient.checkDuplicate(type, value);
     }
 
@@ -53,7 +52,7 @@ public class BffSignController {
     }
 
     @PostMapping("/update-password")
-    public ResponseEntity<?> updatePassword(@RequestBody PasswordDto data){
+    public ResponseEntity<?> updatePassword(@RequestBody PasswordDto data) {
         return signServiceClient.updatePassword(data);
     }
 
@@ -103,20 +102,19 @@ public class BffSignController {
     }
 
     @PostMapping("/detail")
-    public ResponseEntity<?> getMemberDetail(@RequestParam String loginId){
+    public ResponseEntity<?> getMemberDetail(@RequestParam String loginId) {
         return signServiceClient.getMemberDetail(loginId);
     }
 
     @PostMapping("/admin/list")
-    public ResponseEntity<?> getMemberList(){
+    public ResponseEntity<?> getMemberList() {
         return signServiceClient.getMemberList();
     }
 
     @PostMapping("/admin/delegate")
-    public ResponseEntity<?> delegateAdmin(@RequestParam String loginId){
+    public ResponseEntity<?> delegateAdmin(@RequestParam String loginId) {
         return signServiceClient.delegateAdmin(loginId);
     }
-
 
     @PostMapping("/test")
     public ResponseEntity<?> testAccessToken() {

@@ -2,20 +2,19 @@ package com.traveler.comment.kafka.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class KafkaProducerService {
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final KafkaTemplate<String,String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public void updateRatingAvg(Long boardId, int rating, boolean isAdd){
+    public void updateRatingAvg(Long boardId, int rating, boolean isAdd) {
         try {
             Map<String, String> newRating = new HashMap<>();
             newRating.put("boardId", String.valueOf(boardId));
@@ -26,10 +25,4 @@ public class KafkaProducerService {
             System.err.println("Kafka message handling failed: " + e.getMessage());
         }
     }
-
-
-
-
-
-
 }

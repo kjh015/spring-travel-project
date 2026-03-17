@@ -3,11 +3,10 @@ package com.traveler.bff.controller;
 import com.traveler.bff.client.LogpipelineServiceClient;
 import com.traveler.bff.dto.service.FilterRequestDto;
 import com.traveler.bff.dto.service.FilterResponseDto;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/filter/admin")
@@ -31,12 +30,20 @@ public class BffFilterController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addFilter(@RequestParam String processId, @RequestParam String name, @RequestParam String active, @RequestBody FilterRequestDto data) {
+    public ResponseEntity<?> addFilter(
+            @RequestParam String processId,
+            @RequestParam String name,
+            @RequestParam String active,
+            @RequestBody FilterRequestDto data) {
         return logpipelineServiceClient.addFilter(processId, name, active, data);
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateFilter(@RequestParam String filterId, @RequestParam String name, @RequestParam String active, @RequestBody FilterRequestDto data) {
+    public ResponseEntity<?> updateFilter(
+            @RequestParam String filterId,
+            @RequestParam String name,
+            @RequestParam String active,
+            @RequestBody FilterRequestDto data) {
         return logpipelineServiceClient.updateFilter(filterId, name, active, data);
     }
 

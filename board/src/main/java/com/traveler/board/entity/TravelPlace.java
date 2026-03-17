@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-//@BatchSize(size = 100)
+// @BatchSize(size = 100)
 public class TravelPlace {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

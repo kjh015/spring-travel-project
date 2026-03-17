@@ -4,12 +4,11 @@ import com.traveler.bff.dto.service.PasswordDto;
 import com.traveler.bff.dto.service.SignDto;
 import com.traveler.bff.dto.service.SignInRequestDto;
 import com.traveler.bff.dto.service.SignInResultDto;
+import java.util.List;
+import java.util.Map;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @FeignClient(name = "sign")
 public interface SignServiceClient {
@@ -28,7 +27,7 @@ public interface SignServiceClient {
     @PostMapping("/sign/update-password")
     ResponseEntity<String> updatePassword(@RequestBody PasswordDto data);
 
-    @PostMapping(value="/sign/sign-out", consumes = "application/json")
+    @PostMapping(value = "/sign/sign-out", consumes = "application/json")
     ResponseEntity<String> logout(@RequestHeader("Cookie") String cookieHeader);
 
     @PostMapping("/sign/withdraw")
@@ -45,6 +44,7 @@ public interface SignServiceClient {
 
     @PostMapping("/sign/delegate")
     ResponseEntity<?> delegateAdmin(@RequestParam String loginId);
+
     @PostMapping("/sign/test")
     ResponseEntity<String> testAccessToken();
 
@@ -53,6 +53,7 @@ public interface SignServiceClient {
 
     @PostMapping("/sign/nickname-id")
     String getNicknameById(@RequestBody Long id);
+
     @PostMapping("/sign/id-nickname")
     Long getIdByNickname(@RequestBody String nickname);
 

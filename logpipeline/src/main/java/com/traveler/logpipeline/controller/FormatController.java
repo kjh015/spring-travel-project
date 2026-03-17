@@ -6,10 +6,9 @@ import com.traveler.logpipeline.dto.FormatRequestDto;
 import com.traveler.logpipeline.dto.FormatResponseDto;
 import com.traveler.logpipeline.entity.Format;
 import com.traveler.logpipeline.service.FormatService;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/format")
@@ -22,16 +21,21 @@ public class FormatController {
     }
 
     @GetMapping("/list")
-    public List<FormatResponseDto> getFormatList(@RequestParam String processId){
+    public List<FormatResponseDto> getFormatList(@RequestParam String processId) {
         return formatService.listFormats(Long.parseLong(processId));
     }
+
     @GetMapping("/view")
-    public FormatResponseDto viewFormat(@RequestParam String formatId){
+    public FormatResponseDto viewFormat(@RequestParam String formatId) {
         return formatService.viewFormat(Long.parseLong(formatId));
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addFormat(@RequestParam String processId, @RequestParam String name, @RequestParam String active, @RequestBody FormatRequestDto formatData)  {
+    public ResponseEntity<String> addFormat(
+            @RequestParam String processId,
+            @RequestParam String name,
+            @RequestParam String active,
+            @RequestBody FormatRequestDto formatData) {
         try {
             Format format = new Format();
             format.setName(name);
@@ -46,8 +50,12 @@ public class FormatController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<String> updateFormat(@RequestParam String formatId, @RequestParam String name, @RequestParam String active, @RequestBody FormatRequestDto formatData){
-        try{
+    public ResponseEntity<String> updateFormat(
+            @RequestParam String formatId,
+            @RequestParam String name,
+            @RequestParam String active,
+            @RequestBody FormatRequestDto formatData) {
+        try {
             Format format = new Format();
             format.setId(Long.parseLong(formatId));
             format.setName(name);
@@ -59,12 +67,11 @@ public class FormatController {
         } catch (JsonProcessingException e) {
             return ResponseEntity.badRequest().body("JSON 파싱 실패: " + e.getMessage());
         }
-
     }
+
     @PostMapping("/remove")
-    public ResponseEntity<String> removeFormat(@RequestParam String formatId){
+    public ResponseEntity<String> removeFormat(@RequestParam String formatId) {
         formatService.removeFormat(Long.parseLong(formatId));
         return ResponseEntity.ok("포맷 삭제 성공");
     }
-
 }

@@ -8,8 +8,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableDiscoveryClient
 public class RealtimepopularApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(RealtimepopularApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(RealtimepopularApplication.class, args);
+    }
 }

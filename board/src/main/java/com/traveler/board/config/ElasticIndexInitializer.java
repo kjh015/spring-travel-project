@@ -1,7 +1,6 @@
 package com.traveler.board.config;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +16,13 @@ public class ElasticIndexInitializer {
     @PostConstruct
     public void createBoardIndexIfNotExists() throws Exception {
         String indexName = "board-test5";
-        boolean exists = elasticsearchClient.indices().exists(r -> r.index(indexName)).value();
+        boolean exists =
+                elasticsearchClient.indices().exists(r -> r.index(indexName)).value();
         if (exists) return;
 
         // 인덱스 설정 및 매핑을 문자열로 선언
-        String mappingJson = """
+        String mappingJson =
+                """
 {
   "settings": {
     "index.max_ngram_diff": 18,
@@ -114,13 +115,13 @@ public class ElasticIndexInitializer {
 }
 """;
 
-
-
         // RestClient 이용해서 RAW JSON으로 인덱스 생성 (ElasticsearchClient는 복잡 매핑을 지원하지 않음)
         org.elasticsearch.client.Request request = new org.elasticsearch.client.Request("PUT", "/" + indexName);
         request.setJsonEntity(mappingJson);
         // Transport에서 RestClient 추출
-        org.elasticsearch.client.RestClient restClient = ((co.elastic.clients.transport.rest_client.RestClientTransport) elasticsearchClient._transport()).restClient();
+        org.elasticsearch.client.RestClient restClient = ((co.elastic.clients.transport.rest_client.RestClientTransport)
+                        elasticsearchClient._transport())
+                .restClient();
         restClient.performRequest(request);
     }
 }

@@ -5,13 +5,12 @@ import com.traveler.favorite.entity.Favorite;
 import com.traveler.favorite.kafka.KafkaProducerService;
 import com.traveler.favorite.repository.FavoriteRepository;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -19,12 +18,11 @@ public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final KafkaProducerService kafkaService;
 
-
     @Transactional
-    public boolean toggleFavorite(FavoriteDto data){
+    public boolean toggleFavorite(FavoriteDto data) {
         Long boardId = data.getBoardId();
         Long memberId = data.getMemberId();
-        if(memberId == null) return false;
+        if (memberId == null) return false;
 
         Optional<Favorite> favorite = favoriteRepository.findByBoardIdAndMemberId(boardId, memberId);
         if (favorite.isPresent()) {
@@ -40,23 +38,22 @@ public class FavoriteService {
             return true;
         }
     }
+
     @Transactional
-    public boolean existsFavorite(FavoriteDto data){
+    public boolean existsFavorite(FavoriteDto data) {
         Long boardId = data.getBoardId();
         Long memberId = data.getMemberId();
-        if(memberId == null) return false;
+        if (memberId == null) return false;
         return favoriteRepository.existsByBoardIdAndMemberId(boardId, memberId);
     }
 
-    public Set<Long> listFavorite(Long memberId){
+    public Set<Long> listFavorite(Long memberId) {
         List<Favorite> favorites = favoriteRepository.findAllByMemberId(memberId);
         return favorites.stream().map(Favorite::getBoardId).collect(Collectors.toSet());
-
     }
 
     @Transactional
-    public void deleteFavoriteByBoard(Long boardId){
+    public void deleteFavoriteByBoard(Long boardId) {
         favoriteRepository.deleteAllByBoardId(boardId);
     }
-
 }

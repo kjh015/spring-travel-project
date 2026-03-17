@@ -3,11 +3,10 @@ package com.traveler.bff.controller;
 import com.traveler.bff.client.LogpipelineServiceClient;
 import com.traveler.bff.dto.service.FormatRequestDto;
 import com.traveler.bff.dto.service.FormatResponseDto;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/format/admin")
@@ -26,12 +25,20 @@ public class BffFormatController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addFormat(@RequestParam String processId, @RequestParam String name, @RequestParam String active, @RequestBody FormatRequestDto formatData) {
+    public ResponseEntity<?> addFormat(
+            @RequestParam String processId,
+            @RequestParam String name,
+            @RequestParam String active,
+            @RequestBody FormatRequestDto formatData) {
         return logpipelineServiceClient.addFormat(processId, name, active, formatData);
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateFormat(@RequestParam String formatId, @RequestParam String name, @RequestParam String active, @RequestBody FormatRequestDto formatData) {
+    public ResponseEntity<?> updateFormat(
+            @RequestParam String formatId,
+            @RequestParam String name,
+            @RequestParam String active,
+            @RequestBody FormatRequestDto formatData) {
         return logpipelineServiceClient.updateFormat(formatId, name, active, formatData);
     }
 

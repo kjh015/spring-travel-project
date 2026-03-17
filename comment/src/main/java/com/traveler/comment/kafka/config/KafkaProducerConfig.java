@@ -1,5 +1,7 @@
 package com.traveler.comment.kafka.config;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
@@ -8,9 +10,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 public class KafkaProducerConfig {
@@ -21,7 +20,6 @@ public class KafkaProducerConfig {
         this.env = environment;
     }
 
-
     public Map<String, Object> producerConfig() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, env.getProperty("spring.kafka.producer.bootstrap-servers"));
@@ -29,7 +27,6 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         return props;
     }
-
 
     public ProducerFactory<String, String> producerFactory() {
         return new DefaultKafkaProducerFactory<>(this.producerConfig());

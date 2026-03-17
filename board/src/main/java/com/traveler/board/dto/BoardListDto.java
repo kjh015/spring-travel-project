@@ -1,10 +1,9 @@
 package com.traveler.board.dto;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -19,8 +18,15 @@ public class BoardListDto {
     private Double ratingAvg;
     private Long viewCount;
 
-    public BoardListDto(Long id, String title, Long memberId, LocalDateTime modifiedDate,
-                        String category, String region, Long viewCount, Double ratingAvg) {
+    public BoardListDto(
+            Long id,
+            String title,
+            Long memberId,
+            LocalDateTime modifiedDate,
+            String category,
+            String region,
+            Long viewCount,
+            Double ratingAvg) {
         this.id = id;
         this.title = title;
         this.memberId = memberId;

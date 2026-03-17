@@ -8,8 +8,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableDiscoveryClient
 public class SignApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SignApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(SignApplication.class, args);
+    }
 }

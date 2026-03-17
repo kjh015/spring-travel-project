@@ -1,10 +1,10 @@
 package com.traveler.logpipeline.kafka.service;
 
-import javax.tools.*;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.*;
+import javax.tools.*;
 
 public class JavaMethodExecutor {
 
@@ -12,13 +12,15 @@ public class JavaMethodExecutor {
      * 전달받은 Java 메서드 코드를 EvalRunner 클래스로 감싸서
      * 메모리에서 컴파일 → 리플렉션으로 evaluate(int) 메서드 실행 후 결과 반환
      */
-    public static boolean  compileAndRunMethod(String methodCode, Class<?>[] paramTypes, Object[] paramValues) throws Exception {
+    public static boolean compileAndRunMethod(String methodCode, Class<?>[] paramTypes, Object[] paramValues)
+            throws Exception {
         String className = "EvalRunner"; // 컴파일할 클래스명
         String fullCode = """
             public class EvalRunner {
                 %s
             }
-        """.formatted(methodCode); // 전달받은 메서드 코드를 EvalRunner 클래스 안에 삽입
+        """
+                .formatted(methodCode); // 전달받은 메서드 코드를 EvalRunner 클래스 안에 삽입
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler(); // 자바 컴파일러 객체 획득
         if (compiler == null) {
@@ -37,17 +39,19 @@ public class JavaMethodExecutor {
 
         // 컴파일 작업 정의
         JavaCompiler.CompilationTask task = compiler.getTask(
-                null,                    // 출력 Writer (null이면 System.err)
-                fileManager,             // 커스텀 파일 매니저
-                diagnostics,             // 진단 결과 저장
-                null, null,              // 옵션, 클래스 이름 (필요 없음)
-                List.of(javaFile)        // 컴파일할 JavaFileObject
-        );
+                null, // 출력 Writer (null이면 System.err)
+                fileManager, // 커스텀 파일 매니저
+                diagnostics, // 진단 결과 저장
+                null,
+                null, // 옵션, 클래스 이름 (필요 없음)
+                List.of(javaFile) // 컴파일할 JavaFileObject
+                );
 
         // 컴파일 실행
         if (!task.call()) {
             StringBuilder sb = new StringBuilder("컴파일 에러:\n");
-            diagnostics.getDiagnostics().forEach(d -> sb.append(d.getMessage(null)).append("\n"));
+            diagnostics.getDiagnostics().forEach(d -> sb.append(d.getMessage(null))
+                    .append("\n"));
             throw new IllegalStateException(sb.toString());
         }
 
@@ -98,8 +102,8 @@ public class JavaMethodExecutor {
         }
 
         @Override
-        public JavaFileObject getJavaFileForOutput(Location location, String className,
-                                                   JavaFileObject.Kind kind, FileObject sibling) {
+        public JavaFileObject getJavaFileForOutput(
+                Location location, String className, JavaFileObject.Kind kind, FileObject sibling) {
             // 클래스 컴파일 결과를 저장할 OutputStream 준비
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             compiledClassData.put(className, baos); // 클래스 이름으로 저장

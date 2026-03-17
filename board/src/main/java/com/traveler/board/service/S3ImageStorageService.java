@@ -1,7 +1,7 @@
 package com.traveler.board.service;
 
-//@Service("s3ImageStorageService")
-//public class S3ImageStorageService implements ImageStorageService {
+// @Service("s3ImageStorageService")
+// public class S3ImageStorageService implements ImageStorageService {
 //
 //    private final AmazonS3 s3;
 //    private final String bucketName = "your-bucket";
@@ -12,7 +12,8 @@ package com.traveler.board.service;
 //        this.s3 = AmazonS3ClientBuilder.standard()
 //                .withCredentials(new AWSStaticCredentialsProvider(credentials))
 //                .withEndpointConfiguration(
-//                        new AmazonS3ClientBuilder.EndpointConfiguration("https://kr.object.ncloudstorage.com", "kr-standard")
+//                        new AmazonS3ClientBuilder.EndpointConfiguration("https://kr.object.ncloudstorage.com",
+// "kr-standard")
 //                )
 //                .build();
 //    }
@@ -30,4 +31,4 @@ package com.traveler.board.service;
 //        // 접근 가능한 URL (권한 설정에 따라 다름)
 //        return baseUrl + fileName;
 //    }
-//}
+// }

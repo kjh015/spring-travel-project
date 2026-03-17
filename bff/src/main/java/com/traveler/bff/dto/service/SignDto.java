@@ -1,12 +1,11 @@
 package com.traveler.bff.dto.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 @Data
 @Builder
