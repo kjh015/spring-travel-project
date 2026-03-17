@@ -17,15 +17,7 @@ public class PageConverter {
      * @return 페이징 정보가 담긴 PageResponse
      */
     public static <T> PageResponse<T> toPageResponse(Page<T> pageData) {
-        return PageResponse.<T>builder()
-                .content(pageData.getContent())
-                .currentPage(pageData.getNumber() + 1)
-                .size(pageData.getSize())
-                .totalElements(pageData.getTotalElements())
-                .totalPages(pageData.getTotalPages())
-                .isFirst(pageData.isFirst())
-                .isLast(pageData.isLast())
-                .build();
+        return buildPageResponse(pageData.getContent(), pageData);
     }
 
     /**
@@ -43,7 +35,11 @@ public class PageConverter {
                 .map(converter)
                 .toList();
 
-        return PageResponse.<R>builder()
+        return buildPageResponse(content, pageData);
+    }
+
+    private static <T> PageResponse<T> buildPageResponse(List<T> content, Page<?> pageData) {
+        return PageResponse.<T>builder()
                 .content(content)
                 .currentPage(pageData.getNumber() + 1)
                 .size(pageData.getSize())
@@ -52,5 +48,5 @@ public class PageConverter {
                 .isFirst(pageData.isFirst())
                 .isLast(pageData.isLast())
                 .build();
-    }
+        }
 }

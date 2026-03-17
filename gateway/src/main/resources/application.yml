@@ -66,8 +66,6 @@ springboot:
   jwt:
     secret: qwertyuiopasdfghjklzxcvbnm!qwertyuiopasdfghjklzxcvbnm
 
-
-
 springdoc:
   swagger-ui:
     urls:

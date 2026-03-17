@@ -31,9 +31,13 @@ public class SwaggerServiceConfig {
                 ? appName.toUpperCase() + " API"
                 : properties.getTitle();
 
+        String[] pathsToMatch = (properties.getPathsToMatch() == null || properties.getPathsToMatch().isEmpty())
+                ? new String[]{"/**"}
+                : properties.getPathsToMatch().toArray(String[]::new);
+
         return GroupedOpenApi.builder()
                 .group(appName)
-                .pathsToMatch(properties.getPathsToMatch().toArray(String[]::new))
+                .pathsToMatch(pathsToMatch)
                 .addOpenApiCustomizer(swaggerConfig.createOpenApiCustomizer(
                         title,
                         properties.getVersion(),

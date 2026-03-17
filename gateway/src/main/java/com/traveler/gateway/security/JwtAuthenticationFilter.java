@@ -37,8 +37,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 || path.startsWith("/realtime-popular/")
                 || path.startsWith("/board/images/")
                 || path.startsWith("/swagger-ui")          // Swagger UI 리소스
-                || path.startsWith("/v3/api-docs")         // Gateway 자체 api-docs
-                || path.contains("/v3/api-docs")           // 각 서비스의 api-docs (중요)
+                || path.contains("/v3/api-docs")           // 각 서비스의 api-docs
                 || path.startsWith("/webjars")             // Swagger UI 라이브러리
                 || path.startsWith("/api/v1/posts")
         ) {

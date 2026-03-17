@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestControllerAdvice
@@ -48,7 +47,10 @@ public class GeneralExceptionAdvice {
     @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleBindException(BindException ex) {
         List<ErrorResponse> errors = exceptionConverter.from(ex);
-        log.info("[Validation Error] Count: {}, Details: {}", errors.size(), errors);
+        log.info(
+                "[Validation Error] Count: {}, Fields: {}",
+                errors.size(),
+                errors.stream().map(ErrorResponse::field).toList());
         return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, errors);
     }
 
@@ -59,7 +61,7 @@ public class GeneralExceptionAdvice {
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleConstraintViolationException(
             ConstraintViolationException ex) {
         List<ErrorResponse> errors = exceptionConverter.from(ex);
-        log.info("[Constraint Violation] Details: {}", errors);
+        log.info("[Constraint Violation] Fields: {}", errors.stream().map(ErrorResponse::field).toList());
         return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, errors);
     }
 
@@ -70,7 +72,7 @@ public class GeneralExceptionAdvice {
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException ex) {
         List<ErrorResponse> errors = exceptionConverter.from(ex);
-        log.info("[Method Argument Type Mismatch] Field: {}, Value: {}", ex.getName(), ex.getValue());
+        log.info("[Method Argument Type Mismatch] Field: {}", ex.getName());
         return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, errors);
     }
 
@@ -82,10 +84,7 @@ public class GeneralExceptionAdvice {
             HttpMessageNotReadableException ex) {
         if (ex.getCause() instanceof InvalidFormatException ife) {
             List<ErrorResponse> errors = exceptionConverter.from(ife);
-            log.info(
-                    "[JSON Format Error] Field: {}, Value: {}",
-                    errors.get(0).field(),
-                    errors.get(0).value());
+            log.info("[JSON Format Error] Field: {}", errors.get(0).field());
             return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, errors);
         }
         log.warn("[Message Not Readable] Raw Message: {}", ex.getMessage());
@@ -131,16 +130,6 @@ public class GeneralExceptionAdvice {
             HttpMediaTypeNotSupportedException ex) {
         log.warn("[Unsupported Media Type] Given: {}, Supported: {}", ex.getContentType(), ex.getSupportedMediaTypes());
         return createErrorResponse(ErrorCode.UNSUPPORTED_MEDIA_TYPE, null);
-    }
-
-    /**
-     * 서버에 요청은 전달되었으나, 권한이 부족하여 거절된 경우 (403)
-     * 주로 @PreAuthorize 등으로 권한 제어를 할 때 발생
-     */
-    @ExceptionHandler(AccessDeniedException.class)
-    protected ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
-        log.warn("[Access Denied] 권한 부족: {}", ex.getMessage());
-        return createErrorResponse(ErrorCode.FORBIDDEN, null);
     }
 
     /**

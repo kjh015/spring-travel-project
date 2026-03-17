@@ -1,13 +1,11 @@
 package com.traveler.common.api.swagger.config;
 
-import com.traveler.common.api.swagger.annotation.ApiErrorCodeOperationCustomizer;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OpenApiCustomizer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
@@ -16,11 +14,6 @@ import java.util.List;
 public class SwaggerConfig {
 
     private static final String securitySchemeName = "JWT TOKEN";
-
-    @Bean
-    public ApiErrorCodeOperationCustomizer apiErrorCodeOperationCustomizer() {
-        return new ApiErrorCodeOperationCustomizer();
-    }
 
     /** OpenAPI 객체의 공통 설정을 담당하는 커스텀 로직 */
     public OpenApiCustomizer createOpenApiCustomizer(String title, String version, String description) {

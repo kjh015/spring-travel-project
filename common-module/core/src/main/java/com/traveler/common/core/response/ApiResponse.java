@@ -2,14 +2,15 @@ package com.traveler.common.core.response;
 
 import com.traveler.common.core.code.BaseErrorCode;
 import com.traveler.common.core.code.BaseSuccessCode;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiResponse<T> {
 
-    private final Boolean success;
+    private final boolean success;
 
     private final String code;
 

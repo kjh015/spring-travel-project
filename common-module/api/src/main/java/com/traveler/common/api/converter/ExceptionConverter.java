@@ -11,6 +11,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class ExceptionConverter {
@@ -19,12 +20,19 @@ public class ExceptionConverter {
      * @Valid 또는 @Validated 사용 시 DTO 바인딩 에러 처리
      */
     public List<ErrorResponse> from(BindException ex) {
-        return ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> ErrorResponse.builder()
-                        .field(error.getField())
-                        .value(error.getRejectedValue() == null ? "" : error.getRejectedValue())
-                        .reason(error.getDefaultMessage())
-                        .build())
+        return Stream.concat(
+                        ex.getBindingResult().getFieldErrors().stream()
+                                .map(error -> ErrorResponse.builder()
+                                        .field(error.getField())
+                                        .value(error.getRejectedValue() == null ? "" : error.getRejectedValue())
+                                        .reason(error.getDefaultMessage())
+                                        .build()),
+                        ex.getBindingResult().getGlobalErrors().stream()
+                                .map(error -> ErrorResponse.builder()
+                                        .field(error.getObjectName())
+                                        .value("")
+                                        .reason(error.getDefaultMessage())
+                                        .build()))
                 .toList();
     }
 
