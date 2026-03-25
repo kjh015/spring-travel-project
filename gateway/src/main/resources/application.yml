@@ -7,8 +7,8 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: post
-          uri: lb://post
+        - id: post-service
+          uri: lb://post-service
           predicates:
             - Path=/api/v1/posts/**
         - id: board
@@ -70,4 +70,4 @@ springdoc:
   swagger-ui:
     urls:
       - name: Post Service
-        url: /api/v1/posts/v3/api-docs/post
+        url: /api/v1/posts/v3/api-docs/post-service

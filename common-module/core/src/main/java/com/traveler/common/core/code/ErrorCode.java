@@ -25,6 +25,14 @@ public enum ErrorCode implements BaseErrorCode {
     AUTHENTICATION_FAILED(401, "AUTH401_6", "인증에 실패했습니다."),
     FORBIDDEN(403, "AUTH403_1", "해당 리소스에 접근할 권한이 없습니다."),
 
+    // S3
+    S3_INVALID_URL(400, "S3400_1", "유효하지 않은 S3 URL 형식입니다."),
+    S3_FILE_NOT_FOUND(404, "S3400_2", "S3에서 해당 파일을 찾을 수 없습니다."),
+    S3_ACCESS_DENIED(403, "S3400_3", "S3 버킷에 접근할 권한이 없습니다."),
+    S3_UPLOAD_ERROR(500, "S3500_1", "S3 파일 업로드 중 오류가 발생했습니다."),
+    S3_DELETE_ERROR(500, "S3500_2", "S3 파일 삭제 중 오류가 발생했습니다."),
+    S3_SERVER_ERROR(500, "S3500_3", "AWS S3 서버 자체 오류가 발생했습니다."),
+
     PAGE_INVALID(400, "PAGE400_1", "유효하지 않은 페이지 범위입니다.");
 
     private final int status;

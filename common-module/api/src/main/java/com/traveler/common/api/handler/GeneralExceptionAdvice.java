@@ -2,7 +2,6 @@ package com.traveler.common.api.handler;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.traveler.common.api.converter.ExceptionConverter;
-import com.traveler.common.core.code.BaseErrorCode;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.exception.GeneralException;
 import com.traveler.common.core.response.ApiResponse;
@@ -11,6 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -26,9 +27,10 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.List;
 
 @RestControllerAdvice
+@Order(Ordered.LOWEST_PRECEDENCE)
 @RequiredArgsConstructor
 @Slf4j
-public class GeneralExceptionAdvice {
+public class GeneralExceptionAdvice implements BaseExceptionAdvice {
 
     private final ExceptionConverter exceptionConverter;
 
@@ -144,12 +146,5 @@ public class GeneralExceptionAdvice {
                 ex.getMessage(),
                 ex);
         return createErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, null);
-    }
-
-    /**
-     * 공통 응답 생성 메서드
-     */
-    private <T> ResponseEntity<ApiResponse<T>> createErrorResponse(BaseErrorCode code, T data) {
-        return ResponseEntity.status(code.getStatus()).body(ApiResponse.onFailure(code, data));
     }
 }

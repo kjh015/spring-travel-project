@@ -2,7 +2,7 @@ rootProject.name = 'TripNow'
 include("common-module:core")
 include("common-module:api")
 include("common-module:db")
-include("post")
+include("post-service")
 include("board")
 include("sign")
 include("discovery")

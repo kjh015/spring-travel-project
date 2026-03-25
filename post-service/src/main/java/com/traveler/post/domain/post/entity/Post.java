@@ -1,0 +1,102 @@
+package com.traveler.post.domain.post.entity;
+
+import com.traveler.common.db.entity.BaseEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@SuperBuilder
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Post extends BaseEntity {
+
+    @Column(nullable = false)
+    private Long memberId;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    @JoinColumn(name = "travel_place_id")
+    private TravelPlace travelPlace;
+
+    @Column(length = 100)
+    private String title;
+
+    @Column(length = 2000)
+    private String content;
+
+    @Builder.Default
+    private Long viewCount = 0L;
+
+    @Builder.Default
+    private Long likeCount = 0L;
+
+    @Builder.Default
+    private Double starAvg = 0.0;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostImage> images = new ArrayList<>();
+
+    @Builder.Default
+    private boolean isDeleted = false;
+
+    private LocalDateTime deletedAt;
+
+    public void addPostImage(String imageKey, int sortOrder) {
+        PostImage postImage = PostImage.builder()
+                .imageKey(imageKey)
+                .sortOrder(sortOrder)
+                .post(this)
+                .build();
+        this.images.add(postImage);
+    }
+
+    public void update(
+            String title,
+            String content
+    ){
+        this.title = title;
+        this.content = content;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public List<String> updateImages(List<String> newUrls) {
+        // List를 Set으로 변환하여 탐색 속도 개선
+        Set<String> newUrlSet = new HashSet<>(newUrls);
+
+        // 삭제될 이미지 추출
+        List<String> keysToDelete = this.images.stream()
+                .map(PostImage::getImageKey)
+                .filter(key -> !newUrlSet.contains(key))
+                .toList();
+
+        this.images.removeIf(img -> !newUrlSet.contains(img.getImageKey()));
+
+        // 기존 이미지 순서 업데이트 및 신규 이미지 추가
+        Map<String, PostImage> currentImageMap = this.images.stream()
+                .collect(Collectors.toMap(PostImage::getImageKey, img -> img));
+
+        for (int i = 0; i < newUrls.size(); i++) {
+            String url = newUrls.get(i);
+            int sequence = i + 1;
+            if (currentImageMap.containsKey(url)) {
+                currentImageMap.get(url).updateSequence(sequence);
+            } else {
+                this.addPostImage(url, sequence);
+            }
+        }
+
+        return keysToDelete;
+    }
+}

@@ -1,0 +1,63 @@
+server:
+  port: 1234
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: "post-service"
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        #default_batch_fetch_size: 100
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all # (선택) 발행 보장 수준 (0, 1, all)
+      retries: 3
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.JsonDeserializer
+      group-id: traveler-group # 소비자 그룹 ID
+      auto-offset-reset: earliest # 오프셋 정보가 없을 때 시작 위치 (latest, earliest)
+      enable-auto-commit: true # 자동 커밋 여부
+    listener:
+      concurrency: 3 # 리스너의 병렬 처리 수준 (보통 파티션 개수와 맞춤)
+      ack-mode: count # 메시지 수신 확인 모드
+
+  cloud:
+    aws:
+      s3:
+        bucket: my-bucket-tmp
+      region:
+        static: ap-northeast-2
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+
+swagger:
+  info:
+    paths-to-match:
+      - "/api/v1/posts/**"
+      - "/api/v1/comments/**"
+      - "/api/v1/favorites/**"
+
+springdoc:
+  api-docs:
+    path: /api/v1/posts/v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
