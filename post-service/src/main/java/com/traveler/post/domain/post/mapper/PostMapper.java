@@ -1,6 +1,6 @@
 package com.traveler.post.domain.post.mapper;
 
-import com.traveler.post.domain.post.dto.message.PostMsgDTO;
+import com.traveler.post.domain.post.dto.msg.PostMsgDTO;
 import com.traveler.post.domain.post.dto.req.PostReqDTO;
 import com.traveler.post.domain.post.dto.res.PostResDTO;
 import com.traveler.post.domain.post.entity.Post;

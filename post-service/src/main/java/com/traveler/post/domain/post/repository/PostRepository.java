@@ -28,4 +28,6 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM Post p WHERE p.id IN :postIds")
     void hardDeletePostsByIds(@Param("postIds") List<Long> postIds);
+
+
 }

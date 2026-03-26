@@ -11,10 +11,10 @@ import com.traveler.post.domain.post.mapper.TravelPlaceMapper;
 import com.traveler.post.domain.post.repository.PostRepository;
 import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
-import com.traveler.post.global.s3.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -28,7 +28,6 @@ public class PostService {
     private final PostMapper postMapper;
     private final TravelPlaceMapper travelPlaceMapper;
     private final ApplicationEventPublisher eventPublisher;
-    private final S3Client s3Client;
 
     public PostResDTO.CreateDTO createPost(PostReqDTO.CreateDTO dto){
         TravelPlace travelPlace = travelPlaceMapper.toCreateEntity(dto);
@@ -94,6 +93,7 @@ public class PostService {
     }
 
     // Batch Delete
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteBatch(List<Long> ids) {
         // S3 이미지 조회
         List<String> imageUrls = postRepository.findImageKeysByPostIds(ids);

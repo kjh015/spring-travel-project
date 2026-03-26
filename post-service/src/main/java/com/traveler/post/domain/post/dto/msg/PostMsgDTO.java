@@ -1,4 +1,4 @@
-package com.traveler.post.domain.post.dto.message;
+package com.traveler.post.domain.post.dto.msg;
 
 import com.traveler.post.domain.post.enums.Category;
 import com.traveler.post.domain.post.enums.Region;

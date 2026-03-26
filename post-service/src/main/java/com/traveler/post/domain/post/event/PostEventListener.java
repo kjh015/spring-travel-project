@@ -1,7 +1,7 @@
 package com.traveler.post.domain.post.event;
 
 import com.traveler.post.domain.post.dto.event.PostEventDTO;
-import com.traveler.post.domain.post.dto.message.PostMsgDTO;
+import com.traveler.post.domain.post.dto.msg.PostMsgDTO;
 import com.traveler.post.global.kafka.KafkaProducer;
 import com.traveler.post.global.s3.S3Client;
 import lombok.RequiredArgsConstructor;

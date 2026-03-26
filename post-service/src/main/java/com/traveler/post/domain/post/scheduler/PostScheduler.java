@@ -24,14 +24,25 @@ public class PostScheduler {
     @Scheduled(cron = "0 0 3 * * *")
     public void cleanupExpiredPosts() {
         LocalDateTime threshold = LocalDateTime.now().minusDays(30);
+        log.info("[PostCleanup] 만료된 게시글 삭제 배치 시작 (기준일시: {})", threshold);
 
+        int totalDeleted = 0;
         while (true) {
             // ID 조회
-            Slice<Long> expiredPostIds = postRepository.findExpiredPostIds(threshold, PageRequest.of(0, 500));
-            if (expiredPostIds.isEmpty()) break;
+            Slice<Long> expiredPostIds = postRepository.findExpiredPostIds(threshold, PageRequest.of(0, BATCH_SIZE));
 
-            // 배치 단위로 삭제 처리 (개별 트랜잭션)
+            if (expiredPostIds.isEmpty()) {
+                break;
+            }
+
+            // 배치 단위로 삭제 처리
             postService.deleteBatch(expiredPostIds.getContent());
+
+            int currentBatchSize = expiredPostIds.getNumberOfElements();
+            totalDeleted += currentBatchSize;
+
+            log.info("[PostCleanup] 배치 삭제 진행 중... 현재 배치: {}건, 누적 삭제: {}건", currentBatchSize, totalDeleted);
         }
+        log.info("[PostCleanup] 만료된 게시글 삭제 배치 성공 완료. 총 삭제 건수: {}건", totalDeleted);
     }
 }
