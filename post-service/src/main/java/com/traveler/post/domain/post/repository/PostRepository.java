@@ -25,7 +25,7 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     @Query("SELECT p.id FROM Post p WHERE p.deletedAt <= :threshold AND p.isDeleted = true")
     Slice<Long> findExpiredPostIds(@Param("threshold") LocalDateTime threshold, Pageable pageable);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("DELETE FROM Post p WHERE p.id IN :postIds")
     void hardDeletePostsByIds(@Param("postIds") List<Long> postIds);
 }

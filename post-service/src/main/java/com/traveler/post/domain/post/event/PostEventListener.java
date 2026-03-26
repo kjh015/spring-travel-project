@@ -39,8 +39,7 @@ public class PostEventListener {
         kafkaProducer.send("post-delete-topic", msg);
     }
 
-
-    // 수정 시 삭제된 이미지만 처리
+    // S3 이미지 삭제
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleImagesDelete(PostEventDTO.ImagesDeleteEvent event) {
         log.info("Starting S3 file deletion for updated post");

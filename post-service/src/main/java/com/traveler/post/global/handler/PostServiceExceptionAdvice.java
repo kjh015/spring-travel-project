@@ -24,18 +24,22 @@ public class PostServiceExceptionAdvice implements BaseExceptionAdvice {
      */
     @ExceptionHandler(S3Exception.class)
     protected ResponseEntity<ApiResponse<Void>> handleS3Exception(S3Exception ex) {
-        log.error("[S3 Error] Status: {}, Message: {}", ex.statusCode(), ex.awsErrorDetails().errorMessage());
+        String errorMessage = ex.awsErrorDetails() != null
+                ? ex.awsErrorDetails().errorMessage()
+                : ex.getMessage();
+        String errorCode = ex.awsErrorDetails() != null
+                ? ex.awsErrorDetails().errorCode()
+                : null;
+        log.error("[S3 Error] Status: {}, Message: {}", ex.statusCode(), errorMessage);
 
-        ErrorCode errorCode = switch (ex.awsErrorDetails().errorCode()) {
+        ErrorCode mappedErrorCode = switch (errorCode) {
             case "NoSuchKey" -> ErrorCode.S3_FILE_NOT_FOUND;
             case "AccessDenied" -> ErrorCode.S3_ACCESS_DENIED;
             case "InvalidRequest", "InvalidArgument" -> ErrorCode.S3_INVALID_URL;
-            default ->
-                // 그 외의 경우는 일반적인 삭제/서버 에러로 처리
-                    ErrorCode.S3_DELETE_ERROR;
+            case null, default -> ErrorCode.S3_DELETE_ERROR;
         };
 
-        return createErrorResponse(errorCode, null);
+        return createErrorResponse(mappedErrorCode, null);
     }
 
     /**

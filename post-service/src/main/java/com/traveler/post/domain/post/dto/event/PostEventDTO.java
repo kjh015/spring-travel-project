@@ -6,7 +6,11 @@ public class PostEventDTO {
     // S3 이미지 삭제를 위한 이벤트
     public record ImagesDeleteEvent(
             List<String> imageKeys
-    ) {}
+    ) {
+        public ImagesDeleteEvent {
+            imageKeys = (imageKeys == null) ? List.of() : List.copyOf(imageKeys);
+        }
+    }
 
 
 }

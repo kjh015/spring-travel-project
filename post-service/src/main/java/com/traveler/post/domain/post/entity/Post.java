@@ -1,12 +1,15 @@
 package com.traveler.post.domain.post.entity;
 
 import com.traveler.common.db.entity.BaseEntity;
+import com.traveler.post.global.code.PostServiceErrorCode;
+import com.traveler.post.global.exception.PostServiceException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -16,6 +19,7 @@ import java.util.stream.Collectors;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("is_deleted = false")
 public class Post extends BaseEntity {
 
     @Column(nullable = false)
@@ -74,6 +78,9 @@ public class Post extends BaseEntity {
     public List<String> updateImages(List<String> newUrls) {
         // List를 Set으로 변환하여 탐색 속도 개선
         Set<String> newUrlSet = new HashSet<>(newUrls);
+        if (newUrlSet.size() != newUrls.size()) {
+            throw new PostServiceException(PostServiceErrorCode.POST_IMAGE_DUPLICATE);
+        }
 
         // 삭제될 이미지 추출
         List<String> keysToDelete = this.images.stream()

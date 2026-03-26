@@ -13,7 +13,7 @@ import java.util.List;
 @Configuration
 public class SwaggerConfig {
 
-    private static final String securitySchemeName = "JWT TOKEN";
+    private static final String securitySchemeName = "JWT_TOKEN";
 
     /** OpenAPI 객체의 공통 설정을 담당하는 커스텀 로직 */
     public OpenApiCustomizer createOpenApiCustomizer(String title, String version, String description) {

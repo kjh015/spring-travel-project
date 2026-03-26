@@ -1,6 +1,5 @@
 package com.traveler.common.api.converter;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.traveler.common.core.response.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
@@ -73,8 +72,12 @@ public class ExceptionConverter {
      */
     public List<ErrorResponse> from(InvalidFormatException ife) {
         String fieldPath = ife.getPath().stream()
-                .map(JsonMappingException.Reference::getFieldName)
-                .collect(Collectors.joining("."));
+                .map(ref -> ref.getFieldName() != null
+                        ? ref.getFieldName()
+                        : (ref.getIndex() >= 0 ? "[" + ref.getIndex() + "]" : ""))
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.joining("."))
+                .replace(".[", "[");
 
         String message = getErrorMessage(ife.getTargetType());
 

@@ -26,16 +26,25 @@ public interface PostMapper {
     // Kafka Message
     @Mapping(source = "id", target = "postId")
     @Mapping(source = "travelPlace.name", target = "travelPlace")
+    @Mapping(source = "travelPlace.category", target = "category")
+    @Mapping(source = "travelPlace.region", target = "region")
+    @Mapping(source = "travelPlace.address", target = "address")
     PostMsgDTO.CreatedMessage toCreatedMsgDTO(Post post);
 
     PostMsgDTO.ImageInfo toImageInfo(PostImage postImage);
 
     @Mapping(source = "id", target = "postId")
     @Mapping(source = "travelPlace.name", target = "travelPlace")
+    @Mapping(source = "travelPlace.category", target = "category")
+    @Mapping(source = "travelPlace.region", target = "region")
+    @Mapping(source = "travelPlace.address", target = "address")
     PostMsgDTO.UpdatedMessage toUpdatedMsgDTO(Post post);
 
     @Mapping(source = "id", target = "postId")
     @Mapping(source = "travelPlace.name", target = "travelPlace")
+    @Mapping(source = "travelPlace.category", target = "category")
+    @Mapping(source = "travelPlace.region", target = "region")
+    @Mapping(source = "travelPlace.address", target = "address")
     PostMsgDTO.DeletedMessage toDeletedMsgDTO(Post post);
 
 

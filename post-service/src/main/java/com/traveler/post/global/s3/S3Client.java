@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
-import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -46,10 +46,23 @@ public class S3Client {
                 .build();
 
         try {
-            s3Client.deleteObjects(multiObjectDeleteRequest);
+            DeleteObjectsResponse response = s3Client.deleteObjects(multiObjectDeleteRequest);
+
+            // 부분 실패 확인
+            if (response.hasErrors()) {
+                List<S3Error> errors = response.errors();
+                log.error("Partial failure in S3 delete. Errors: {}", errors);
+                throw new PostServiceException(ErrorCode.S3_DELETE_ERROR);
+            }
+
             log.info("Successfully deleted {} keys from S3", keys.size());
+        } catch (S3Exception | SdkClientException e) {
+            // API 호출 자체의 실패 처리
+            log.error("AWS S3 service error during deletion", e);
+            throw new PostServiceException(ErrorCode.S3_DELETE_ERROR);
         } catch (Exception e) {
-            log.error("Failed to delete objects from S3. Keys: {}", keys, e);
+            log.error("Unexpected error during S3 deletion", e);
+            throw new PostServiceException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 

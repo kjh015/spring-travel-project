@@ -95,13 +95,16 @@ public class PostService {
 
     // Batch Delete
     public void deleteBatch(List<Long> ids) {
-        // S3 이미지 조회 및 삭제
+        // S3 이미지 조회
         List<String> imageUrls = postRepository.findImageKeysByPostIds(ids);
-        if (!imageUrls.isEmpty()) {
-            s3Client.deleteFilesByUrls(imageUrls);
-        }
+        
         // DB 벌크 삭제
         postRepository.hardDeletePostsByIds(ids);
+
+        // S3 이미지 삭제 이벤트 발행
+        if (!imageUrls.isEmpty()) {
+            eventPublisher.publishEvent(new PostEventDTO.ImagesDeleteEvent(imageUrls));
+        }
     }
 
 
