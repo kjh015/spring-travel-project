@@ -5,10 +5,9 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
@@ -22,13 +21,17 @@ public class SwaggerConfig {
             openApi.setServers(List.of(new Server().url("/")));
             openApi.addSecurityItem(new SecurityRequirement().addList(securitySchemeName));
             openApi.schemaRequirement(securitySchemeName, createBearerAuthScheme());
-            openApi.getComponents().addSchemas("ApiResponse", new Schema<>()
-                    .type("object")
-                    .addProperty("success", new Schema<>().type("boolean"))
-                    .addProperty("code", new Schema<>().type("string"))
-                    .addProperty("message", new Schema<>().type("string"))
-                    .addProperty("result", new Schema<>().type("object").nullable(true))
-            );
+            openApi.getComponents()
+                    .addSchemas(
+                            "ApiResponse",
+                            new Schema<>()
+                                    .type("object")
+                                    .addProperty("success", new Schema<>().type("boolean"))
+                                    .addProperty("code", new Schema<>().type("string"))
+                                    .addProperty("message", new Schema<>().type("string"))
+                                    .addProperty(
+                                            "result",
+                                            new Schema<>().type("object").nullable(true)));
         };
     }
 

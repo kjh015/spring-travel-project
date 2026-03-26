@@ -27,12 +27,7 @@ public class TravelPlace extends BaseEntity {
 
     private String address;
 
-    public void update(
-            Category category,
-            Region region,
-            String name,
-            String address
-    ){
+    public void update(Category category, Region region, String name, String address) {
         this.category = category;
         this.region = region;
         this.name = name;

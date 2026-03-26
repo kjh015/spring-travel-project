@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
@@ -17,18 +16,18 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ApiResponse<PostResDTO.CreateDTO> createPost(@Valid @RequestBody PostReqDTO.CreateDTO dto){
+    public ApiResponse<PostResDTO.CreateDTO> createPost(@Valid @RequestBody PostReqDTO.CreateDTO dto) {
         return ApiResponse.onSuccess(SuccessCode.CREATED, postService.createPost(dto));
     }
 
     @PatchMapping("/{postId}")
     public ApiResponse<PostResDTO.UpdateDTO> updatePost(
-            @PathVariable Long postId,
-            @Valid @RequestBody PostReqDTO.UpdateDTO dto){
+            @PathVariable Long postId, @Valid @RequestBody PostReqDTO.UpdateDTO dto) {
         return ApiResponse.onSuccess(SuccessCode.OK, postService.updatePost(postId, dto));
     }
+
     @DeleteMapping("/{postId}")
-    public ApiResponse<PostResDTO.DeleteDTO> deletePost(@PathVariable Long postId){
+    public ApiResponse<PostResDTO.DeleteDTO> deletePost(@PathVariable Long postId) {
         return ApiResponse.onSuccess(SuccessCode.OK, postService.deletePost(postId));
     }
 }

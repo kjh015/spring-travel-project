@@ -1,8 +1,7 @@
 package com.traveler.common.core.response;
 
-import lombok.Builder;
-
 import java.util.List;
+import lombok.Builder;
 
 @Builder
 public record PageResponse<T>(
@@ -12,6 +11,4 @@ public record PageResponse<T>(
         long totalElements,
         int totalPages,
         boolean isFirst,
-        boolean isLast) {
-
-}
+        boolean isLast) {}

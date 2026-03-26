@@ -4,16 +4,15 @@ import com.traveler.common.db.entity.BaseEntity;
 import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLRestriction;
-
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @SuperBuilder
 @Entity
@@ -25,7 +24,10 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private Long memberId;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToOne(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            orphanRemoval = true)
     @JoinColumn(name = "travel_place_id")
     private TravelPlace travelPlace;
 
@@ -62,10 +64,7 @@ public class Post extends BaseEntity {
         this.images.add(postImage);
     }
 
-    public void update(
-            String title,
-            String content
-    ){
+    public void update(String title, String content) {
         this.title = title;
         this.content = content;
     }
@@ -91,8 +90,8 @@ public class Post extends BaseEntity {
         this.images.removeIf(img -> !newUrlSet.contains(img.getImageKey()));
 
         // 기존 이미지 순서 업데이트 및 신규 이미지 추가
-        Map<String, PostImage> currentImageMap = this.images.stream()
-                .collect(Collectors.toMap(PostImage::getImageKey, img -> img));
+        Map<String, PostImage> currentImageMap =
+                this.images.stream().collect(Collectors.toMap(PostImage::getImageKey, img -> img));
 
         for (int i = 0; i < newUrls.size(); i++) {
             String url = newUrls.get(i);

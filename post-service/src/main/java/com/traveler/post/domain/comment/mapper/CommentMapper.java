@@ -32,5 +32,4 @@ public interface CommentMapper {
 
     @Mapping(source = "id", target = "commentId")
     CommentMsgDTO.DeletedMessage toDeletedMsgDTO(Comment comment);
-
 }

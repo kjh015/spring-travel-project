@@ -2,16 +2,12 @@ package com.traveler.post.domain.post.dto.msg;
 
 import com.traveler.post.domain.post.enums.Category;
 import com.traveler.post.domain.post.enums.Region;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class PostMsgDTO {
 
-    public record ImageInfo(
-            String imageKey,
-            int sortOrder
-    ) {}
+    public record ImageInfo(String imageKey, int sortOrder) {}
 
     public record CreatedMessage(
             Long postId,
@@ -22,8 +18,7 @@ public class PostMsgDTO {
             Region region,
             String travelPlace,
             String address,
-            List<ImageInfo> images
-    ){}
+            List<ImageInfo> images) {}
 
     public record UpdatedMessage(
             Long postId,
@@ -33,11 +28,7 @@ public class PostMsgDTO {
             Region region,
             String travelPlace,
             String address,
-            List<ImageInfo> images
-    ){}
+            List<ImageInfo> images) {}
 
-    public record DeletedMessage(
-            Long postId,
-            LocalDateTime deletedAt
-    ) {}
+    public record DeletedMessage(Long postId, LocalDateTime deletedAt) {}
 }

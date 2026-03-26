@@ -4,16 +4,12 @@ public class CommentReqDTO {
 
     public record CreateDTO(
             Long postId,
-            Long memberId,  // 리팩토링 필요
+            Long memberId, // 리팩토링 필요
             String content,
-            Integer star
-    ) {}
+            Integer star) {}
 
     public record UpdateDTO(
-            Long memberId,  // 리팩토링 필요
+            Long memberId, // 리팩토링 필요
             String content,
-            Integer star
-    ) {}
-
-
+            Integer star) {}
 }

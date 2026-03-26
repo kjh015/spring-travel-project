@@ -27,7 +27,6 @@ public class CommentEventListener {
         kafkaProducer.send("comment-update-topic", msg);
     }
 
-
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleCommentDeleted(CommentMsgDTO.DeletedMessage msg) {
         log.info("Comment deleted Kafka Event triggered for ID: {}", msg.commentId());

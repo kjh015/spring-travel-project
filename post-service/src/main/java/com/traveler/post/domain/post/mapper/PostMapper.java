@@ -46,9 +46,4 @@ public interface PostMapper {
     @Mapping(source = "travelPlace.region", target = "region")
     @Mapping(source = "travelPlace.address", target = "address")
     PostMsgDTO.DeletedMessage toDeletedMsgDTO(Post post);
-
-
-
-
-
 }

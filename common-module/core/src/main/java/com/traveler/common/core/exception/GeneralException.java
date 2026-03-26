@@ -1,6 +1,5 @@
 package com.traveler.common.core.exception;
 
-
 import com.traveler.common.core.code.BaseErrorCode;
 import lombok.Getter;
 

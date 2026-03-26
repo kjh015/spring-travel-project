@@ -1,8 +1,6 @@
 package com.traveler.common.api.swagger.annotation;
 
-
 import com.traveler.common.core.code.ErrorCode;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

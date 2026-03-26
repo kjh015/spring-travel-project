@@ -8,6 +8,7 @@ import com.traveler.common.core.response.ApiResponse;
 import com.traveler.common.core.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -23,8 +24,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import java.util.List;
 
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
@@ -63,7 +62,9 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleConstraintViolationException(
             ConstraintViolationException ex) {
         List<ErrorResponse> errors = exceptionConverter.from(ex);
-        log.info("[Constraint Violation] Fields: {}", errors.stream().map(ErrorResponse::field).toList());
+        log.info(
+                "[Constraint Violation] Fields: {}",
+                errors.stream().map(ErrorResponse::field).toList());
         return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, errors);
     }
 

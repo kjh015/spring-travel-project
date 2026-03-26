@@ -22,7 +22,6 @@ public class PostImage extends BaseEntity {
 
     private int sortOrder;
 
-
     public void updateSequence(int sequence) {
         this.sortOrder = sequence;
     }

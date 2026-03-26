@@ -9,5 +9,4 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaAuditing
 @EntityScan(basePackages = "com.traveler")
 @EnableJpaRepositories(basePackages = "com.traveler")
-public class JpaConfig {
-}
+public class JpaConfig {}

@@ -2,14 +2,13 @@ package com.traveler.post.domain.comment.scheduler;
 
 import com.traveler.post.domain.comment.repository.CommentRepository;
 import com.traveler.post.domain.comment.service.CommentService;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
 
 @Slf4j
 @Component

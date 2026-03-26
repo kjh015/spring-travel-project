@@ -9,13 +9,12 @@ import com.traveler.post.domain.post.entity.Post;
 import com.traveler.post.domain.post.repository.PostRepository;
 import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +25,9 @@ public class CommentService {
     private final PostRepository postRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-
     public CommentResDTO.CreateDTO createComment(CommentReqDTO.CreateDTO dto) {
-        Post post = postRepository.findById(dto.postId())
+        Post post = postRepository
+                .findById(dto.postId())
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
 
         Comment comment = commentMapper.toCreateEntity(dto, post);
@@ -40,7 +39,8 @@ public class CommentService {
     }
 
     public CommentResDTO.UpdateDTO updateComment(Long commentId, CommentReqDTO.UpdateDTO dto) {
-        Comment comment = commentRepository.findById(commentId)
+        Comment comment = commentRepository
+                .findById(commentId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.COMMENT_NOT_FOUND));
 
         comment.update(dto.content(), dto.star());
@@ -50,7 +50,8 @@ public class CommentService {
     }
 
     public CommentResDTO.DeleteDTO deleteComment(Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
+        Comment comment = commentRepository
+                .findById(commentId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.COMMENT_NOT_FOUND));
 
         comment.delete();

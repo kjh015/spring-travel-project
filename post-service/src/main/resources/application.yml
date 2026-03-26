@@ -61,3 +61,5 @@ springdoc:
     path: /api/v1/posts/v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+# Eureka

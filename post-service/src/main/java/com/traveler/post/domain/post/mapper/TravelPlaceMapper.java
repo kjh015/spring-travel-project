@@ -11,5 +11,4 @@ public interface TravelPlaceMapper {
 
     @Mapping(source = "travelPlace", target = "name")
     TravelPlace toCreateEntity(PostReqDTO.CreateDTO dto);
-
 }

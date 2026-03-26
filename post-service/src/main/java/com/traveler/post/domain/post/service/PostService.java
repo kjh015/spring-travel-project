@@ -11,14 +11,13 @@ import com.traveler.post.domain.post.mapper.TravelPlaceMapper;
 import com.traveler.post.domain.post.repository.PostRepository;
 import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
+import java.util.List;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +28,7 @@ public class PostService {
     private final TravelPlaceMapper travelPlaceMapper;
     private final ApplicationEventPublisher eventPublisher;
 
-    public PostResDTO.CreateDTO createPost(PostReqDTO.CreateDTO dto){
+    public PostResDTO.CreateDTO createPost(PostReqDTO.CreateDTO dto) {
         TravelPlace travelPlace = travelPlaceMapper.toCreateEntity(dto);
 
         Post post = postMapper.toCreateEntity(dto, travelPlace);
@@ -45,24 +44,17 @@ public class PostService {
         return postMapper.toCreateDTO(savedPost);
     }
 
-    public PostResDTO.UpdateDTO updatePost(Long postId, PostReqDTO.UpdateDTO dto){
-        Post post = postRepository.findByIdWithDetails(postId)
+    public PostResDTO.UpdateDTO updatePost(Long postId, PostReqDTO.UpdateDTO dto) {
+        Post post = postRepository
+                .findByIdWithDetails(postId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
 
         if (!post.getMemberId().equals(dto.memberId())) {
             throw new PostServiceException(ErrorCode.FORBIDDEN);
         }
 
-        post.getTravelPlace().update(
-                dto.category(),
-                dto.region(),
-                dto.travelPlace(),
-                dto.address()
-        );
-        post.update(
-                dto.title(),
-                dto.content()
-        );
+        post.getTravelPlace().update(dto.category(), dto.region(), dto.travelPlace(), dto.address());
+        post.update(dto.title(), dto.content());
 
         if (dto.images() != null) {
             List<String> keysToDelete = post.updateImages(dto.images());
@@ -77,14 +69,14 @@ public class PostService {
         return postMapper.toUpdateDTO(post);
     }
 
-
-    public PostResDTO.DeleteDTO deletePost(Long postId){
-        Post post = postRepository.findById(postId)
+    public PostResDTO.DeleteDTO deletePost(Long postId) {
+        Post post = postRepository
+                .findById(postId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
 
-//        if (!post.getMemberId().equals(dto.memberId())) {
-//            throw new PostException(ErrorCode.FORBIDDEN);
-//        }
+        //        if (!post.getMemberId().equals(dto.memberId())) {
+        //            throw new PostException(ErrorCode.FORBIDDEN);
+        //        }
 
         post.delete();
         eventPublisher.publishEvent(postMapper.toDeletedMsgDTO(post));
@@ -97,7 +89,7 @@ public class PostService {
     public void deleteBatch(List<Long> ids) {
         // S3 이미지 조회
         List<String> imageUrls = postRepository.findImageKeysByPostIds(ids);
-        
+
         // DB 벌크 삭제
         postRepository.hardDeletePostsByIds(ids);
 
@@ -106,12 +98,4 @@ public class PostService {
             eventPublisher.publishEvent(new PostEventDTO.ImagesDeleteEvent(imageUrls));
         }
     }
-
-
-
-
-
-
-
-
 }

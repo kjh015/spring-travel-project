@@ -17,18 +17,17 @@ public class CommentController {
 
     @PostMapping
     public ApiResponse<CommentResDTO.CreateDTO> createComment(@Valid @RequestBody CommentReqDTO.CreateDTO dto) {
-        return ApiResponse.onSuccess(SuccessCode.CREATED,commentService.createComment(dto));
+        return ApiResponse.onSuccess(SuccessCode.CREATED, commentService.createComment(dto));
     }
 
     @PatchMapping("/{commentId}")
     public ApiResponse<CommentResDTO.UpdateDTO> updateComment(
-            @PathVariable Long commentId,
-            @Valid  @RequestBody CommentReqDTO.UpdateDTO dto){
+            @PathVariable Long commentId, @Valid @RequestBody CommentReqDTO.UpdateDTO dto) {
         return ApiResponse.onSuccess(SuccessCode.OK, commentService.updateComment(commentId, dto));
     }
+
     @DeleteMapping("/{commentId}")
-    public ApiResponse<CommentResDTO.DeleteDTO> deletePost(@PathVariable Long commentId){
+    public ApiResponse<CommentResDTO.DeleteDTO> deletePost(@PathVariable Long commentId) {
         return ApiResponse.onSuccess(SuccessCode.OK, commentService.deleteComment(commentId));
     }
-
 }

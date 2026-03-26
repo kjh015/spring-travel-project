@@ -3,14 +3,13 @@ package com.traveler.common.api.converter;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.traveler.common.core.response.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
-import org.springframework.stereotype.Component;
-import org.springframework.validation.BindException;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.BindException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Component
 public class ExceptionConverter {
@@ -20,18 +19,16 @@ public class ExceptionConverter {
      */
     public List<ErrorResponse> from(BindException ex) {
         return Stream.concat(
-                        ex.getBindingResult().getFieldErrors().stream()
-                                .map(error -> ErrorResponse.builder()
-                                        .field(error.getField())
-                                        .value(error.getRejectedValue() == null ? "" : error.getRejectedValue())
-                                        .reason(error.getDefaultMessage())
-                                        .build()),
-                        ex.getBindingResult().getGlobalErrors().stream()
-                                .map(error -> ErrorResponse.builder()
-                                        .field(error.getObjectName())
-                                        .value("")
-                                        .reason(error.getDefaultMessage())
-                                        .build()))
+                        ex.getBindingResult().getFieldErrors().stream().map(error -> ErrorResponse.builder()
+                                .field(error.getField())
+                                .value(error.getRejectedValue() == null ? "" : error.getRejectedValue())
+                                .reason(error.getDefaultMessage())
+                                .build()),
+                        ex.getBindingResult().getGlobalErrors().stream().map(error -> ErrorResponse.builder()
+                                .field(error.getObjectName())
+                                .value("")
+                                .reason(error.getDefaultMessage())
+                                .build()))
                 .toList();
     }
 
@@ -92,7 +89,8 @@ public class ExceptionConverter {
      * 일반적인 문자열 메시지
      */
     public List<ErrorResponse> from(String reason) {
-        return List.of(ErrorResponse.builder().field("").value("").reason(reason).build());
+        return List.of(
+                ErrorResponse.builder().field("").value("").reason(reason).build());
     }
 
     // --------- Util ---------

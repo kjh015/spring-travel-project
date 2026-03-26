@@ -32,7 +32,6 @@ public class PostEventListener {
         kafkaProducer.send("post-update-topic", msg);
     }
 
-
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePostDeleted(PostMsgDTO.DeletedMessage msg) {
         log.info("Post deleted Kafka Event triggered for ID: {}", msg.postId());

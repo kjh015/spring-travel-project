@@ -31,17 +31,16 @@ public class SwaggerServiceConfig {
                 ? appName.toUpperCase() + " API"
                 : properties.getTitle();
 
-        String[] pathsToMatch = (properties.getPathsToMatch() == null || properties.getPathsToMatch().isEmpty())
-                ? new String[]{"/**"}
+        String[] pathsToMatch = (properties.getPathsToMatch() == null
+                        || properties.getPathsToMatch().isEmpty())
+                ? new String[] {"/**"}
                 : properties.getPathsToMatch().toArray(String[]::new);
 
         return GroupedOpenApi.builder()
                 .group(appName)
                 .pathsToMatch(pathsToMatch)
                 .addOpenApiCustomizer(swaggerConfig.createOpenApiCustomizer(
-                        title,
-                        properties.getVersion(),
-                        appName + " 관리 API 명세서입니다."))
+                        title, properties.getVersion(), appName + " 관리 API 명세서입니다."))
                 .addOperationCustomizer(apiErrorCodeOperationCustomizer)
                 .build();
     }

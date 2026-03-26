@@ -34,13 +34,12 @@ public class FavoriteService {
                 .findById(dto.postId())
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
 
-        try{
+        try {
             Favorite savedFavorite = favoriteRepository.save(favoriteMapper.toAddFavorite(post, dto.memberId()));
             eventPublisher.publishEvent(favoriteMapper.toAddedMessage(savedFavorite));
-        } catch (DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             log.info("Concurrent favorite request ignored for memberId: {}, postId: {}", dto.memberId(), dto.postId());
         }
-
     }
 
     public void removeFavorite(Long postId, Long memberId) {

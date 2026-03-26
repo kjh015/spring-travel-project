@@ -4,18 +4,9 @@ import java.time.LocalDateTime;
 
 public class CommentResDTO {
 
-    public record CreateDTO(
-            Long commentId,
-            LocalDateTime createdAt
-    ){}
+    public record CreateDTO(Long commentId, LocalDateTime createdAt) {}
 
-    public record UpdateDTO(
-            Long commentId,
-            LocalDateTime updatedAt
-    ){}
+    public record UpdateDTO(Long commentId, LocalDateTime updatedAt) {}
 
-    public record DeleteDTO(
-            Long commentId,
-            LocalDateTime deletedAt
-    ){}
+    public record DeleteDTO(Long commentId, LocalDateTime deletedAt) {}
 }

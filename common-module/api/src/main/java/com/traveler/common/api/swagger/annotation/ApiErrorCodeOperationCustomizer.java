@@ -1,6 +1,5 @@
 package com.traveler.common.api.swagger.annotation;
 
-
 import com.traveler.common.core.code.BaseErrorCode;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.exception.GeneralException;
@@ -12,13 +11,12 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import java.lang.reflect.Method;
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
-
-import java.lang.reflect.Method;
-import java.util.*;
 
 @Slf4j
 @Component
