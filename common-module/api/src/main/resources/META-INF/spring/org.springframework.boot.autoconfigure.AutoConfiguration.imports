@@ -1,2 +1,4 @@
 com.traveler.common.api.swagger.config.SwaggerConfig
 com.traveler.common.api.swagger.config.SwaggerServiceConfig
+com.traveler.common.api.auth.LoginUserArgumentResolver
+com.traveler.common.api.auth.AuthWebConfig
