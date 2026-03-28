@@ -1,0 +1,21 @@
+package com.traveler.post.domain.like.mapper;
+
+import com.traveler.post.domain.like.dto.msg.LikeMsgDTO;
+import com.traveler.post.domain.like.entity.Like;
+import com.traveler.post.domain.post.entity.Post;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
+
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface LikeMapper {
+
+    Like toAddEntity(Post post, Long memberId);
+
+    // Kafka
+    @Mapping(source = "post.id", target = "postId")
+    LikeMsgDTO.AddedMessage toAddedMessage(Like like);
+
+    @Mapping(source = "post.id", target = "postId")
+    LikeMsgDTO.RemovedMessage toRemovedMessage(Like like);
+}

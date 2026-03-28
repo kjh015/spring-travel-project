@@ -1,4 +1,4 @@
-package com.traveler.post.domain.favorite.entity;
+package com.traveler.post.domain.like.entity;
 
 import com.traveler.common.db.entity.BaseEntity;
 import com.traveler.post.domain.post.entity.Post;
@@ -13,13 +13,13 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
-        name = "favorite",
+        name = "like",
         uniqueConstraints = {
             @UniqueConstraint(
-                    name = "uk_favorite_member_post",
+                    name = "uk_like_member_post",
                     columnNames = {"member_id", "post_id"})
         })
-public class Favorite extends BaseEntity {
+public class Like extends BaseEntity {
     private Long memberId;
 
     @ManyToOne(fetch = FetchType.LAZY)

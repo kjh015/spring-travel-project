@@ -1,6 +1,6 @@
-package com.traveler.post.domain.favorite.dto.msg;
+package com.traveler.post.domain.like.dto.msg;
 
-public class FavoriteMsgDTO {
+public class LikeMsgDTO {
 
     public record AddedMessage(Long postId, Long memberId) {}
 
