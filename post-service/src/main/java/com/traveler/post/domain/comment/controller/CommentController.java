@@ -1,5 +1,7 @@
 package com.traveler.post.domain.comment.controller;
 
+import com.traveler.common.api.auth.LoginUser;
+import com.traveler.common.api.auth.UserContext;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.post.domain.comment.dto.req.CommentReqDTO;
@@ -16,18 +18,21 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ApiResponse<CommentResDTO.CreateDTO> createComment(@Valid @RequestBody CommentReqDTO.CreateDTO dto) {
-        return ApiResponse.onSuccess(SuccessCode.CREATED, commentService.createComment(dto));
+    public ApiResponse<CommentResDTO.CreateDTO> createComment(
+            @Valid @RequestBody CommentReqDTO.CreateDTO dto, @LoginUser UserContext user) {
+        return ApiResponse.onSuccess(SuccessCode.CREATED, commentService.createComment(user.id(), dto));
     }
 
     @PatchMapping("/{commentId}")
     public ApiResponse<CommentResDTO.UpdateDTO> updateComment(
-            @PathVariable Long commentId, @Valid @RequestBody CommentReqDTO.UpdateDTO dto) {
-        return ApiResponse.onSuccess(SuccessCode.OK, commentService.updateComment(commentId, dto));
+            @PathVariable Long commentId,
+            @Valid @RequestBody CommentReqDTO.UpdateDTO dto,
+            @LoginUser UserContext user) {
+        return ApiResponse.onSuccess(SuccessCode.OK, commentService.updateComment(commentId, user.id(), dto));
     }
 
     @DeleteMapping("/{commentId}")
-    public ApiResponse<CommentResDTO.DeleteDTO> deletePost(@PathVariable Long commentId) {
-        return ApiResponse.onSuccess(SuccessCode.OK, commentService.deleteComment(commentId));
+    public ApiResponse<CommentResDTO.DeleteDTO> deletePost(@PathVariable Long commentId, @LoginUser UserContext user) {
+        return ApiResponse.onSuccess(SuccessCode.OK, commentService.deleteComment(user.id(), commentId));
     }
 }

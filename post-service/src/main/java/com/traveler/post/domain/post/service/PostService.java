@@ -28,10 +28,10 @@ public class PostService {
     private final TravelPlaceMapper travelPlaceMapper;
     private final ApplicationEventPublisher eventPublisher;
 
-    public PostResDTO.CreateDTO createPost(PostReqDTO.CreateDTO dto) {
+    public PostResDTO.CreateDTO createPost(Long memberId, PostReqDTO.CreateDTO dto) {
         TravelPlace travelPlace = travelPlaceMapper.toCreateEntity(dto);
 
-        Post post = postMapper.toCreateEntity(dto, travelPlace);
+        Post post = postMapper.toCreateEntity(dto, travelPlace, memberId);
 
         if (dto.images() != null) {
             IntStream.range(0, dto.images().size())
@@ -44,12 +44,12 @@ public class PostService {
         return postMapper.toCreateDTO(savedPost);
     }
 
-    public PostResDTO.UpdateDTO updatePost(Long postId, PostReqDTO.UpdateDTO dto) {
+    public PostResDTO.UpdateDTO updatePost(Long postId, Long memberId, PostReqDTO.UpdateDTO dto) {
         Post post = postRepository
                 .findByIdWithDetails(postId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
 
-        if (!post.getMemberId().equals(dto.memberId())) {
+        if (!post.getMemberId().equals(memberId)) {
             throw new PostServiceException(ErrorCode.FORBIDDEN);
         }
 
@@ -69,14 +69,14 @@ public class PostService {
         return postMapper.toUpdateDTO(post);
     }
 
-    public PostResDTO.DeleteDTO deletePost(Long postId) {
+    public PostResDTO.DeleteDTO deletePost(Long postId, Long memberId) {
         Post post = postRepository
                 .findById(postId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
 
-        //        if (!post.getMemberId().equals(dto.memberId())) {
-        //            throw new PostException(ErrorCode.FORBIDDEN);
-        //        }
+        if (!post.getMemberId().equals(memberId)) {
+            throw new PostServiceException(ErrorCode.FORBIDDEN);
+        }
 
         post.delete();
         eventPublisher.publishEvent(postMapper.toDeletedMsgDTO(post));

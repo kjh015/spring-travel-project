@@ -7,7 +7,6 @@ import java.util.List;
 public class PostReqDTO {
 
     public record CreateDTO(
-            Long memberId,
             String title,
             String content,
             String travelPlace,
@@ -17,7 +16,6 @@ public class PostReqDTO {
             List<String> images) {}
 
     public record UpdateDTO(
-            Long memberId,
             String title,
             String content,
             String travelPlace,

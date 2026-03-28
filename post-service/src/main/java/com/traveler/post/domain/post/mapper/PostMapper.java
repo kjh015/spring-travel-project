@@ -12,7 +12,7 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PostMapper {
-    Post toCreateEntity(PostReqDTO.CreateDTO dto, TravelPlace travelPlace);
+    Post toCreateEntity(PostReqDTO.CreateDTO dto, TravelPlace travelPlace, Long memberId);
 
     @Mapping(source = "id", target = "postId")
     PostResDTO.CreateDTO toCreateDTO(Post post);

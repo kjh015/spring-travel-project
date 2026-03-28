@@ -1,5 +1,6 @@
 package com.traveler.post.domain.comment.service;
 
+import com.traveler.common.core.code.ErrorCode;
 import com.traveler.post.domain.comment.dto.req.CommentReqDTO;
 import com.traveler.post.domain.comment.dto.res.CommentResDTO;
 import com.traveler.post.domain.comment.entity.Comment;
@@ -25,12 +26,12 @@ public class CommentService {
     private final PostRepository postRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public CommentResDTO.CreateDTO createComment(CommentReqDTO.CreateDTO dto) {
+    public CommentResDTO.CreateDTO createComment(Long memberId, CommentReqDTO.CreateDTO dto) {
         Post post = postRepository
                 .findById(dto.postId())
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
 
-        Comment comment = commentMapper.toCreateEntity(dto, post);
+        Comment comment = commentMapper.toCreateEntity(dto, post, memberId);
 
         Comment savedComment = commentRepository.save(comment);
         eventPublisher.publishEvent(commentMapper.toCreatedMsgDTO(savedComment));
@@ -38,10 +39,14 @@ public class CommentService {
         return commentMapper.toCreateDTO(savedComment);
     }
 
-    public CommentResDTO.UpdateDTO updateComment(Long commentId, CommentReqDTO.UpdateDTO dto) {
+    public CommentResDTO.UpdateDTO updateComment(Long commentId, Long memberId, CommentReqDTO.UpdateDTO dto) {
         Comment comment = commentRepository
                 .findById(commentId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.COMMENT_NOT_FOUND));
+
+        if (!comment.getMemberId().equals(memberId)) {
+            throw new PostServiceException(ErrorCode.FORBIDDEN);
+        }
 
         comment.update(dto.content(), dto.star());
         eventPublisher.publishEvent(commentMapper.toUpdatedMsgDTO(comment));
@@ -49,10 +54,14 @@ public class CommentService {
         return commentMapper.toUpdateDTO(comment);
     }
 
-    public CommentResDTO.DeleteDTO deleteComment(Long commentId) {
+    public CommentResDTO.DeleteDTO deleteComment(Long commentId, Long memberId) {
         Comment comment = commentRepository
                 .findById(commentId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.COMMENT_NOT_FOUND));
+
+        if (!comment.getMemberId().equals(memberId)) {
+            throw new PostServiceException(ErrorCode.FORBIDDEN);
+        }
 
         comment.delete();
         eventPublisher.publishEvent(commentMapper.toDeletedMsgDTO(comment));

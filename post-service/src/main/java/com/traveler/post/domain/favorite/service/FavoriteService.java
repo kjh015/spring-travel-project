@@ -25,8 +25,8 @@ public class FavoriteService {
     private final FavoriteMapper favoriteMapper;
     private final ApplicationEventPublisher eventPublisher;
 
-    public void addFavorite(FavoriteReqDTO.AddDTO dto) {
-        if (favoriteRepository.existsByPostIdAndMemberId(dto.postId(), dto.memberId())) {
+    public void addFavorite(FavoriteReqDTO.AddDTO dto, Long memberId) {
+        if (favoriteRepository.existsByPostIdAndMemberId(dto.postId(), memberId)) {
             return;
         }
 
@@ -35,10 +35,10 @@ public class FavoriteService {
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
 
         try {
-            Favorite savedFavorite = favoriteRepository.save(favoriteMapper.toAddFavorite(post, dto.memberId()));
+            Favorite savedFavorite = favoriteRepository.save(favoriteMapper.toAddFavorite(post, memberId));
             eventPublisher.publishEvent(favoriteMapper.toAddedMessage(savedFavorite));
         } catch (DataIntegrityViolationException e) {
-            log.info("Concurrent favorite request ignored for memberId: {}, postId: {}", dto.memberId(), dto.postId());
+            log.info("Concurrent favorite request ignored for memberId: {}, postId: {}", memberId, dto.postId());
         }
     }
 

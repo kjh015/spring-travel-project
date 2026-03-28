@@ -12,7 +12,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CommentMapper {
 
-    Comment toCreateEntity(CommentReqDTO.CreateDTO dto, Post post);
+    Comment toCreateEntity(CommentReqDTO.CreateDTO dto, Post post, Long memberId);
 
     @Mapping(source = "id", target = "commentId")
     CommentResDTO.CreateDTO toCreateDTO(Comment comment);

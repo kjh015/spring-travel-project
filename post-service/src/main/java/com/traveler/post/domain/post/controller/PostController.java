@@ -1,5 +1,7 @@
 package com.traveler.post.domain.post.controller;
 
+import com.traveler.common.api.auth.LoginUser;
+import com.traveler.common.api.auth.UserContext;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.post.domain.post.dto.req.PostReqDTO;
@@ -16,18 +18,19 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ApiResponse<PostResDTO.CreateDTO> createPost(@Valid @RequestBody PostReqDTO.CreateDTO dto) {
-        return ApiResponse.onSuccess(SuccessCode.CREATED, postService.createPost(dto));
+    public ApiResponse<PostResDTO.CreateDTO> createPost(
+            @Valid @RequestBody PostReqDTO.CreateDTO dto, @LoginUser UserContext user) {
+        return ApiResponse.onSuccess(SuccessCode.CREATED, postService.createPost(user.id(), dto));
     }
 
     @PatchMapping("/{postId}")
     public ApiResponse<PostResDTO.UpdateDTO> updatePost(
-            @PathVariable Long postId, @Valid @RequestBody PostReqDTO.UpdateDTO dto) {
-        return ApiResponse.onSuccess(SuccessCode.OK, postService.updatePost(postId, dto));
+            @PathVariable Long postId, @Valid @RequestBody PostReqDTO.UpdateDTO dto, @LoginUser UserContext user) {
+        return ApiResponse.onSuccess(SuccessCode.OK, postService.updatePost(postId, user.id(), dto));
     }
 
     @DeleteMapping("/{postId}")
-    public ApiResponse<PostResDTO.DeleteDTO> deletePost(@PathVariable Long postId) {
-        return ApiResponse.onSuccess(SuccessCode.OK, postService.deletePost(postId));
+    public ApiResponse<PostResDTO.DeleteDTO> deletePost(@PathVariable Long postId, @LoginUser UserContext user) {
+        return ApiResponse.onSuccess(SuccessCode.OK, postService.deletePost(postId, user.id()));
     }
 }
