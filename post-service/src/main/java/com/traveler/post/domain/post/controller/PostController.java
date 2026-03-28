@@ -1,7 +1,7 @@
 package com.traveler.post.domain.post.controller;
 
-import com.traveler.common.api.auth.LoginUser;
-import com.traveler.common.api.auth.UserContext;
+import com.traveler.common.api.auth.context.UserContext;
+import com.traveler.common.api.auth.resolver.LoginUser;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.post.domain.post.dto.req.PostReqDTO;

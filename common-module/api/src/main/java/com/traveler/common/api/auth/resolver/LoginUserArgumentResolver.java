@@ -1,5 +1,7 @@
-package com.traveler.common.api.auth;
+package com.traveler.common.api.auth.resolver;
 
+import com.traveler.common.api.auth.context.UserContext;
+import com.traveler.common.api.auth.context.UserContextHolder;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.exception.GeneralException;
 import org.springframework.core.MethodParameter;
@@ -26,18 +28,14 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
             NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory) {
 
-        String userId = webRequest.getHeader("X-User-Id");
-        String role = webRequest.getHeader("X-User-Role");
+        LoginUser annotation = parameter.getParameterAnnotation(LoginUser.class);
+        UserContext context = UserContextHolder.getContext();
 
-        // 인증이 필수인 API인데 헤더가 없다면 401 예외 발생
-        if (userId == null || role == null) {
+        // 어노테이션에서 required = true(기본값)인데 유저 정보가 없으면 예외 발생
+        if (annotation != null && annotation.required() && context == null) {
             throw new GeneralException(ErrorCode.UNAUTHORIZED);
         }
 
-        try {
-            return new UserContext(Long.valueOf(userId), role);
-        } catch (NumberFormatException e) {
-            throw new GeneralException(ErrorCode.BAD_REQUEST);
-        }
+        return context;
     }
 }
