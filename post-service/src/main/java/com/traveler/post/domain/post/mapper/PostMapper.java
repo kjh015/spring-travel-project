@@ -6,6 +6,7 @@ import com.traveler.post.domain.post.dto.res.PostResDTO;
 import com.traveler.post.domain.post.entity.Post;
 import com.traveler.post.domain.post.entity.PostImage;
 import com.traveler.post.domain.post.entity.TravelPlace;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -46,4 +47,6 @@ public interface PostMapper {
     @Mapping(source = "travelPlace.region", target = "region")
     @Mapping(source = "travelPlace.address", target = "address")
     PostMsgDTO.DeletedMessage toDeletedMsgDTO(Post post);
+
+    PostMsgDTO.ImagesDeleteMessage toDeleteImagesMsgDTO(List<String> imageKeys);
 }

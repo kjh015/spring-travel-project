@@ -31,4 +31,10 @@ public class PostMsgDTO {
             List<ImageInfo> images) {}
 
     public record DeletedMessage(Long postId, LocalDateTime deletedAt) {}
+
+    public record ImagesDeleteMessage(List<String> imageKeys) {
+        public ImagesDeleteMessage {
+            imageKeys = (imageKeys == null) ? List.of() : List.copyOf(imageKeys);
+        }
+    }
 }

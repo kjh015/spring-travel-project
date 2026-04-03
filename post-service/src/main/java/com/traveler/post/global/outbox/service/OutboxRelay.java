@@ -1,0 +1,43 @@
+package com.traveler.post.global.outbox.service;
+
+import com.traveler.post.global.kafka.KafkaProducer;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class OutboxRelay {
+    private final KafkaProducer kafkaProducer;
+    private final OutboxStatusManager outboxStatusManager;
+
+    /**
+     * 비동기 전달
+     */
+    public void relayAsync(String eventId, String topic, String payload) {
+        kafkaProducer.send(topic, payload).whenComplete((result, ex) -> {
+            if (ex == null) {
+                outboxStatusManager.updateToSent(eventId);
+            } else {
+                outboxStatusManager.updateToFailed(eventId);
+                log.error("Outbox 비동기 전달 실패 [ID: {}] 원인: {}", eventId, ex.getMessage());
+            }
+        });
+    }
+
+    /**
+     * 동기 전달: 재시도 로직에서 사용
+     */
+    public void relaySync(String eventId, String topic, String payload) {
+        try {
+            kafkaProducer.send(topic, payload).get(5, TimeUnit.SECONDS);
+            outboxStatusManager.updateToSent(eventId);
+        } catch (Exception e) {
+            outboxStatusManager.updateToFailed(eventId);
+            log.error("Outbox 동기 전달 실패 [ID: {}] 원인: {}", eventId, e.getMessage());
+        }
+    }
+}

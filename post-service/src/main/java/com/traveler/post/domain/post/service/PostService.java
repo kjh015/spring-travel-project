@@ -1,11 +1,11 @@
 package com.traveler.post.domain.post.service;
 
 import com.traveler.common.core.code.ErrorCode;
-import com.traveler.post.domain.post.dto.event.PostEventDTO;
 import com.traveler.post.domain.post.dto.req.PostReqDTO;
 import com.traveler.post.domain.post.dto.res.PostResDTO;
 import com.traveler.post.domain.post.entity.Post;
 import com.traveler.post.domain.post.entity.TravelPlace;
+import com.traveler.post.domain.post.event.PostEventPublisher;
 import com.traveler.post.domain.post.mapper.PostMapper;
 import com.traveler.post.domain.post.mapper.TravelPlaceMapper;
 import com.traveler.post.domain.post.repository.PostRepository;
@@ -27,6 +27,7 @@ public class PostService {
     private final PostMapper postMapper;
     private final TravelPlaceMapper travelPlaceMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final PostEventPublisher postEventPublisher;
 
     public PostResDTO.CreateDTO createPost(Long memberId, PostReqDTO.CreateDTO dto) {
         TravelPlace travelPlace = travelPlaceMapper.toCreateEntity(dto);
@@ -39,7 +40,8 @@ public class PostService {
         }
 
         Post savedPost = postRepository.save(post);
-        eventPublisher.publishEvent(postMapper.toCreatedMsgDTO(savedPost));
+
+        postEventPublisher.publishCreated(savedPost);
 
         return postMapper.toCreateDTO(savedPost);
     }
@@ -60,11 +62,11 @@ public class PostService {
             List<String> keysToDelete = post.updateImages(dto.images());
 
             if (!keysToDelete.isEmpty()) {
-                eventPublisher.publishEvent(new PostEventDTO.ImagesDeleteEvent(keysToDelete));
+                postEventPublisher.publishImagesDelete(post.getId(), keysToDelete);
             }
         }
 
-        eventPublisher.publishEvent(postMapper.toUpdatedMsgDTO(post));
+        postEventPublisher.publishUpdated(post);
 
         return postMapper.toUpdateDTO(post);
     }
@@ -79,7 +81,7 @@ public class PostService {
         }
 
         post.delete();
-        eventPublisher.publishEvent(postMapper.toDeletedMsgDTO(post));
+        postEventPublisher.publishDeleted(post);
 
         return postMapper.toDeleteDTO(post);
     }
@@ -95,7 +97,7 @@ public class PostService {
 
         // S3 이미지 삭제 이벤트 발행
         if (!imageUrls.isEmpty()) {
-            eventPublisher.publishEvent(new PostEventDTO.ImagesDeleteEvent(imageUrls));
+            postEventPublisher.publishImagesDelete(ids, imageUrls);
         }
     }
 }

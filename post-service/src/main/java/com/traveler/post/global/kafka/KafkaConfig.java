@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.support.converter.RecordMessageConverter;
+import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 
 @Configuration
 @EnableKafka
@@ -18,17 +20,22 @@ public class KafkaConfig {
 
     // Producer
     @Bean
-    public ProducerFactory<String, Object> producerFactory() {
+    public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> nodes = kafkaProperties.buildProducerProperties();
         return new DefaultKafkaProducerFactory<>(nodes);
     }
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate() {
+    public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
     // Consumer
+    @Bean
+    public RecordMessageConverter converter() {
+        return new StringJsonMessageConverter();
+    }
+
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> nodes = kafkaProperties.buildConsumerProperties();
@@ -40,6 +47,10 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setRecordMessageConverter(converter());
+        factory.setConcurrency(kafkaProperties.getListener().getConcurrency());
+        factory.getContainerProperties()
+                .setAckMode(kafkaProperties.getListener().getAckMode());
         return factory;
     }
 }

@@ -4,6 +4,7 @@ import com.traveler.common.core.code.ErrorCode;
 import com.traveler.post.domain.comment.dto.req.CommentReqDTO;
 import com.traveler.post.domain.comment.dto.res.CommentResDTO;
 import com.traveler.post.domain.comment.entity.Comment;
+import com.traveler.post.domain.comment.event.CommentEventPublisher;
 import com.traveler.post.domain.comment.mapper.CommentMapper;
 import com.traveler.post.domain.comment.repository.CommentRepository;
 import com.traveler.post.domain.post.entity.Post;
@@ -12,7 +13,6 @@ import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
     private final PostRepository postRepository;
-    private final ApplicationEventPublisher eventPublisher;
+    private final CommentEventPublisher commentEventPublisher;
 
     public CommentResDTO.CreateDTO createComment(Long memberId, CommentReqDTO.CreateDTO dto) {
         Post post = postRepository
@@ -34,7 +34,7 @@ public class CommentService {
         Comment comment = commentMapper.toCreateEntity(dto, post, memberId);
 
         Comment savedComment = commentRepository.save(comment);
-        eventPublisher.publishEvent(commentMapper.toCreatedMsgDTO(savedComment));
+        commentEventPublisher.publishCreated(savedComment);
 
         return commentMapper.toCreateDTO(savedComment);
     }
@@ -49,7 +49,7 @@ public class CommentService {
         }
 
         comment.update(dto.content(), dto.star());
-        eventPublisher.publishEvent(commentMapper.toUpdatedMsgDTO(comment));
+        commentEventPublisher.publishUpdated(comment);
 
         return commentMapper.toUpdateDTO(comment);
     }
@@ -64,7 +64,7 @@ public class CommentService {
         }
 
         comment.delete();
-        eventPublisher.publishEvent(commentMapper.toDeletedMsgDTO(comment));
+        commentEventPublisher.publishDeleted(comment);
 
         return commentMapper.toDeleteDTO(comment);
     }
