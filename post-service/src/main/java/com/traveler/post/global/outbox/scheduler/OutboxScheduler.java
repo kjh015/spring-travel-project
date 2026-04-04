@@ -14,11 +14,19 @@ public class OutboxScheduler {
 
     @Scheduled(fixedDelay = 180000) // 3분마다 실행
     public void retryFailedMessages() {
-        outboxService.retry();
+        try {
+            outboxService.retry();
+        } catch (Exception e) {
+            log.error("Outbox retry 실패", e);
+        }
     }
 
     @Scheduled(cron = "0 0 4 * * *")
     public void cleanupOldSentMessages() {
-        outboxService.cleanupOldSentMessages(7);
+        try {
+            outboxService.cleanupOldSentMessages(7);
+        } catch (Exception e) {
+            log.error("Outbox cleanup 실패", e);
+        }
     }
 }

@@ -21,6 +21,8 @@ public class AsyncConfig {
         executor.setQueueCapacity(500);
         // 스레드 이름 접두사: 모니터링 및 디버깅 시 식별 용이
         executor.setThreadNamePrefix("outbox-task-");
+        // 큐가 가득 찼을 때 호출 스레드에서 직접 실행 (backpressure)
+        executor.setRejectedExecutionHandler(new java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy());
         // 종료 시 대기 설정
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setAwaitTerminationSeconds(60);

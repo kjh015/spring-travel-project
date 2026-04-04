@@ -65,16 +65,21 @@ public class Post extends BaseEntity {
     }
 
     public void update(String title, String content) {
+        validateNotDeleted();
         this.title = title;
         this.content = content;
     }
 
     public void delete() {
+        if (this.isDeleted) {
+            return;
+        }
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
     }
 
-    public List<String> updateImages(List<String> newUrls) {
+    public List<String> setImages(List<String> newUrls) {
+        if (newUrls == null) return Collections.emptyList();
         // List를 Set으로 변환하여 탐색 속도 개선
         Set<String> newUrlSet = new HashSet<>(newUrls);
         if (newUrlSet.size() != newUrls.size()) {
@@ -104,5 +109,11 @@ public class Post extends BaseEntity {
         }
 
         return keysToDelete;
+    }
+
+    private void validateNotDeleted() {
+        if (this.isDeleted) {
+            throw new PostServiceException(PostServiceErrorCode.POST_ALREADY_DELETED);
+        }
     }
 }

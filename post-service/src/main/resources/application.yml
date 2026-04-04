@@ -6,6 +6,9 @@ spring:
   application:
     name: "post-service"
 
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
@@ -26,7 +29,7 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
       acks: all # (선택) 발행 보장 수준 (0, 1, all)
       retries: 3
     consumer:
@@ -54,6 +57,7 @@ spring:
 #      credentials:
 #        access-key: ${AWS_ACCESS_KEY_ID}
 #        secret-key: ${AWS_SECRET_ACCESS_KEY}
+
 
 swagger:
   info:

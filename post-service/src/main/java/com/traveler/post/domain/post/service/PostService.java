@@ -12,9 +12,7 @@ import com.traveler.post.domain.post.repository.PostRepository;
 import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
 import java.util.List;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +24,6 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final TravelPlaceMapper travelPlaceMapper;
-    private final ApplicationEventPublisher eventPublisher;
     private final PostEventPublisher postEventPublisher;
 
     public PostResDTO.CreateDTO createPost(Long memberId, PostReqDTO.CreateDTO dto) {
@@ -34,10 +31,7 @@ public class PostService {
 
         Post post = postMapper.toCreateEntity(dto, travelPlace, memberId);
 
-        if (dto.images() != null) {
-            IntStream.range(0, dto.images().size())
-                    .forEach(i -> post.addPostImage(dto.images().get(i), i + 1));
-        }
+        post.setImages(dto.images());
 
         Post savedPost = postRepository.save(post);
 
@@ -59,7 +53,7 @@ public class PostService {
         post.update(dto.title(), dto.content());
 
         if (dto.images() != null) {
-            List<String> keysToDelete = post.updateImages(dto.images());
+            List<String> keysToDelete = post.setImages(dto.images());
 
             if (!keysToDelete.isEmpty()) {
                 postEventPublisher.publishImagesDelete(post.getId(), keysToDelete);
@@ -89,6 +83,7 @@ public class PostService {
     // Batch Delete
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteBatch(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return;
         // S3 이미지 조회
         List<String> imageUrls = postRepository.findImageKeysByPostIds(ids);
 

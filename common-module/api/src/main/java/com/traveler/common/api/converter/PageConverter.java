@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.function.Function;
 import org.springframework.data.domain.Page;
 
-public class PageConverter {
+public final class PageConverter {
+    private PageConverter() {
+        throw new UnsupportedOperationException("Utility class");
+    }
     /**
      * Page&lt;T&gt;를 PageResponse&lt;T&gt;로 변환합니다.
      *

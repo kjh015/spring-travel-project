@@ -21,6 +21,11 @@ public class SwaggerServiceConfig {
     private final SwaggerConfig swaggerConfig; // 기존 공통 로직 재사용
 
     @Bean
+    public ApiErrorCodeOperationCustomizer apiErrorCodeOperationCustomizer() {
+        return new ApiErrorCodeOperationCustomizer();
+    }
+
+    @Bean
     @ConditionalOnMissingBean // 서비스에서 직접 정의한 Bean이 없을 때만 자동 생성
     public GroupedOpenApi autoGroupedOpenApi(Environment env) {
         // 서비스 이름 가져오기 (예: post-service)

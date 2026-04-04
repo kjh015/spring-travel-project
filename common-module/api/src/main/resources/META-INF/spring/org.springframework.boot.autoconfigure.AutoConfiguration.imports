@@ -1,6 +1,2 @@
-com.traveler.common.api.swagger.annotation.ApiErrorCodeOperationCustomizer
-com.traveler.common.api.swagger.config.SwaggerConfig
 com.traveler.common.api.swagger.config.SwaggerServiceConfig
-com.traveler.common.api.auth.resolver.LoginUserArgumentResolver
 com.traveler.common.api.auth.config.AuthWebConfig
-com.traveler.common.api.auth.interceptor.AuthInterceptor

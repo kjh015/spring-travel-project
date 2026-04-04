@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LikeRepository extends JpaRepository<Like, Long> {
-    Boolean existsByPostIdAndMemberId(Long postId, Long memberId);
+    boolean existsByPostIdAndMemberId(Long postId, Long memberId);
 
     Optional<Like> findByPostIdAndMemberId(Long postId, Long memberId);
 }

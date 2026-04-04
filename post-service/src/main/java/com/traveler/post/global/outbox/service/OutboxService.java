@@ -8,16 +8,15 @@ import com.traveler.post.global.outbox.entity.Outbox;
 import com.traveler.post.global.outbox.event.OutboxEvent;
 import com.traveler.post.global.outbox.mapper.OutboxMapper;
 import com.traveler.post.global.outbox.repository.OutboxRepository;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,15 +48,25 @@ public class OutboxService {
 
     public void retry() {
         LocalDateTime threshold = LocalDateTime.now().minusMinutes(5);
-        List<Outbox> retryCandidates =
-                outboxRepository.findRetryableMessages(threshold, MAX_RETRY_COUNT, PageRequest.of(0, BATCH_SIZE_RETRY));
+        Pageable pageable = PageRequest.of(0, BATCH_SIZE_RETRY);
 
-        if (retryCandidates.isEmpty()) return;
+        while (true) {
+            Slice<Outbox> retryCandidates =
+                    outboxRepository.findRetryableMessages(threshold, MAX_RETRY_COUNT, pageable);
 
-        log.info("Outbox 재시도 대상 {}건 발견", retryCandidates.size());
-        for (Outbox outbox : retryCandidates) {
-            outboxStatusManager.prepareRetry(outbox.getId());
-            outboxRelay.relaySync(outbox.getEventId(), outbox.getTopic(), outbox.getPayload());
+            if (retryCandidates.isEmpty()) break;
+
+            log.info("Outbox 재시도 대상 {}건 처리 중", retryCandidates.getNumberOfElements());
+            for (Outbox outbox : retryCandidates) {
+                try {
+                    outboxStatusManager.prepareRetry(outbox.getId());
+                    outboxRelay.relaySync(outbox.getEventId(), outbox.getTopic(), outbox.getPayload());
+                } catch (Exception e) {
+                    log.error("Outbox 재시도 중 오류 발생: id={}", outbox.getId(), e);
+                }
+            }
+
+            if (!retryCandidates.hasNext()) break;
         }
     }
 

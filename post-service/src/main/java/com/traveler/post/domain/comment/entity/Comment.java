@@ -2,6 +2,8 @@ package com.traveler.post.domain.comment.entity;
 
 import com.traveler.common.db.entity.BaseEntity;
 import com.traveler.post.domain.post.entity.Post;
+import com.traveler.post.global.code.PostServiceErrorCode;
+import com.traveler.post.global.exception.PostServiceException;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -35,12 +37,22 @@ public class Comment extends BaseEntity {
     private LocalDateTime deletedAt;
 
     public void update(String content, Integer star) {
+        validateNotDeleted();
         this.content = content;
         this.star = star;
     }
 
     public void delete() {
+        if (this.isDeleted) {
+            return;
+        }
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
+    }
+
+    private void validateNotDeleted() {
+        if (this.isDeleted) {
+            throw new PostServiceException(PostServiceErrorCode.COMMENT_ALREADY_DELETED);
+        }
     }
 }

@@ -42,10 +42,6 @@ public interface PostMapper {
     PostMsgDTO.UpdatedMessage toUpdatedMsgDTO(Post post);
 
     @Mapping(source = "id", target = "postId")
-    @Mapping(source = "travelPlace.name", target = "travelPlace")
-    @Mapping(source = "travelPlace.category", target = "category")
-    @Mapping(source = "travelPlace.region", target = "region")
-    @Mapping(source = "travelPlace.address", target = "address")
     PostMsgDTO.DeletedMessage toDeletedMsgDTO(Post post);
 
     PostMsgDTO.ImagesDeleteMessage toDeleteImagesMsgDTO(List<String> imageKeys);

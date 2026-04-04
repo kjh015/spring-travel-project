@@ -5,10 +5,9 @@ import com.traveler.post.domain.post.enums.PostEventType;
 import com.traveler.post.domain.post.mapper.PostMapper;
 import com.traveler.post.global.kafka.KafkaTopicProperties;
 import com.traveler.post.global.outbox.event.BaseEventPublisher;
+import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class PostEventPublisher extends BaseEventPublisher {

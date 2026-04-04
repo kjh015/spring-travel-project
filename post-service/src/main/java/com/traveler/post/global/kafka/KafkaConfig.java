@@ -3,6 +3,7 @@ package com.traveler.post.global.kafka;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.boot.ssl.SslBundles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -17,11 +18,12 @@ import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 public class KafkaConfig {
 
     private final KafkaProperties kafkaProperties;
+    private final SslBundles sslBundles;
 
     // Producer
     @Bean
     public ProducerFactory<String, String> producerFactory() {
-        Map<String, Object> nodes = kafkaProperties.buildProducerProperties();
+        Map<String, Object> nodes = kafkaProperties.buildProducerProperties(sslBundles);
         return new DefaultKafkaProducerFactory<>(nodes);
     }
 
@@ -38,7 +40,7 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
-        Map<String, Object> nodes = kafkaProperties.buildConsumerProperties();
+        Map<String, Object> nodes = kafkaProperties.buildConsumerProperties(sslBundles);
         return new DefaultKafkaConsumerFactory<>(nodes);
     }
 
@@ -48,9 +50,14 @@ public class KafkaConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setRecordMessageConverter(converter());
-        factory.setConcurrency(kafkaProperties.getListener().getConcurrency());
-        factory.getContainerProperties()
-                .setAckMode(kafkaProperties.getListener().getAckMode());
+        Integer concurrency = kafkaProperties.getListener().getConcurrency();
+        if (concurrency != null) {
+            factory.setConcurrency(concurrency);
+        }
+        var ackMode = kafkaProperties.getListener().getAckMode();
+        if (ackMode != null) {
+            factory.getContainerProperties().setAckMode(ackMode);
+        }
         return factory;
     }
 }

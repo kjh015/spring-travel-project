@@ -87,10 +87,11 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
             HttpMessageNotReadableException ex) {
         if (ex.getCause() instanceof InvalidFormatException ife) {
             List<ErrorResponse> errors = exceptionConverter.from(ife);
-            log.info("[JSON Format Error] Field: {}", errors.get(0).field());
+            String field = errors.isEmpty() ? "unknown" : errors.getFirst().field();
+            log.info("[JSON Format Error] Field: {}", field);
             return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, errors);
         }
-        log.warn("[Message Not Readable] Raw Message: {}", ex.getMessage());
+        log.warn("[Message Not Readable] CauseType: {}", ex.getClass().getSimpleName());
         return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, exceptionConverter.from("요청 JSON 형식이 올바르지 않습니다."));
     }
 

@@ -1,11 +1,10 @@
 package com.traveler.post.global.outbox.service;
 
 import com.traveler.post.global.kafka.KafkaProducer;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -19,11 +18,15 @@ public class OutboxRelay {
      */
     public void relayAsync(String eventId, String topic, String payload) {
         kafkaProducer.send(topic, payload).whenComplete((result, ex) -> {
-            if (ex == null) {
-                outboxStatusManager.updateToSent(eventId);
-            } else {
-                outboxStatusManager.updateToFailed(eventId);
-                log.error("Outbox 비동기 전달 실패 [ID: {}] 원인: {}", eventId, ex.getMessage());
+            try {
+                if (ex == null) {
+                    outboxStatusManager.updateToSent(eventId);
+                } else {
+                    outboxStatusManager.updateToFailed(eventId);
+                    log.error("Outbox 비동기 전달 실패 [ID: {}] 원인: {}", eventId, ex.getMessage());
+                }
+            } catch (Exception statusEx) {
+                log.error("Outbox 상태 갱신 실패 [ID: {}]", eventId, statusEx);
             }
         });
     }

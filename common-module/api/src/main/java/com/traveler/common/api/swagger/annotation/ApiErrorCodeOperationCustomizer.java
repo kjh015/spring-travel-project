@@ -15,11 +15,9 @@ import java.lang.reflect.Method;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.customizers.OperationCustomizer;
-import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 
 @Slf4j
-@Component
 public class ApiErrorCodeOperationCustomizer implements OperationCustomizer {
 
     private static final String JSON_MEDIA_TYPE = "application/json";

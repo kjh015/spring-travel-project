@@ -9,10 +9,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LIkeEventPublisher extends BaseEventPublisher {
+public class LikeEventPublisher extends BaseEventPublisher {
     private final LikeMapper likeMapper;
 
-    public LIkeEventPublisher(
+    public LikeEventPublisher(
             ApplicationEventPublisher eventPublisher, LikeMapper likeMapper, KafkaTopicProperties topicProperties) {
         super(eventPublisher, topicProperties);
         this.likeMapper = likeMapper;

@@ -25,7 +25,9 @@ public class CommentScheduler {
         log.info("[CommentCleanup] 만료된 댓글 삭제 배치 시작: 기준일자 {}", threshold);
 
         int totalDeleted = 0;
-        while (true) {
+        int maxIterations = 1000; // 최대 반복 횟수
+        int iteration = 0;
+        while (iteration++ < maxIterations) {
             Slice<Long> expiredIds = commentRepository.findExpiredCommentIds(threshold, PageRequest.of(0, BATCH_SIZE));
 
             if (expiredIds.isEmpty()) break;
@@ -34,6 +36,10 @@ public class CommentScheduler {
             totalDeleted += expiredIds.getNumberOfElements();
 
             log.info("[CommentCleanup] 댓글 배치 삭제 진행 중... 현재까지 삭제된 수: {}", totalDeleted);
+        }
+
+        if (iteration >= maxIterations) {
+            log.warn("[CommentCleanup] 최대 반복 횟수 도달. 남은 데이터가 있을 수 있습니다.");
         }
 
         log.info("[CommentCleanup] 만료된 댓글 삭제 배치 완료. 총 삭제 건수: {}", totalDeleted);

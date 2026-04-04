@@ -32,7 +32,8 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentId}")
-    public ApiResponse<CommentResDTO.DeleteDTO> deletePost(@PathVariable Long commentId, @LoginUser UserContext user) {
+    public ApiResponse<CommentResDTO.DeleteDTO> deleteComment(
+            @PathVariable Long commentId, @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.OK, commentService.deleteComment(user.id(), commentId));
     }
 }

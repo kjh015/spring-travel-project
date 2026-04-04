@@ -4,6 +4,7 @@ import com.traveler.common.api.auth.interceptor.AuthInterceptor;
 import com.traveler.common.api.auth.resolver.LoginUserArgumentResolver;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -14,6 +15,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class AuthWebConfig implements WebMvcConfigurer {
     private final AuthInterceptor authInterceptor;
     private final LoginUserArgumentResolver loginUserArgumentResolver;
+
+    @Bean
+    public AuthInterceptor authInterceptor() {
+        return new AuthInterceptor();
+    }
+
+    @Bean
+    public LoginUserArgumentResolver loginUserArgumentResolver() {
+        return new LoginUserArgumentResolver();
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
