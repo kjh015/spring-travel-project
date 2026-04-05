@@ -1,0 +1,35 @@
+{
+  "properties": {
+    "id": { "type": "long" },
+    "title": {
+      "type": "text",
+      "analyzer": "korean_nori",
+      "fields": {
+        "ngram": {
+          "type": "text",
+          "analyzer": "ngram_no_space_analyzer"
+        },
+        "autocomplete": {
+          "type": "text",
+          "analyzer": "edge_ngram_no_space_analyzer"
+        }
+      }
+    },
+    "titleChosung": {
+      "type": "text",
+      "analyzer": "chosung_ngram_analyzer"
+    },
+    "content": { "type": "text", "analyzer": "korean_nori" },
+    "memberId": { "type": "long" },
+    "travelPlace": { "type": "text", "analyzer": "korean_nori" },
+    "address": { "type": "text", "analyzer": "korean_nori" },
+    "category": { "type": "keyword" },
+    "region": { "type": "keyword" },
+    "createdAt": { "type": "date", "format": "date_hour_minute_second" },
+    "modifiedAt": { "type": "date", "format": "date_hour_minute_second" },
+    "starAvg": { "type": "double" },
+    "viewCount": { "type": "long" },
+    "likeCount": { "type": "long" },
+    "commentCount": { "type": "long" }
+  }
+}

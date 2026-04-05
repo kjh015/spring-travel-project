@@ -2,13 +2,12 @@ package com.traveler.post.global.outbox.service;
 
 import com.traveler.post.global.outbox.entity.Outbox;
 import com.traveler.post.global.outbox.repository.OutboxRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
