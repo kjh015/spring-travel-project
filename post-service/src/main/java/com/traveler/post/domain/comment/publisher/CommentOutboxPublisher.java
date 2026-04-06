@@ -1,18 +1,18 @@
-package com.traveler.post.domain.comment.event;
+package com.traveler.post.domain.comment.publisher;
 
 import com.traveler.post.domain.comment.entity.Comment;
 import com.traveler.post.domain.comment.enums.CommentEventType;
 import com.traveler.post.domain.comment.mapper.CommentMapper;
 import com.traveler.post.global.kafka.KafkaTopicProperties;
-import com.traveler.post.global.outbox.event.BaseEventPublisher;
+import com.traveler.post.global.outbox.event.OutboxEventPublisher;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CommentEventPublisher extends BaseEventPublisher {
+public class CommentOutboxPublisher extends OutboxEventPublisher {
     private final CommentMapper commentMapper;
 
-    public CommentEventPublisher(
+    public CommentOutboxPublisher(
             ApplicationEventPublisher eventPublisher,
             CommentMapper commentMapper,
             KafkaTopicProperties topicProperties) {

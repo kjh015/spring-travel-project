@@ -5,11 +5,11 @@ import com.traveler.post.global.exception.PostServiceException;
 import com.traveler.post.global.kafka.KafkaTopicProperties;
 import org.springframework.context.ApplicationEventPublisher;
 
-public abstract class BaseEventPublisher {
+public abstract class OutboxEventPublisher {
     private final ApplicationEventPublisher eventPublisher;
     private final KafkaTopicProperties topicProperties;
 
-    protected BaseEventPublisher(ApplicationEventPublisher eventPublisher, KafkaTopicProperties topicProperties) {
+    protected OutboxEventPublisher(ApplicationEventPublisher eventPublisher, KafkaTopicProperties topicProperties) {
         this.eventPublisher = eventPublisher;
         this.topicProperties = topicProperties;
     }

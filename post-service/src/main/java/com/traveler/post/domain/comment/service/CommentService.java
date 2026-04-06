@@ -4,8 +4,8 @@ import com.traveler.common.core.code.ErrorCode;
 import com.traveler.post.domain.comment.dto.req.CommentReqDTO;
 import com.traveler.post.domain.comment.dto.res.CommentResDTO;
 import com.traveler.post.domain.comment.entity.Comment;
-import com.traveler.post.domain.comment.event.CommentEventPublisher;
 import com.traveler.post.domain.comment.mapper.CommentMapper;
+import com.traveler.post.domain.comment.publisher.CommentOutboxPublisher;
 import com.traveler.post.domain.comment.repository.CommentRepository;
 import com.traveler.post.domain.post.entity.Post;
 import com.traveler.post.domain.post.repository.PostRepository;
@@ -24,7 +24,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
     private final PostRepository postRepository;
-    private final CommentEventPublisher commentEventPublisher;
+    private final CommentOutboxPublisher commentEventPublisher;
 
     public CommentResDTO.CreateDTO createComment(Long memberId, CommentReqDTO.CreateDTO dto) {
         Post post = postRepository

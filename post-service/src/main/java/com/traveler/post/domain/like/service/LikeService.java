@@ -2,8 +2,8 @@ package com.traveler.post.domain.like.service;
 
 import com.traveler.post.domain.like.dto.req.LikeReqDTO;
 import com.traveler.post.domain.like.entity.Like;
-import com.traveler.post.domain.like.event.LikeEventPublisher;
 import com.traveler.post.domain.like.mapper.LikeMapper;
+import com.traveler.post.domain.like.publisher.LikeOutboxPublisher;
 import com.traveler.post.domain.like.repository.LikeRepository;
 import com.traveler.post.domain.post.entity.Post;
 import com.traveler.post.domain.post.repository.PostRepository;
@@ -23,7 +23,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
     private final LikeMapper likeMapper;
-    private final LikeEventPublisher likeEventPublisher;
+    private final LikeOutboxPublisher likeEventPublisher;
 
     public void addLike(LikeReqDTO.AddDTO dto, Long memberId) {
         if (likeRepository.existsByPostIdAndMemberId(dto.postId(), memberId)) {

@@ -1,19 +1,19 @@
-package com.traveler.post.domain.post.event;
+package com.traveler.post.domain.post.publisher;
 
 import com.traveler.post.domain.post.entity.Post;
 import com.traveler.post.domain.post.enums.PostEventType;
 import com.traveler.post.domain.post.mapper.PostMapper;
 import com.traveler.post.global.kafka.KafkaTopicProperties;
-import com.traveler.post.global.outbox.event.BaseEventPublisher;
+import com.traveler.post.global.outbox.event.OutboxEventPublisher;
 import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PostEventPublisher extends BaseEventPublisher {
+public class PostOutboxPublisher extends OutboxEventPublisher {
     private final PostMapper postMapper;
 
-    public PostEventPublisher(
+    public PostOutboxPublisher(
             ApplicationEventPublisher eventPublisher, PostMapper postMapper, KafkaTopicProperties topicProperties) {
         super(eventPublisher, topicProperties);
         this.postMapper = postMapper;

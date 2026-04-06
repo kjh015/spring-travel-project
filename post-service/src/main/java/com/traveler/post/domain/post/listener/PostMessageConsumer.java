@@ -1,4 +1,4 @@
-package com.traveler.post.domain.post.message;
+package com.traveler.post.domain.post.listener;
 
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.post.domain.post.dto.msg.PostMsgDTO;
