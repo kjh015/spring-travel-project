@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
-        name = "like",
+        name = "likes",
         uniqueConstraints = {
             @UniqueConstraint(
                     name = "uk_like_member_post",

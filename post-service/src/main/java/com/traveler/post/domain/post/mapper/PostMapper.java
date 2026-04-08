@@ -6,13 +6,16 @@ import com.traveler.post.domain.post.dto.res.PostResDTO;
 import com.traveler.post.domain.post.entity.Post;
 import com.traveler.post.domain.post.entity.PostImage;
 import com.traveler.post.domain.post.entity.TravelPlace;
-import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PostMapper {
+    @Mapping(target = "travelPlace", source = "travelPlace")
+    @Mapping(target = "images", ignore = true)
     Post toCreateEntity(PostReqDTO.CreateDTO dto, TravelPlace travelPlace, Long memberId);
 
     @Mapping(source = "id", target = "postId")
@@ -44,5 +47,8 @@ public interface PostMapper {
     @Mapping(source = "id", target = "postId")
     PostMsgDTO.DeletedMessage toDeletedMsgDTO(Post post);
 
-    PostMsgDTO.ImagesDeleteMessage toDeleteImagesMsgDTO(List<String> imageKeys);
+    default PostMsgDTO.ImagesDeleteMessage toDeleteImagesMsgDTO(List<String> imageKeys) {
+        if (imageKeys == null) return null;
+        return new PostMsgDTO.ImagesDeleteMessage(imageKeys);
+    }
 }

@@ -2,9 +2,6 @@ package com.traveler.post.global.s3;
 
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,10 +9,14 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.s3.model.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class S3Client {
+public class S3Service {
 
     private final software.amazon.awssdk.services.s3.S3Client s3Client;
 

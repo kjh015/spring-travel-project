@@ -17,7 +17,6 @@ import org.springframework.core.env.Environment;
 public class SwaggerServiceConfig {
 
     private final SwaggerInfoProperties properties;
-    private final ApiErrorCodeOperationCustomizer apiErrorCodeOperationCustomizer;
     private final SwaggerConfig swaggerConfig; // 기존 공통 로직 재사용
 
     @Bean
@@ -46,7 +45,7 @@ public class SwaggerServiceConfig {
                 .pathsToMatch(pathsToMatch)
                 .addOpenApiCustomizer(swaggerConfig.createOpenApiCustomizer(
                         title, properties.getVersion(), appName + " 관리 API 명세서입니다."))
-                .addOperationCustomizer(apiErrorCodeOperationCustomizer)
+                .addOperationCustomizer(apiErrorCodeOperationCustomizer())
                 .build();
     }
 }

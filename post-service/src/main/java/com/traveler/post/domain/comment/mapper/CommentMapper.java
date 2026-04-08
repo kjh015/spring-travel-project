@@ -12,6 +12,8 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CommentMapper {
 
+    @Mapping(source = "dto.content", target = "content")
+    @Mapping(target = "memberId", source = "memberId")
     Comment toCreateEntity(CommentReqDTO.CreateDTO dto, Post post, Long memberId);
 
     @Mapping(source = "id", target = "commentId")

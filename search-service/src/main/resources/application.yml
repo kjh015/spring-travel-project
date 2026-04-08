@@ -7,13 +7,13 @@ spring:
     name: "search-service"
 
   config:
-    import: optional:file:.env[.properties]
+    import: optional:file:search-service/.env[.properties]
 
   elasticsearch:
     uris: http://localhost:9200
 
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -29,19 +29,18 @@ spring:
       concurrency: 3 # 리스너의 병렬 처리 수준 (보통 파티션 개수와 맞춤)
       ack-mode: manual_immediate # 메시지 수신 확인 모드 (manual_immediate: 로직 완료 후 즉시 커밋)
     topics:
-      mapping:
-        post-events: "post-service.post.events"
-        post-commands: "post-service.post.commands"
-        comment-events: "post-service.comment.events"
-        like-events: "post-service.like.events"
+      post-events: "post-service.post.events"
+      post-commands: "post-service.post.commands"
+      comment-events: "post-service.comment.events"
+      like-events: "post-service.like.events"
 
 swagger:
   info:
     paths-to-match:
-      - "/api/v1/searches/**"
+      - "/api/v1/posts/search/**"
 
 springdoc:
   api-docs:
-    path: /api/v1/searches/v3/api-docs
+    path: /api/v1/posts/search/v3/api-docs
   swagger-ui:
     path: /swagger-ui.html

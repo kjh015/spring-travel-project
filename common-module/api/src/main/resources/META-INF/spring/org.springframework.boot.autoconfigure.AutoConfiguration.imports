@@ -1,2 +1,3 @@
 com.traveler.common.api.swagger.config.SwaggerServiceConfig
 com.traveler.common.api.auth.config.AuthWebConfig
+com.traveler.common.api.config.CommonApiConfig
