@@ -1,6 +1,6 @@
 package com.traveler.post.domain.like.mapper;
 
-import com.traveler.post.domain.like.dto.msg.LikeMsgDTO;
+import com.traveler.post.domain.like.dto.message.LikeMessage;
 import com.traveler.post.domain.like.entity.Like;
 import com.traveler.post.domain.post.entity.Post;
 import org.mapstruct.Mapper;
@@ -14,8 +14,8 @@ public interface LikeMapper {
 
     // Kafka
     @Mapping(source = "post.id", target = "postId")
-    LikeMsgDTO.AddedMessage toAddedMessage(Like like);
+    LikeMessage.AddedDTO toAddedMessage(Like like);
 
     @Mapping(source = "post.id", target = "postId")
-    LikeMsgDTO.RemovedMessage toRemovedMessage(Like like);
+    LikeMessage.RemovedDTO toRemovedMessage(Like like);
 }

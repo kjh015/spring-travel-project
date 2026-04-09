@@ -2,7 +2,7 @@ package com.traveler.search.domain.post.dto.msg;
 
 import java.util.List;
 
-public class PostMsgDTO {
+public class PostSearchMsgDTO {
 
     public record ImageInfo(String imageKey, int sortOrder) {}
 

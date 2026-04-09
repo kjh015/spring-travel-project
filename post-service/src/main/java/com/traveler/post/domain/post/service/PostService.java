@@ -1,8 +1,8 @@
 package com.traveler.post.domain.post.service;
 
 import com.traveler.common.core.code.ErrorCode;
-import com.traveler.post.domain.post.dto.req.PostReqDTO;
-import com.traveler.post.domain.post.dto.res.PostResDTO;
+import com.traveler.post.domain.post.dto.request.PostRequest;
+import com.traveler.post.domain.post.dto.response.PostResponse;
 import com.traveler.post.domain.post.entity.Post;
 import com.traveler.post.domain.post.entity.TravelPlace;
 import com.traveler.post.domain.post.mapper.PostMapper;
@@ -26,7 +26,7 @@ public class PostService {
     private final TravelPlaceMapper travelPlaceMapper;
     private final PostOutboxPublisher postOutboxPublisher;
 
-    public PostResDTO.CreateDTO createPost(Long memberId, PostReqDTO.CreateDTO dto) {
+    public PostResponse.CreateDTO createPost(Long memberId, PostRequest.CreateDTO dto) {
         TravelPlace travelPlace = travelPlaceMapper.toCreateEntity(dto);
 
         Post post = postMapper.toCreateEntity(dto, travelPlace, memberId);
@@ -40,7 +40,7 @@ public class PostService {
         return postMapper.toCreateDTO(savedPost);
     }
 
-    public PostResDTO.UpdateDTO updatePost(Long postId, Long memberId, PostReqDTO.UpdateDTO dto) {
+    public PostResponse.UpdateDTO updatePost(Long postId, Long memberId, PostRequest.UpdateDTO dto) {
         Post post = postRepository
                 .findByIdWithDetails(postId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
@@ -65,7 +65,7 @@ public class PostService {
         return postMapper.toUpdateDTO(post);
     }
 
-    public PostResDTO.DeleteDTO deletePost(Long postId, Long memberId) {
+    public PostResponse.DeleteDTO deletePost(Long postId, Long memberId) {
         Post post = postRepository
                 .findById(postId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));

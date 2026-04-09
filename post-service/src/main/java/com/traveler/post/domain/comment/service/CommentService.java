@@ -1,8 +1,8 @@
 package com.traveler.post.domain.comment.service;
 
 import com.traveler.common.core.code.ErrorCode;
-import com.traveler.post.domain.comment.dto.req.CommentReqDTO;
-import com.traveler.post.domain.comment.dto.res.CommentResDTO;
+import com.traveler.post.domain.comment.dto.request.CommentRequest;
+import com.traveler.post.domain.comment.dto.response.CommentResponse;
 import com.traveler.post.domain.comment.entity.Comment;
 import com.traveler.post.domain.comment.mapper.CommentMapper;
 import com.traveler.post.domain.comment.publisher.CommentOutboxPublisher;
@@ -26,7 +26,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentOutboxPublisher commentEventPublisher;
 
-    public CommentResDTO.CreateDTO createComment(Long memberId, CommentReqDTO.CreateDTO dto) {
+    public CommentResponse.CreateDTO createComment(Long memberId, CommentRequest.CreateDTO dto) {
         Post post = postRepository
                 .findById(dto.postId())
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
@@ -39,7 +39,7 @@ public class CommentService {
         return commentMapper.toCreateDTO(savedComment);
     }
 
-    public CommentResDTO.UpdateDTO updateComment(Long commentId, Long memberId, CommentReqDTO.UpdateDTO dto) {
+    public CommentResponse.UpdateDTO updateComment(Long commentId, Long memberId, CommentRequest.UpdateDTO dto) {
         Comment comment = commentRepository
                 .findById(commentId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.COMMENT_NOT_FOUND));
@@ -54,7 +54,7 @@ public class CommentService {
         return commentMapper.toUpdateDTO(comment);
     }
 
-    public CommentResDTO.DeleteDTO deleteComment(Long commentId, Long memberId) {
+    public CommentResponse.DeleteDTO deleteComment(Long commentId, Long memberId) {
         Comment comment = commentRepository
                 .findById(commentId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.COMMENT_NOT_FOUND));

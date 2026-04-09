@@ -1,10 +1,10 @@
-package com.traveler.post.domain.post.dto.req;
+package com.traveler.post.domain.post.dto.request;
 
 import com.traveler.post.domain.post.enums.Category;
 import com.traveler.post.domain.post.enums.Region;
 import java.util.List;
 
-public class PostReqDTO {
+public class PostRequest {
 
     public record CreateDTO(
             String title,

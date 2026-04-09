@@ -1,6 +1,6 @@
-package com.traveler.post.domain.comment.dto.req;
+package com.traveler.post.domain.comment.dto.request;
 
-public class CommentReqDTO {
+public class CommentRequest {
 
     public record CreateDTO(Long postId, String content, Integer star) {}
 

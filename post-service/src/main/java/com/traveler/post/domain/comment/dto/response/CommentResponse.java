@@ -1,8 +1,8 @@
-package com.traveler.post.domain.comment.dto.res;
+package com.traveler.post.domain.comment.dto.response;
 
 import java.time.LocalDateTime;
 
-public class CommentResDTO {
+public class CommentResponse {
 
     public record CreateDTO(Long commentId, LocalDateTime createdAt) {}
 

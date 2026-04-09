@@ -4,8 +4,8 @@ import com.traveler.common.api.auth.context.UserContext;
 import com.traveler.common.api.auth.resolver.LoginUser;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
-import com.traveler.post.domain.comment.dto.req.CommentReqDTO;
-import com.traveler.post.domain.comment.dto.res.CommentResDTO;
+import com.traveler.post.domain.comment.dto.request.CommentRequest;
+import com.traveler.post.domain.comment.dto.response.CommentResponse;
 import com.traveler.post.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,21 +18,21 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ApiResponse<CommentResDTO.CreateDTO> createComment(
-            @Valid @RequestBody CommentReqDTO.CreateDTO dto, @LoginUser UserContext user) {
+    public ApiResponse<CommentResponse.CreateDTO> createComment(
+            @Valid @RequestBody CommentRequest.CreateDTO dto, @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.CREATED, commentService.createComment(user.id(), dto));
     }
 
     @PatchMapping("/{commentId}")
-    public ApiResponse<CommentResDTO.UpdateDTO> updateComment(
+    public ApiResponse<CommentResponse.UpdateDTO> updateComment(
             @PathVariable Long commentId,
-            @Valid @RequestBody CommentReqDTO.UpdateDTO dto,
+            @Valid @RequestBody CommentRequest.UpdateDTO dto,
             @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.OK, commentService.updateComment(commentId, user.id(), dto));
     }
 
     @DeleteMapping("/{commentId}")
-    public ApiResponse<CommentResDTO.DeleteDTO> deleteComment(
+    public ApiResponse<CommentResponse.DeleteDTO> deleteComment(
             @PathVariable Long commentId, @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.OK, commentService.deleteComment(user.id(), commentId));
     }

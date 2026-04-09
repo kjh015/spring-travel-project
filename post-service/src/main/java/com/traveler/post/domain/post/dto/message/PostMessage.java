@@ -1,15 +1,15 @@
-package com.traveler.post.domain.post.dto.msg;
+package com.traveler.post.domain.post.dto.message;
 
 import com.traveler.post.domain.post.enums.Category;
 import com.traveler.post.domain.post.enums.Region;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class PostMsgDTO {
+public class PostMessage {
 
     public record ImageInfo(String imageKey, int sortOrder) {}
 
-    public record CreatedMessage(
+    public record CreatedDTO(
             Long postId,
             Long memberId,
             String title,
@@ -20,7 +20,7 @@ public class PostMsgDTO {
             String address,
             List<ImageInfo> images) {}
 
-    public record UpdatedMessage(
+    public record UpdatedDTO(
             Long postId,
             String title,
             String content,
@@ -30,10 +30,10 @@ public class PostMsgDTO {
             String address,
             List<ImageInfo> images) {}
 
-    public record DeletedMessage(Long postId, LocalDateTime deletedAt) {}
+    public record DeletedDTO(Long postId, LocalDateTime deletedAt) {}
 
-    public record ImagesDeleteMessage(List<String> imageKeys) {
-        public ImagesDeleteMessage {
+    public record ImagesDeleteDTO(List<String> imageKeys) {
+        public ImagesDeleteDTO {
             imageKeys = (imageKeys == null) ? List.of() : List.copyOf(imageKeys);
         }
     }
