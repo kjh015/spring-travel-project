@@ -1,8 +1,7 @@
 package com.traveler.post.domain.like.publisher;
 
-import com.traveler.post.domain.like.entity.Like;
+import com.traveler.post.domain.like.dto.message.LikeMessage;
 import com.traveler.post.domain.like.enums.LikeEventType;
-import com.traveler.post.domain.like.mapper.LikeMapper;
 import com.traveler.post.global.kafka.KafkaTopicProperties;
 import com.traveler.post.global.outbox.event.OutboxEventPublisher;
 import org.springframework.context.ApplicationEventPublisher;
@@ -10,19 +9,16 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LikeOutboxPublisher extends OutboxEventPublisher {
-    private final LikeMapper likeMapper;
 
-    public LikeOutboxPublisher(
-            ApplicationEventPublisher eventPublisher, LikeMapper likeMapper, KafkaTopicProperties topicProperties) {
+    public LikeOutboxPublisher(ApplicationEventPublisher eventPublisher, KafkaTopicProperties topicProperties) {
         super(eventPublisher, topicProperties);
-        this.likeMapper = likeMapper;
     }
 
-    public void publishAdded(Like like) {
-        publish(like.getId(), LikeEventType.ADDED, likeMapper.toAddedMessage(like));
+    public void publishAdded(LikeMessage.AddedDTO payload) {
+        publish(payload.likeId(), LikeEventType.ADDED, payload);
     }
 
-    public void publishRemoved(Like like) {
-        publish(like.getId(), LikeEventType.REMOVED, likeMapper.toRemovedMessage(like));
+    public void publishRemoved(LikeMessage.RemovedDTO payload) {
+        publish(payload.likeId(), LikeEventType.REMOVED, payload);
     }
 }

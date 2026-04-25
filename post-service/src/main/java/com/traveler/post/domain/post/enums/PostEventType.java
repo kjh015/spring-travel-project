@@ -10,6 +10,7 @@ public enum PostEventType implements OutboxEventType {
     CREATED("POST", "CREATED", "post-events"),
     UPDATED("POST", "UPDATED", "post-events"),
     DELETED("POST", "DELETED", "post-events"),
+    STAT_UPDATED("POST", "STAT_UPDATED", "post-events"),
     IMAGE_DELETE("POST", "IMAGE_DELETED", "post-commands"),
     IMAGE_DELETE_BATCH("POST", "IMAGE_BATCH_DELETED", "post-commands");
 

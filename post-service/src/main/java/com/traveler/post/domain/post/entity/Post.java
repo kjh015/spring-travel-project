@@ -41,7 +41,13 @@ public class Post extends BaseEntity {
     private Long viewCount = 0L;
 
     @Builder.Default
+    private Long commentCount = 0L;
+
+    @Builder.Default
     private Long likeCount = 0L;
+
+    @Builder.Default
+    private Long starSum = 0L;
 
     @Builder.Default
     private Double starAvg = 0.0;
@@ -109,6 +115,38 @@ public class Post extends BaseEntity {
         }
 
         return keysToDelete;
+    }
+
+    public void addComment(int star) {
+        this.commentCount++;
+        this.starSum += star;
+        this.starAvg = (double) this.starSum / this.commentCount;
+    }
+
+    public void updateComment(int oldStar, int newStar) {
+        validateNotDeleted();
+        this.starSum = this.starSum - oldStar + newStar;
+        this.starAvg = this.commentCount > 0 ? (double) this.starSum / this.commentCount : 0.0;
+    }
+
+    public void removeComment(int star) {
+        if (this.commentCount > 0) {
+            this.commentCount--;
+            this.starSum -= star;
+            this.starAvg = this.commentCount > 0 ? (double) this.starSum / this.commentCount : 0.0;
+        }
+    }
+
+    public void addLike() {
+        validateNotDeleted();
+        this.likeCount++;
+    }
+
+    public void removeLike() {
+        validateNotDeleted();
+        if (this.likeCount > 0) {
+            this.likeCount--;
+        }
     }
 
     private void validateNotDeleted() {

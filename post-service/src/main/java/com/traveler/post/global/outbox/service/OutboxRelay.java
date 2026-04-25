@@ -16,8 +16,8 @@ public class OutboxRelay {
     /**
      * 비동기 전달
      */
-    public void relayAsync(String eventId, String topic, String payload) {
-        kafkaProducer.send(topic, payload).whenComplete((result, ex) -> {
+    public void relayAsync(String eventId, String topic, String eventType, String payload) {
+        kafkaProducer.send(topic, eventType, payload).whenComplete((result, ex) -> {
             try {
                 if (ex == null) {
                     outboxStatusManager.updateToSent(eventId);
@@ -34,9 +34,9 @@ public class OutboxRelay {
     /**
      * 동기 전달: 재시도 로직에서 사용
      */
-    public void relaySync(String eventId, String topic, String payload) {
+    public void relaySync(String eventId, String topic, String eventType, String payload) {
         try {
-            kafkaProducer.send(topic, payload).get(5, TimeUnit.SECONDS);
+            kafkaProducer.send(topic, eventType, payload).get(5, TimeUnit.SECONDS);
             outboxStatusManager.updateToSent(eventId);
         } catch (Exception e) {
             outboxStatusManager.updateToFailed(eventId);

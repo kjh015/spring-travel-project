@@ -9,8 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.core.exception.SdkClientException;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.S3Error;
 
 @Slf4j
 @Service
@@ -44,25 +46,16 @@ public class S3Service {
                 .delete(d -> d.objects(identifiers))
                 .build();
 
-        try {
-            DeleteObjectsResponse response = s3Client.deleteObjects(multiObjectDeleteRequest);
+        DeleteObjectsResponse response = s3Client.deleteObjects(multiObjectDeleteRequest);
 
-            // 부분 실패 확인
-            if (response.hasErrors()) {
-                List<S3Error> errors = response.errors();
-                log.error("Partial failure in S3 delete. Errors: {}", errors);
-                throw new PostServiceException(ErrorCode.S3_DELETE_ERROR);
-            }
-
-            log.info("Successfully deleted {} keys from S3", keys.size());
-        } catch (S3Exception | SdkClientException e) {
-            // API 호출 자체의 실패 처리
-            log.error("AWS S3 service error during deletion", e);
+        // 부분 실패 확인
+        if (response.hasErrors()) {
+            List<S3Error> errors = response.errors();
+            log.error("Partial failure in S3 delete. Errors: {}", errors);
             throw new PostServiceException(ErrorCode.S3_DELETE_ERROR);
-        } catch (Exception e) {
-            log.error("Unexpected error during S3 deletion", e);
-            throw new PostServiceException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
+
+        log.info("Successfully deleted {} keys from S3", keys.size());
     }
 
     public void deleteFilesByUrls(List<String> fileUrls) {
@@ -72,15 +65,10 @@ public class S3Service {
     }
 
     private String extractKey(String fileUrl) {
-        try {
-            String path = java.net.URI.create(fileUrl).getPath();
-            if (path.startsWith("/")) {
-                path = path.substring(1); // 앞의 '/' 제거
-            }
-            return URLDecoder.decode(path, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            log.error("Failed to extract key from URL: {}", fileUrl);
-            throw new PostServiceException(ErrorCode.S3_INVALID_URL);
+        String path = java.net.URI.create(fileUrl).getPath();
+        if (path.startsWith("/")) {
+            path = path.substring(1); // 앞의 '/' 제거
         }
+        return URLDecoder.decode(path, StandardCharsets.UTF_8);
     }
 }

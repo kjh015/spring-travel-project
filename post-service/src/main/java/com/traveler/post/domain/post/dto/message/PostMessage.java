@@ -32,9 +32,11 @@ public class PostMessage {
 
     public record DeletedDTO(Long postId, LocalDateTime deletedAt) {}
 
-    public record ImagesDeleteDTO(List<String> imageKeys) {
+    public record ImagesDeleteDTO(Long postId, List<String> imageKeys) {
         public ImagesDeleteDTO {
-            imageKeys = (imageKeys == null) ? List.of() : List.copyOf(imageKeys);
+            imageKeys = (imageKeys == null) ? java.util.List.of() : List.copyOf(imageKeys);
         }
     }
+
+    public record UpdateStatDTO(Long postId, Double starAvg, Long commentCount, Long likeCount, Long viewCount) {}
 }

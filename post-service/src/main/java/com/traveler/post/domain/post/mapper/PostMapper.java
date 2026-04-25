@@ -1,5 +1,6 @@
 package com.traveler.post.domain.post.mapper;
 
+import com.traveler.post.domain.post.dto.event.PostEvent;
 import com.traveler.post.domain.post.dto.message.PostMessage;
 import com.traveler.post.domain.post.dto.request.PostRequest;
 import com.traveler.post.domain.post.dto.response.PostResponse;
@@ -46,8 +47,31 @@ public interface PostMapper {
     @Mapping(source = "id", target = "postId")
     PostMessage.DeletedDTO toDeletedMsgDTO(Post post);
 
-    default PostMessage.ImagesDeleteDTO toDeleteImagesMsgDTO(List<String> imageKeys) {
+    default PostMessage.ImagesDeleteDTO toDeleteImagesMsgDTO(Long postId, List<String> imageKeys) {
         if (imageKeys == null) return null;
-        return new PostMessage.ImagesDeleteDTO(imageKeys);
+        return new PostMessage.ImagesDeleteDTO(postId, imageKeys);
     }
+
+    // Event
+    @Mapping(target = "postMsg", source = "post")
+    PostEvent.Created toCreatedEvent(Post post);
+
+    @Mapping(target = "postMsg", source = "post")
+    PostEvent.Updated toUpdatedEvent(Post post);
+
+    @Mapping(target = "postMsg", source = "post")
+    PostEvent.Deleted toDeletedEvent(Post post);
+
+    default PostEvent.ImagesDelete toImageDeleteEvent(Long postId, List<String> imageKeys) {
+        PostMessage.ImagesDeleteDTO dto = toDeleteImagesMsgDTO(postId, imageKeys);
+        return (dto == null) ? null : new PostEvent.ImagesDelete(dto);
+    }
+
+    default PostEvent.ImagesDeleteBatch toImageDeleteBatchEvent(Long postId, List<String> imageKeys) {
+        PostMessage.ImagesDeleteDTO dto = toDeleteImagesMsgDTO(postId, imageKeys);
+        return (dto == null) ? null : new PostEvent.ImagesDeleteBatch(dto);
+    }
+
+    @Mapping(source = "id", target = "postId")
+    PostMessage.UpdateStatDTO toUpdateStatusDTO(Post post);
 }

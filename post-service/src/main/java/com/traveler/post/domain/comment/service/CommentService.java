@@ -5,7 +5,6 @@ import com.traveler.post.domain.comment.dto.request.CommentRequest;
 import com.traveler.post.domain.comment.dto.response.CommentResponse;
 import com.traveler.post.domain.comment.entity.Comment;
 import com.traveler.post.domain.comment.mapper.CommentMapper;
-import com.traveler.post.domain.comment.publisher.CommentOutboxPublisher;
 import com.traveler.post.domain.comment.repository.CommentRepository;
 import com.traveler.post.domain.post.entity.Post;
 import com.traveler.post.domain.post.repository.PostRepository;
@@ -13,6 +12,7 @@ import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,19 +22,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final CommentMapper commentMapper;
     private final PostRepository postRepository;
-    private final CommentOutboxPublisher commentEventPublisher;
+    private final CommentMapper commentMapper;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     public CommentResponse.CreateDTO createComment(Long memberId, CommentRequest.CreateDTO dto) {
         Post post = postRepository
-                .findById(dto.postId())
+                .findByIdWithLock(dto.postId())
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
 
-        Comment comment = commentMapper.toCreateEntity(dto, post, memberId);
+        post.addComment(dto.star());
 
+        Comment comment = commentMapper.toCreateEntity(dto, post, memberId);
         Comment savedComment = commentRepository.save(comment);
-        commentEventPublisher.publishCreated(savedComment);
+
+        eventPublisher.publishEvent(commentMapper.toCreatedEvent(savedComment, post));
 
         return commentMapper.toCreateDTO(savedComment);
     }
@@ -48,8 +51,15 @@ public class CommentService {
             throw new PostServiceException(ErrorCode.FORBIDDEN);
         }
 
+        Post post = postRepository
+                .findByIdWithLock(comment.getPost().getId())
+                .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
+
+        int oldStar = comment.getStar();
         comment.update(dto.content(), dto.star());
-        commentEventPublisher.publishUpdated(comment);
+        post.updateComment(oldStar, dto.star());
+
+        eventPublisher.publishEvent(commentMapper.toUpdatedEvent(comment, post));
 
         return commentMapper.toUpdateDTO(comment);
     }
@@ -63,8 +73,14 @@ public class CommentService {
             throw new PostServiceException(ErrorCode.FORBIDDEN);
         }
 
+        Post post = postRepository
+                .findByIdWithLock(comment.getPost().getId())
+                .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
+
+        post.removeComment(comment.getStar());
         comment.delete();
-        commentEventPublisher.publishDeleted(comment);
+
+        eventPublisher.publishEvent(commentMapper.toDeletedEvent(comment, post));
 
         return commentMapper.toDeleteDTO(comment);
     }

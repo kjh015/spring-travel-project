@@ -1,14 +1,14 @@
 package com.traveler.post.domain.post.repository;
 
 import com.traveler.post.domain.post.entity.Post;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
@@ -26,4 +26,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM Post p WHERE p.id IN :postIds")
     void hardDeletePostsByIds(@Param("postIds") List<Long> postIds);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
+    @Query("select p from Post p where p.id = :id")
+    Optional<Post> findByIdWithLock(@Param("id") Long id);
 }

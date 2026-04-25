@@ -1,13 +1,15 @@
 package com.traveler.post.domain.post.listener;
 
-import com.traveler.common.core.code.ErrorCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.post.domain.post.dto.message.PostMessage;
-import com.traveler.post.global.exception.PostServiceException;
 import com.traveler.post.global.s3.S3Service;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,18 +18,19 @@ import org.springframework.stereotype.Component;
 public class PostMessageConsumer {
 
     private final S3Service s3Service;
+    private final ObjectMapper objectMapper;
 
+    @SneakyThrows
     @KafkaListener(topics = "${spring.kafka.topics.post-commands}", groupId = "${spring.kafka.consumer.group-id}")
-    public void consumeS3Delete(PostMessage.ImagesDeleteDTO event, Acknowledgment ack) {
-        try {
+    public void consumeS3Delete(@Payload String payload, @Header("event-type") String eventType, Acknowledgment ack) {
 
-            log.info("Kafka Consumer: S3 파일 삭제 시작 - {}건", event.imageKeys().size());
-            s3Service.deleteFilesByUrls(event.imageKeys());
-            ack.acknowledge();
-
-        } catch (Exception e) {
-            log.error("S3 삭제 메시지 처리 중 오류 발생", e);
-            throw new PostServiceException(ErrorCode.S3_DELETE_ERROR);
+        log.info("Kafka Consumer [post-commands]: Type=[{}], Payload=[{}]", eventType, payload);
+        switch (eventType) {
+            case "IMAGE_DELETED", "IMAGE_BATCH_DELETED" -> {
+                var dto = objectMapper.readValue(payload, PostMessage.ImagesDeleteDTO.class);
+                s3Service.deleteFilesByUrls(dto.imageKeys());
+            }
+            default -> log.warn("지원하지 않는 커맨드 타입입니다: {}", eventType);
         }
     }
 }

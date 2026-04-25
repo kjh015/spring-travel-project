@@ -43,7 +43,7 @@ public class OutboxService {
 
     public void publish(OutboxEvent event) {
         String jsonPayload = serializePayload(event.payload());
-        outboxRelay.relayAsync(event.eventId(), event.topic(), jsonPayload);
+        outboxRelay.relayAsync(event.eventId(), event.topic(), event.eventType(), jsonPayload);
     }
 
     public void retry() {
@@ -60,7 +60,8 @@ public class OutboxService {
             for (Outbox outbox : retryCandidates) {
                 try {
                     outboxStatusManager.prepareRetry(outbox.getId());
-                    outboxRelay.relaySync(outbox.getEventId(), outbox.getTopic(), outbox.getPayload());
+                    outboxRelay.relaySync(
+                            outbox.getEventId(), outbox.getTopic(), outbox.getEventType(), outbox.getPayload());
                 } catch (Exception e) {
                     log.error("Outbox 재시도 중 오류 발생: id={}", outbox.getId(), e);
                 }

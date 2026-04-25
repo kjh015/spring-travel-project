@@ -1,46 +1,47 @@
 package com.traveler.post.domain.post.publisher;
 
-import com.traveler.post.domain.post.entity.Post;
+import com.traveler.post.domain.post.dto.message.PostMessage;
 import com.traveler.post.domain.post.enums.PostEventType;
-import com.traveler.post.domain.post.mapper.PostMapper;
 import com.traveler.post.global.kafka.KafkaTopicProperties;
 import com.traveler.post.global.outbox.event.OutboxEventPublisher;
-import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PostOutboxPublisher extends OutboxEventPublisher {
-    private final PostMapper postMapper;
 
-    public PostOutboxPublisher(
-            ApplicationEventPublisher eventPublisher, PostMapper postMapper, KafkaTopicProperties topicProperties) {
+    public PostOutboxPublisher(ApplicationEventPublisher eventPublisher, KafkaTopicProperties topicProperties) {
         super(eventPublisher, topicProperties);
-        this.postMapper = postMapper;
     }
 
-    public void publishCreated(Post post) {
-        publish(post.getId(), PostEventType.CREATED, postMapper.toCreatedMsgDTO(post));
+    public void publishCreated(PostMessage.CreatedDTO payload) {
+        publish(payload.postId(), PostEventType.CREATED, payload);
     }
 
-    public void publishUpdated(Post post) {
-        publish(post.getId(), PostEventType.UPDATED, postMapper.toUpdatedMsgDTO(post));
+    public void publishUpdated(PostMessage.UpdatedDTO payload) {
+        publish(payload.postId(), PostEventType.UPDATED, payload);
     }
 
-    public void publishDeleted(Post post) {
-        publish(post.getId(), PostEventType.DELETED, postMapper.toDeletedMsgDTO(post));
+    public void publishDeleted(PostMessage.DeletedDTO payload) {
+        publish(payload.postId(), PostEventType.DELETED, payload);
     }
 
-    public void publishImagesDelete(Long aggregateId, List<String> imageKeys) {
-        if (imageKeys == null || imageKeys.isEmpty()) return;
+    public void publishImagesDelete(PostMessage.ImagesDeleteDTO payload) {
+        if (payload.imageKeys() == null || payload.imageKeys().isEmpty()) return;
 
-        publish(aggregateId, PostEventType.IMAGE_DELETE, postMapper.toDeleteImagesMsgDTO(imageKeys));
+        publish(payload.postId(), PostEventType.IMAGE_DELETE, payload);
     }
 
-    public void publishImagesDelete(List<Long> postIds, List<String> imageKeys) {
-        if (imageKeys == null || imageKeys.isEmpty() || postIds == null || postIds.isEmpty()) return;
+    public void publishImagesDeleteBatch(PostMessage.ImagesDeleteDTO payload) {
+        if (payload.imageKeys() == null || payload.imageKeys().isEmpty()) return;
 
         // 대표 ID로 첫 번째 ID 사용
-        publish(postIds.getFirst(), PostEventType.IMAGE_DELETE_BATCH, postMapper.toDeleteImagesMsgDTO(imageKeys));
+        publish(payload.postId(), PostEventType.IMAGE_DELETE_BATCH, payload);
+    }
+
+    public void publishStatUpdated(PostMessage.UpdateStatDTO payload) {
+        if (payload == null) return;
+
+        publish(payload.postId(), PostEventType.STAT_UPDATED, payload);
     }
 }

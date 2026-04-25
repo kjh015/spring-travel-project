@@ -1,5 +1,6 @@
 package com.traveler.post.domain.like.mapper;
 
+import com.traveler.post.domain.like.dto.event.LikeEvent;
 import com.traveler.post.domain.like.dto.message.LikeMessage;
 import com.traveler.post.domain.like.entity.Like;
 import com.traveler.post.domain.post.entity.Post;
@@ -18,4 +19,13 @@ public interface LikeMapper {
 
     @Mapping(source = "post.id", target = "postId")
     LikeMessage.RemovedDTO toRemovedMessage(Like like);
+
+    // Event
+    @Mapping(target = "likeMsg", source = "like")
+    @Mapping(target = "postMsg", source = "post")
+    LikeEvent.Added toAddedEvent(Like like, Post post);
+
+    @Mapping(target = "likeMsg", source = "like")
+    @Mapping(target = "postMsg", source = "post")
+    LikeEvent.Removed toRemovedEvent(Like like, Post post);
 }
