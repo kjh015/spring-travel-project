@@ -7,6 +7,7 @@ import com.traveler.search.domain.post.document.PostDocument;
 import com.traveler.search.domain.post.dto.message.PostSearchMessage;
 import com.traveler.search.domain.post.dto.request.PostSearchRequest;
 import com.traveler.search.domain.post.enums.PostSortType;
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -18,6 +19,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHitSupport;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
 import org.springframework.util.StringUtils;
 
@@ -26,6 +28,12 @@ import org.springframework.util.StringUtils;
 public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom {
     private final ElasticsearchOperations operations;
     private final ElasticsearchClient client;
+    private IndexCoordinates postIndex;
+
+    @PostConstruct
+    public void init() {
+        this.postIndex = operations.getIndexCoordinatesFor(PostDocument.class);
+    }
 
     private static final int BOOST_TITLE = 5;
     private static final int BOOST_TITLE_AUTOCOMPLETE = 3;
@@ -77,10 +85,8 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
     @Override
     @SneakyThrows
     public void updatePartial(PostSearchMessage.UpdatedDTO dto) {
-        String indexName = operations.getIndexCoordinatesFor(PostDocument.class).getIndexName();
-
         client.update(
-                u -> u.index(indexName)
+                u -> u.index(postIndex.getIndexName())
                         .id(String.valueOf(dto.postId()))
                         .doc(dto)
                         .retryOnConflict(3),
@@ -90,10 +96,8 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
     @SneakyThrows
     @Override
     public void updateStatistics(PostSearchMessage.StatUpdateDoc doc) {
-        String indexName = operations.getIndexCoordinatesFor(PostDocument.class).getIndexName();
-
         client.update(
-                u -> u.index(indexName)
+                u -> u.index(postIndex.getIndexName())
                         .id(String.valueOf(doc.postId()))
                         .doc(doc)
                         .retryOnConflict(3),

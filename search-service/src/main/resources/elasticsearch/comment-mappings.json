@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "id": { "type": "long" },
+    "postId": { "type": "long" },
+    "memberId": { "type": "long" },
+    "content": {
+      "type": "text",
+      "analyzer": "korean_nori"
+    },
+    "star": { "type": "integer" },
+    "createdAt": {
+      "type": "date",
+      "format": "date_hour_minute_second"
+    },
+    "updatedAt": {
+      "type": "date",
+      "format": "date_hour_minute_second"
+    }
+  }
+}

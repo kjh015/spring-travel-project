@@ -3,11 +3,10 @@ package com.traveler.search.domain.post.mapper;
 import com.traveler.search.domain.post.document.PostDocument;
 import com.traveler.search.domain.post.dto.message.PostSearchMessage;
 import com.traveler.search.domain.post.dto.response.PostSearchResponse;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PostDocumentMapper {

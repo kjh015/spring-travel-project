@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class CommentMessage {
 
-    public record CreatedDTO(Long commentId, Long memberId, String content, Integer star) {}
+    public record CreatedDTO(Long commentId, Long postId, Long memberId, String content, Integer star) {}
 
     public record UpdatedDTO(Long commentId, String content, Integer star) {}
 

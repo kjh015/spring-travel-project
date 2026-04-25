@@ -32,7 +32,7 @@ public interface CommentMapper {
 
     // Message
     @Mapping(source = "id", target = "commentId")
-    CommentMessage.CreatedDTO toCreatedMsgDTO(Comment comment);
+    CommentMessage.CreatedDTO toCreatedMsgDTO(Comment comment, Long postId);
 
     @Mapping(source = "id", target = "commentId")
     CommentMessage.UpdatedDTO toUpdatedMsgDTO(Comment comment);
@@ -41,7 +41,7 @@ public interface CommentMapper {
     CommentMessage.DeletedDTO toDeletedMsgDTO(Comment comment);
 
     // Event
-    @Mapping(target = "commentMsg", source = "comment") // toCreatedMsgDTO 호출
+    @Mapping(target = "commentMsg", expression = "java(toCreatedMsgDTO(comment, post.getId()))") // toCreatedMsgDTO 호출
     @Mapping(target = "postMsg", source = "post") // postMapper.toUpdateStatusDTO 호출
     CommentEvent.Created toCreatedEvent(Comment comment, Post post);
 
