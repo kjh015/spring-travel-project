@@ -1,23 +1,44 @@
 package com.traveler.search.domain.post.document;
 
-import com.traveler.search.global.entity.BaseDocument;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.traveler.search.global.document.BaseDocument;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.elasticsearch.annotations.*;
+
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuperBuilder
-@Document(indexName = "posts")
+@Document(indexName = "${elasticsearch.indices.post}")
 @Setting(settingPath = "/elasticsearch/post-settings.json")
 @Mapping(mappingPath = "/elasticsearch/post-mappings.json")
 public class PostDocument extends BaseDocument {
 
-    @Field(type = FieldType.Text, analyzer = "korean_nori")
+    public static final class Fields {
+        public static final String MEMBER_ID = "memberId";
+        public static final String TITLE = "title";
+        public static final String TITLE_AUTOCOMPLETE = "title.autocomplete";
+        public static final String TITLE_NGRAM = "title.ngram";
+        public static final String CONTENT = "content";
+        public static final String TRAVEL_PLACE = "travelPlace";
+        public static final String ADDRESS = "address";
+        public static final String CATEGORY = "category";
+        public static final String REGION = "region";
+        public static final String POPULARITY_SCORE = "popularityScore";
+        public static final String IMAGES = "images";
+    }
+
+    @Field(type = FieldType.Long)
+    private Long memberId;
+
+    @MultiField(
+            mainField = @Field(type = FieldType.Text, analyzer = "korean_nori"),
+            otherFields = {
+                @InnerField(suffix = "ngram", type = FieldType.Text, analyzer = "ngram_no_space_analyzer"),
+                @InnerField(suffix = "autocomplete", type = FieldType.Text, analyzer = "edge_ngram_no_space_analyzer")
+            })
     private String title;
 
     @Field(type = FieldType.Text, analyzer = "chosung_ngram_analyzer")
@@ -25,9 +46,6 @@ public class PostDocument extends BaseDocument {
 
     @Field(type = FieldType.Text, analyzer = "korean_nori")
     private String content;
-
-    @Field(type = FieldType.Long)
-    private Long memberId;
 
     @Field(type = FieldType.Text, analyzer = "korean_nori")
     private String travelPlace;
@@ -42,14 +60,25 @@ public class PostDocument extends BaseDocument {
     private String region;
 
     @Field(type = FieldType.Double)
-    private Double starAvg;
+    @Builder.Default
+    private Double starAvg = 0.0;
 
     @Field(type = FieldType.Long)
-    private Long viewCount;
+    @Builder.Default
+    private Long viewCount = 0L;
 
     @Field(type = FieldType.Long)
-    private Long likeCount;
+    @Builder.Default
+    private Long likeCount = 0L;
 
     @Field(type = FieldType.Long)
-    private Long commentCount;
+    @Builder.Default
+    private Long commentCount = 0L;
+
+    @Field(type = FieldType.Rank_Feature)
+    @Builder.Default
+    private Double popularityScore = 0.0;
+
+    @Field(type = FieldType.Nested)
+    private List<PostImage> images;
 }

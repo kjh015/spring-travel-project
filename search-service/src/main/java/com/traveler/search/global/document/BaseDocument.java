@@ -1,4 +1,4 @@
-package com.traveler.search.global.entity;
+package com.traveler.search.global.document;
 
 import java.time.LocalDateTime;
 import lombok.AccessLevel;

@@ -1,8 +1,7 @@
 package com.traveler.search.global.kafka;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.Map;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "spring.kafka")
 public record KafkaTopicProperties(Map<String, String> topics) {

@@ -1,4 +1,10 @@
 package com.traveler.search.domain.comment.controller;
 
-public class CommentSearchController {
-}
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/search/comments")
+public class CommentSearchController {}

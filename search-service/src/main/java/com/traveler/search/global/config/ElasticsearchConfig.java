@@ -4,7 +4,6 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.Duration;
 import org.elasticsearch.client.RestClient;
 import org.springframework.context.annotation.Bean;
@@ -24,18 +23,6 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
                 .withConnectTimeout(Duration.ofSeconds(5))
                 .withSocketTimeout(Duration.ofSeconds(3))
                 .build();
-    }
-
-    /**
-     * Java API Client와 Operations가 공통으로 사용할 ObjectMapper 설정
-     * LocalDateTime 직렬화를 위해 JavaTimeModule 등록 필수
-     */
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return mapper;
     }
 
     /**

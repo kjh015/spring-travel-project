@@ -1,4 +1,3 @@
 package com.traveler.search.domain.comment.dto.message;
 
-public class CommentSearchMessage {
-}
+public class CommentSearchMessage {}

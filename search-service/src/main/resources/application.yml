@@ -11,6 +11,8 @@ spring:
 
   elasticsearch:
     uris: http://localhost:9200
+    indices:
+      post: "posts"
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
@@ -44,3 +46,7 @@ springdoc:
     path: /api/v1/posts/search/v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+logging:
+  level:
+    org.elasticsearch.client: TRACE

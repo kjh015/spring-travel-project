@@ -1,32 +1,49 @@
 package com.traveler.search.domain.post.listener;
 
-import com.traveler.common.core.code.ErrorCode;
-import com.traveler.search.domain.post.dto.msg.PostMsgDTO;
-import com.traveler.search.domain.post.service.PostSearchService;
-import com.traveler.search.global.exception.SearchServiceException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.traveler.search.domain.post.dto.message.PostSearchMessage;
+import com.traveler.search.domain.post.service.PostSearchCommandService;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class PostDocumentMessageConsumer {
-    private final PostSearchService postSearchService;
+public class PostSearchMessageConsumer {
+    private final PostSearchCommandService postSearchCommandService;
+    private final ObjectMapper objectMapper;
 
+    @SneakyThrows
     @KafkaListener(topics = "${spring.kafka.topics.post-events}", groupId = "${spring.kafka.consumer.group-id}")
-    public void consumeTest(PostMsgDTO.CreatedMessage msg, Acknowledgment ack) {
-        try {
+    public void consume(@Payload String payload, @Header("event-type") String eventType, Acknowledgment ack) {
+        log.info("Kafka Consumer: Type=[{}], Payload=[{}]", eventType, payload);
 
-            log.info("Kafka Consumer: Post Service to Search Service");
-            postSearchService.create(msg);
-            ack.acknowledge();
-
-        } catch (Exception e) {
-            log.error("메시지 처리 중 오류 발생", e);
-            throw new SearchServiceException(ErrorCode.INTERNAL_SERVER_ERROR);
+        switch (eventType) {
+            case "CREATED" -> {
+                postSearchCommandService.createDocument(
+                        objectMapper.readValue(payload, PostSearchMessage.CreatedDTO.class));
+            }
+            case "UPDATED" -> {
+                postSearchCommandService.updateDocument(
+                        objectMapper.readValue(payload, PostSearchMessage.UpdatedDTO.class));
+            }
+            case "DELETED" -> {
+                postSearchCommandService.deleteDocument(
+                        objectMapper.readValue(payload, PostSearchMessage.DeletedDTO.class));
+            }
+            case "STAT_UPDATED" -> {
+                postSearchCommandService.updateStatistics(
+                        objectMapper.readValue(payload, PostSearchMessage.StatUpdatedDTO.class));
+            }
+            default -> log.warn("지원하지 않는 이벤트 타입입니다: {}", eventType);
         }
+        // 모든 처리가 정상일 때만 커밋
+        ack.acknowledge();
     }
 }

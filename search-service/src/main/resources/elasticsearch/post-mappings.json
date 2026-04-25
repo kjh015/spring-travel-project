@@ -26,10 +26,17 @@
     "category": { "type": "keyword" },
     "region": { "type": "keyword" },
     "createdAt": { "type": "date", "format": "date_hour_minute_second" },
-    "modifiedAt": { "type": "date", "format": "date_hour_minute_second" },
+    "updatedAt": { "type": "date", "format": "date_hour_minute_second" },
     "starAvg": { "type": "double" },
     "viewCount": { "type": "long" },
     "likeCount": { "type": "long" },
-    "commentCount": { "type": "long" }
+    "commentCount": { "type": "long" },
+    "images": {
+      "type": "nested",
+      "properties": {
+        "imageKey": { "type": "keyword" },
+        "sortOrder": { "type": "integer" }
+      }
+    }
   }
 }
