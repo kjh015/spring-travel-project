@@ -10,13 +10,12 @@ import com.traveler.search.domain.post.mapper.PostDocumentMapper;
 import com.traveler.search.domain.post.repository.PostDocumentRepository;
 import com.traveler.search.global.code.SearchServiceErrorCode;
 import com.traveler.search.global.exception.SearchServiceException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -54,5 +53,4 @@ public class PostSearchQueryService {
 
         return PageConverter.toPageResponse(posts, postDocumentMapper::toMyDTO);
     }
-
 }

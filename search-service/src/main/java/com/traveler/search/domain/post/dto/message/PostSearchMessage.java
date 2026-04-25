@@ -32,21 +32,9 @@ public class PostSearchMessage {
 
     public record DeletedDTO(Long postId, LocalDateTime deletedAt) {}
 
-    public record StatUpdatedDTO(
-            Long postId,
-            Double starAvg,
-            Long commentCount,
-            Long likeCount,
-            Long viewCount
-    ) {}
+    public record StatUpdatedDTO(Long postId, Double starAvg, Long commentCount, Long likeCount, Long viewCount) {}
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public record StatUpdateDoc(
-            Long postId,
-            Double starAvg,
-            Long commentCount,
-            Long likeCount,
-            Long viewCount,
-            Double popularityScore
-    ) {}
+            Long postId, Double starAvg, Long commentCount, Long likeCount, Long viewCount, Double popularityScore) {}
 }

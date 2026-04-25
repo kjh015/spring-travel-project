@@ -49,19 +49,12 @@ public class BoardController {
 
     @GetMapping("/autocomplete")
     public List<String> autocomplete(@RequestParam String keyword) {
-        logger.info("---------------------------------------------------------");
-        logger.info("keyword: " + keyword);
         List<String> res = new ArrayList<>();
         // 일반 자동완성
         res.addAll(searchService.autocomplete(keyword));
-        logger.info("res1: ");
-        logger.info(res.toString());
         // 초성 자동완성 (항상 실행)
         String chosung = searchService.getChosung(keyword);
-        logger.info("chosung: " + chosung);
         res.addAll(searchService.autocompleteChosung(chosung));
-        logger.info("res2: ");
-        logger.info(res.toString());
         // 중복제거 후 반환
         return res.stream().distinct().collect(Collectors.toList());
     }

@@ -7,6 +7,7 @@ import com.traveler.search.domain.post.document.PostDocument;
 import com.traveler.search.domain.post.dto.message.PostSearchMessage;
 import com.traveler.search.domain.post.dto.request.PostSearchRequest;
 import com.traveler.search.domain.post.enums.PostSortType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -20,14 +21,11 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Slf4j
 public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom {
     private final ElasticsearchOperations operations;
     private final ElasticsearchClient client;
-
 
     private static final int BOOST_TITLE = 5;
     private static final int BOOST_TITLE_AUTOCOMPLETE = 3;
@@ -94,13 +92,12 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
     public void updateStatistics(PostSearchMessage.StatUpdateDoc doc) {
         String indexName = operations.getIndexCoordinatesFor(PostDocument.class).getIndexName();
 
-        client.update(u -> u
-                        .index(indexName)
+        client.update(
+                u -> u.index(indexName)
                         .id(String.valueOf(doc.postId()))
                         .doc(doc)
                         .retryOnConflict(3),
-                PostSearchMessage.StatUpdateDoc.class
-        );
+                PostSearchMessage.StatUpdateDoc.class);
     }
 
     private void buildMustClause(BoolQuery.Builder b, String keyword) {

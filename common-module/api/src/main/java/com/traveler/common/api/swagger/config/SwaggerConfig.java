@@ -6,11 +6,10 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
@@ -26,9 +25,8 @@ public class SwaggerConfig {
         return openApi -> {
             openApi.info(new Info().title(title).version(version).description(description));
             openApi.setServers(List.of(new Server().url("/")));
-            openApi.addSecurityItem(new SecurityRequirement()
-                    .addList(USER_ID_HEADER)
-                    .addList(USER_ROLE_HEADER));
+            openApi.addSecurityItem(
+                    new SecurityRequirement().addList(USER_ID_HEADER).addList(USER_ROLE_HEADER));
             openApi.getComponents()
                     .addSecuritySchemes(USER_ID_HEADER, createHeaderScheme(USER_ID_HEADER))
                     .addSecuritySchemes(USER_ROLE_HEADER, createHeaderScheme(USER_ROLE_HEADER));

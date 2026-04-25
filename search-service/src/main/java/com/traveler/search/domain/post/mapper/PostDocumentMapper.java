@@ -42,20 +42,11 @@ public interface PostDocumentMapper {
 
         // record 생성 및 반환
         return new PostSearchMessage.StatUpdateDoc(
-                msg.postId(),
-                msg.starAvg(),
-                msg.commentCount(),
-                msg.likeCount(),
-                msg.viewCount(),
-                score
-        );
+                msg.postId(), msg.starAvg(), msg.commentCount(), msg.likeCount(), msg.viewCount(), score);
     }
 
     // 가중치 계산 로직
     private double calculatePopularityScore(PostSearchMessage.StatUpdatedDTO msg) {
-        return (msg.likeCount() * 5.0) +
-                (msg.commentCount() * 3.0) +
-                (msg.viewCount() * 0.1) +
-                (msg.starAvg() * 10.0);
+        return (msg.likeCount() * 5.0) + (msg.commentCount() * 3.0) + (msg.viewCount() * 0.1) + (msg.starAvg() * 10.0);
     }
 }

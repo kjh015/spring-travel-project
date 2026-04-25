@@ -1,11 +1,10 @@
 package com.traveler.search.domain.post.document;
 
 import com.traveler.search.global.document.BaseDocument;
+import java.util.List;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.elasticsearch.annotations.*;
-
-import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

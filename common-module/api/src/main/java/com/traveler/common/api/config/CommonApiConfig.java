@@ -6,9 +6,5 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({
-        GeneralExceptionAdvice.class,
-        ExceptionConverter.class
-})
-public class CommonApiConfig {
-}
+@Import({GeneralExceptionAdvice.class, ExceptionConverter.class})
+public class CommonApiConfig {}
