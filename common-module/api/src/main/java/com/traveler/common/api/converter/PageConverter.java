@@ -38,6 +38,22 @@ public final class PageConverter {
         return buildPageResponse(convertedPage.getContent(), pageData);
     }
 
+    /**
+     * 빈 페이지 응답 생성
+     * 결과가 없을 때 일관된 응답 구조를 반환하기 위해 사용합니다.
+     */
+    public static <R> PageResponse<R> emptyPageResponse(int size) {
+        return PageResponse.<R>builder()
+                .content(List.of())
+                .currentPage(1)
+                .size(size)
+                .totalElements(0L)
+                .totalPages(0)
+                .isFirst(true)
+                .isLast(true)
+                .build();
+    }
+
     private static <T> PageResponse<T> buildPageResponse(List<T> content, Page<?> pageData) {
         return PageResponse.<T>builder()
                 .content(content)

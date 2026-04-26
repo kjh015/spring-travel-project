@@ -16,7 +16,7 @@ public class PostSearchResponse {
             Long viewCount,
             Long likeCount,
             Long commentCount,
-            LocalDateTime updatedDate) {}
+            LocalDateTime updatedAt) {}
 
     public record DetailDTO(
             Long postId,
@@ -31,7 +31,7 @@ public class PostSearchResponse {
             Long viewCount,
             Long likeCount,
             Long commentCount,
-            LocalDateTime updatedDate,
+            LocalDateTime updatedAt,
             List<ImageInfo> images) {}
 
     public record AutocompleteDTO(List<String> titles) {}
@@ -46,5 +46,5 @@ public class PostSearchResponse {
             Long viewCount,
             Long likeCount,
             Long commentCount,
-            LocalDateTime updatedDate) {}
+            LocalDateTime updatedAt) {}
 }
