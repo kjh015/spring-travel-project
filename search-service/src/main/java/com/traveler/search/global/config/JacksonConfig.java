@@ -14,7 +14,7 @@ public class JacksonConfig {
     public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
         return builder -> {
             // LocalDateTime 처리를 위한 모듈 추가
-            builder.modules(new JavaTimeModule());
+            builder.modulesToInstall(new JavaTimeModule());
 
             // 날짜를 숫자 배열이 아닌 ISO-8601 문자열(2026-04-24...)로 직렬화
             builder.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

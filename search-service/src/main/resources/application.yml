@@ -10,7 +10,7 @@ spring:
     import: optional:file:search-service/.env[.properties]
 
   elasticsearch:
-    uris: http://localhost:9200
+    uris: ${ELASTICSEARCH_URIS:localhost:9200}
     indices:
       post: "posts"
       comment: "comments"
@@ -32,11 +32,6 @@ spring:
     listener:
       concurrency: 3 # 리스너의 병렬 처리 수준 (보통 파티션 개수와 맞춤)
       ack-mode: manual_immediate # 메시지 수신 확인 모드 (manual_immediate: 로직 완료 후 즉시 커밋)
-    topics:
-      post-events: "post-service.post.events"
-      post-commands: "post-service.post.commands"
-      comment-events: "post-service.comment.events"
-      like-events: "post-service.like.events"
 
 swagger:
   info:
@@ -52,3 +47,11 @@ springdoc:
 logging:
   level:
     org.elasticsearch.client: TRACE
+
+app:
+  kafka:
+    topics:
+      post-events: "post-service.post.events"
+      post-commands: "post-service.post.commands"
+      comment-events: "post-service.comment.events"
+      like-events: "post-service.like.events"

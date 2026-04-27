@@ -20,7 +20,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT pi.imageKey FROM PostImage pi WHERE pi.post.id IN :postIds")
     List<String> findImageKeysByPostIds(@Param("postIds") List<Long> postIds);
 
-    @Query("SELECT p.id FROM Post p WHERE p.deletedAt <= :threshold AND p.isDeleted = true")
+    @Query(
+            value = "SELECT p.id FROM Post p WHERE p.deleted_at <= :threshold AND p.is_deleted = true",
+            nativeQuery = true)
     Slice<Long> findExpiredPostIds(@Param("threshold") LocalDateTime threshold, Pageable pageable);
 
     @Modifying(clearAutomatically = true)
@@ -28,7 +30,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     void hardDeletePostsByIds(@Param("postIds") List<Long> postIds);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
     @Query("select p from Post p where p.id = :id")
     Optional<Post> findByIdWithLock(@Param("id") Long id);
 }

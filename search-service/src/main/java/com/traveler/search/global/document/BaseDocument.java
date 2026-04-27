@@ -2,7 +2,6 @@ package com.traveler.search.global.document;
 
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -13,7 +12,6 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE) // SuperBuilder를 위해 필요
 @SuperBuilder
 public abstract class BaseDocument {
 

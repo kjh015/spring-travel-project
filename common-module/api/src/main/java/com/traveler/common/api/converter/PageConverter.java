@@ -33,9 +33,9 @@ public final class PageConverter {
      * @return 변환된 데이터 리스트와 페이징 정보가 담긴 PageResponse
      */
     public static <E, R> PageResponse<R> toPageResponse(Page<E> pageData, Function<E, R> converter) {
-        Page<R> convertedPage = pageData.map(converter);
+        List<R> content = pageData.getContent().stream().map(converter).toList();
 
-        return buildPageResponse(convertedPage.getContent(), pageData);
+        return buildPageResponse(content, pageData);
     }
 
     /**

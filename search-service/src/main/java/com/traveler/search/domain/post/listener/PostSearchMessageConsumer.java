@@ -21,8 +21,17 @@ public class PostSearchMessageConsumer {
 
     @SneakyThrows
     @KafkaListener(topics = "${spring.kafka.topics.post-events}", groupId = "${spring.kafka.consumer.group-id}")
-    public void consume(@Payload String payload, @Header("event-type") String eventType, Acknowledgment ack) {
-        log.info("PostSearch Kafka Consumer: Type=[{}], Payload=[{}]", eventType, payload);
+    public void consume(
+            @Payload String payload,
+            @Header(value = "event-type", required = false) String eventType,
+            Acknowledgment ack) {
+        log.debug("PostSearch Kafka Consumer: Type=[{}], Payload=[{}]", eventType, payload);
+
+        if (eventType == null) {
+            log.error("Missing 'event-type' header. Payload: {}", payload);
+            ack.acknowledge();
+            return;
+        }
 
         switch (eventType) {
             case "CREATED" -> {

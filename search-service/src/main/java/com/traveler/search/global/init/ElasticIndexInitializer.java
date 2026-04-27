@@ -1,5 +1,7 @@
 package com.traveler.search.global.init;
 
+import com.traveler.search.domain.comment.document.CommentDocument;
+import com.traveler.search.domain.like.document.LikeDocument;
 import com.traveler.search.domain.post.document.PostDocument;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
@@ -19,10 +21,7 @@ public class ElasticIndexInitializer {
     @PostConstruct
     public void initIndexes() {
         // 초기화가 필요한 도메인 클래스들을 리스트에 추가
-        List<Class<?>> documentClasses = List.of(
-                PostDocument.class
-                //                , CommentDocument.class
-                );
+        List<Class<?>> documentClasses = List.of(PostDocument.class, CommentDocument.class, LikeDocument.class);
 
         for (Class<?> clazz : documentClasses) {
             setupIndex(clazz);
@@ -31,13 +30,16 @@ public class ElasticIndexInitializer {
 
     private void setupIndex(Class<?> clazz) {
         IndexOperations indexOps = operations.indexOps(clazz);
-        if (!indexOps.exists()) {
-            log.info(
-                    "Elasticsearch 인덱스가 존재하지 않습니다. 생성을 시작합니다: {}",
-                    indexOps.getIndexCoordinates().getIndexName());
-            indexOps.create();
+        String name = indexOps.getIndexCoordinates().getIndexName();
+        try {
+            if (!indexOps.exists()) {
+                log.info("Elasticsearch 인덱스가 존재하지 않습니다. 생성을 시작합니다: {}", name);
+                indexOps.create();
+                log.info("인덱스 생성 완료: {}", name);
+            }
             indexOps.putMapping(indexOps.createMapping());
-            log.info("인덱스 생성 완료: {}", indexOps.getIndexCoordinates().getIndexName());
+        } catch (Exception e) {
+            log.error("Elasticsearch 인덱스 초기화 실패: {}", name, e);
         }
     }
 }

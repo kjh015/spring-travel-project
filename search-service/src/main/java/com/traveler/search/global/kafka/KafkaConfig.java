@@ -71,6 +71,12 @@ public class KafkaConfig {
         // FixedBackOff: (대기시간, 최대재시도횟수)
         DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, new FixedBackOff(2000L, 3L));
 
+        handler.addNotRetryableExceptions(
+                com.fasterxml.jackson.core.JsonProcessingException.class, // JSON 파싱 에러
+                org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException
+                        .class, // 파라미터 타입 불일치
+                org.springframework.kafka.listener.ListenerExecutionFailedException.class // 리스너 실행 실패 (내부 원인 확인 필요)
+                );
         // 재시도 로깅
         handler.setRetryListeners(kafkaExceptionHandler::logRetry);
 

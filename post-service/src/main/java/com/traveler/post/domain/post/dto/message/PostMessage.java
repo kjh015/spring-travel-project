@@ -4,7 +4,9 @@ import com.traveler.post.domain.post.enums.Category;
 import com.traveler.post.domain.post.enums.Region;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class PostMessage {
 
     public record ImageInfo(String imageKey, int sortOrder) {}

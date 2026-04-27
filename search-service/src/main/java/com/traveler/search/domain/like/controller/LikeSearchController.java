@@ -7,7 +7,11 @@ import com.traveler.common.core.response.ApiResponse;
 import com.traveler.common.core.response.PageResponse;
 import com.traveler.search.domain.like.dto.response.LikeSearchResponse;
 import com.traveler.search.domain.like.service.LikeSearchQueryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -15,16 +19,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Like Search", description = "좋아요 조회 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/search/likes")
 public class LikeSearchController {
     private final LikeSearchQueryService likeSearchQueryService;
 
+    @Operation(summary = "내가 좋아요 한 게시글 목록 조회", description = "현재 사용자가 좋아요를 누른 게시글들을 검색 엔진 인덱스 조인을 통해 페이징하여 조회합니다.")
     @GetMapping("/me")
     public ApiResponse<PageResponse<LikeSearchResponse.MyDTO>> getMyLikePosts(
-            @LoginUser UserContext user,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @Parameter(hidden = true) @LoginUser UserContext user,
+            @ParameterObject @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+                    Pageable pageable) {
         return ApiResponse.onSuccess(SuccessCode.OK, likeSearchQueryService.getMyLikePosts(user.id(), pageable));
     }
 }

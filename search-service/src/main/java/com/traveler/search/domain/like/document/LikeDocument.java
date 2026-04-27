@@ -1,5 +1,6 @@
 package com.traveler.search.domain.like.document;
 
+import com.traveler.search.global.document.BaseDocument;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import org.springframework.data.elasticsearch.annotations.*;
 @Document(indexName = "${elasticsearch.indices.like}")
 @Setting(settingPath = "/elasticsearch/like-settings.json")
 @Mapping(mappingPath = "/elasticsearch/like-mappings.json")
-public class LikeDocument {
+public class LikeDocument extends BaseDocument {
     public static final class Fields {
         public static final String MEMBER_ID = "memberId";
         public static final String POST_ID = "postId";

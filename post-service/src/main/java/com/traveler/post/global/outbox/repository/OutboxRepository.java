@@ -15,7 +15,7 @@ public interface OutboxRepository extends JpaRepository<Outbox, Long> {
 
     // 1. INIT 상태로 생성된지 5분이 지났거나, 2. FAILED 상태인 데이터를 조회
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "-2")})
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "-2")})
     @Query("SELECT o FROM Outbox o WHERE " + "(o.status = 'INIT' AND o.createdAt < :threshold) OR "
             + "(o.status = 'FAILED' AND o.retryCount < :maxRetry)")
     Slice<Outbox> findRetryableMessages(LocalDateTime threshold, int maxRetry, Pageable pageable);

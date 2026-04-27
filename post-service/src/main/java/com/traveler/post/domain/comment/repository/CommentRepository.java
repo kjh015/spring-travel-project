@@ -11,7 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    @Query("SELECT c.id FROM Comment c WHERE c.deletedAt <= :threshold AND c.isDeleted = true")
+    @Query(
+            value = "SELECT c.id FROM comment c WHERE c.deleted_at <= :threshold AND c.is_deleted = true",
+            nativeQuery = true)
     Slice<Long> findExpiredCommentIds(@Param("threshold") LocalDateTime threshold, Pageable pageable);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)

@@ -3,7 +3,9 @@ package com.traveler.search.domain.post.dto.message;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class PostSearchMessage {
 
     public record ImageInfo(String imageKey, int sortOrder) {}

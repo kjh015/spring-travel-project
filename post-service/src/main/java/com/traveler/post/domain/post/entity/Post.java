@@ -19,6 +19,9 @@ import org.hibernate.annotations.SQLRestriction;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("is_deleted = false")
+@Table(
+        name = "post",
+        indexes = {@Index(name = "idx_post_deleted_at_status", columnList = "isDeleted, deletedAt")})
 public class Post extends BaseEntity {
 
     @Column(nullable = false)

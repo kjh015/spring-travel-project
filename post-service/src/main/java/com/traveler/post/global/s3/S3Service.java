@@ -2,8 +2,6 @@ package com.traveler.post.global.s3;
 
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,9 +64,9 @@ public class S3Service {
 
     private String extractKey(String fileUrl) {
         String path = java.net.URI.create(fileUrl).getPath();
-        if (path.startsWith("/")) {
-            path = path.substring(1); // 앞의 '/' 제거
+        if (path == null || path.isEmpty()) {
+            throw new PostServiceException(ErrorCode.S3_INVALID_URL);
         }
-        return URLDecoder.decode(path, StandardCharsets.UTF_8);
+        return path.startsWith("/") ? path.substring(1) : path;
     }
 }

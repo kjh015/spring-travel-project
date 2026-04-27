@@ -10,15 +10,15 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 @RequiredArgsConstructor
 public class LikeEventListener {
-    private final LikeOutboxPublisher likeEventPublisher;
+    private final LikeOutboxPublisher likeOutboxPublisher;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleCreatedEvent(LikeEvent.Added event) {
-        likeEventPublisher.publishAdded(event.likeMsg());
+        likeOutboxPublisher.publishAdded(event.likeMsg());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleDeletedEvent(LikeEvent.Removed event) {
-        likeEventPublisher.publishRemoved(event.likeMsg());
+        likeOutboxPublisher.publishRemoved(event.likeMsg());
     }
 }

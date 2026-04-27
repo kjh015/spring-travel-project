@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.traveler.post.global.exception.PostServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.s3.model.S3Exception;
@@ -12,7 +13,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @Slf4j
 public class KafkaExceptionHandler {
     public void handle(Exception exception, ConsumerRecord<?, ?> record) {
-        Throwable cause = (exception.getCause() != null) ? exception.getCause() : exception;
+        Throwable cause = NestedExceptionUtils.getMostSpecificCause(exception);
 
         switch (cause) {
             case PostServiceException pse -> {

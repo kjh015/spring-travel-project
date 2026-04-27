@@ -6,6 +6,7 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
 import org.elasticsearch.client.RestClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
@@ -16,12 +17,15 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @EnableElasticsearchRepositories(basePackages = "com.traveler.search.domain.post.repository")
 public class ElasticsearchConfig extends ElasticsearchConfiguration {
 
+    @Value("${spring.elasticsearch.uris}")
+    private String esUris;
+
     @Override
     public ClientConfiguration clientConfiguration() {
         return ClientConfiguration.builder()
-                .connectedTo("localhost:9200") // 환경 변수 처리를 권장 (e.g., .connectedTo(esHost))
+                .connectedTo(esUris)
                 .withConnectTimeout(Duration.ofSeconds(5))
-                .withSocketTimeout(Duration.ofSeconds(3))
+                .withSocketTimeout(Duration.ofSeconds(10))
                 .build();
     }
 

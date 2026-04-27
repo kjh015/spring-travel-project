@@ -18,6 +18,9 @@ import org.hibernate.annotations.SQLRestriction;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("is_deleted = false")
+@Table(
+        name = "comment",
+        indexes = {@Index(name = "idx_comment_deleted_at_status", columnList = "isDeleted, deletedAt")})
 public class Comment extends BaseEntity {
 
     private Long memberId;

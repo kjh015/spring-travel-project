@@ -2,7 +2,6 @@ package com.traveler.common.api.swagger.annotation;
 
 import com.traveler.common.core.code.BaseErrorCode;
 import com.traveler.common.core.code.ErrorCode;
-import com.traveler.common.core.exception.GeneralException;
 import com.traveler.common.core.response.ErrorResponse;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.examples.Example;
@@ -11,8 +10,10 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.web.method.HandlerMethod;
@@ -25,9 +26,12 @@ public class ApiErrorCodeOperationCustomizer implements OperationCustomizer {
 
     @Override
     public Operation customize(Operation operation, HandlerMethod handlerMethod) {
-        // 1. ApiErrorCodeExamples 어노테이션을 찾고, 없으면 즉시 종료
-        ApiErrorCodeExamples annotation = handlerMethod.getMethodAnnotation(ApiErrorCodeExamples.class);
-        if (annotation == null) {
+        // 1. @SwaggerErrorResponse가 붙은 모든 어노테이션을 추출
+        List<Annotation> errorAnnotations = Stream.of(handlerMethod.getMethod().getAnnotations())
+                .filter(ann -> ann.annotationType().isAnnotationPresent(SwaggerErrorResponse.class))
+                .toList();
+
+        if (errorAnnotations.isEmpty()) {
             return operation;
         }
 
@@ -35,21 +39,21 @@ public class ApiErrorCodeOperationCustomizer implements OperationCustomizer {
         ApiResponses responses = Optional.ofNullable(operation.getResponses()).orElseGet(ApiResponses::new);
         operation.setResponses(responses);
 
-        // 3. 에러 코드 추출 및 예시 추가
-        List<BaseErrorCode> errorCodes = extractErrorCodes(annotation);
-
-        // 4. 에러 코드 주입
-        errorCodes.forEach(errorCode -> addErrorCodeExample(responses, errorCode));
+        // 3. 에러 코드 추출 및 주입
+        for (Annotation annotation : errorAnnotations) {
+            extractErrorCodes(annotation).forEach(errorCode -> addErrorCodeExample(responses, errorCode));
+        }
 
         return operation;
     }
 
     /** 리플렉션을 통해 어노테이션의 모든 필드에서 BaseErrorCode[]를 추출 */
-    private List<BaseErrorCode> extractErrorCodes(ApiErrorCodeExamples annotation) {
+    private List<BaseErrorCode> extractErrorCodes(Annotation annotation) {
         List<BaseErrorCode> errorCodes = new ArrayList<>();
+        Method[] methods = annotation.annotationType().getDeclaredMethods();
 
-        for (Method method : annotation.annotationType().getDeclaredMethods()) {
-            // 반환 타입이 BaseErrorCode 배열인지 체크 (안전성 강화)
+        for (Method method : methods) {
+            // 반환 타입이 BaseErrorCode 배열인지 체크
             if (BaseErrorCode[].class.isAssignableFrom(method.getReturnType())) {
                 try {
                     BaseErrorCode[] result = (BaseErrorCode[]) method.invoke(annotation);
@@ -57,8 +61,11 @@ public class ApiErrorCodeOperationCustomizer implements OperationCustomizer {
                         errorCodes.addAll(Arrays.asList(result));
                     }
                 } catch (Exception e) {
-                    log.error("Swagger 예시 생성 중 리플렉션 오류 발생: {}", method.getName(), e);
-                    throw new GeneralException(ErrorCode.SWAGGER_ANNOTATION_ERROR);
+                    log.error(
+                            "Swagger customizer 리플렉션 오류 [Annotation: {}, Method: {}]: {}",
+                            annotation.annotationType().getSimpleName(),
+                            method.getName(),
+                            e.getMessage());
                 }
             }
         }
@@ -108,7 +115,7 @@ public class ApiErrorCodeOperationCustomizer implements OperationCustomizer {
         // Swagger Example 객체 생성
         Example example = new Example();
         example.setSummary(errorName); // 드롭다운에 표시될 이름
-        example.setValue(body); // 위에서 만든 Map이 JSON으로 출력됨
+        example.setValue(body); // 위에서 만든 Map이 JSON으로 출력
 
         return ExampleHolder.builder()
                 .name(errorName)

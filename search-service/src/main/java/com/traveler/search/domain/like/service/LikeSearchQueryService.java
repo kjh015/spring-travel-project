@@ -8,17 +8,16 @@ import com.traveler.search.domain.like.mapper.LikeDocumentMapper;
 import com.traveler.search.domain.like.repository.LikeDocumentRepository;
 import com.traveler.search.domain.post.document.PostDocument;
 import com.traveler.search.domain.post.repository.PostDocumentRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service

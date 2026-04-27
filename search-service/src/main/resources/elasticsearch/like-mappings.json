@@ -5,11 +5,11 @@
     "postId": { "type": "long" },
     "createdAt": {
       "type": "date",
-      "format": "date_hour_minute_second"
+      "format": "date_hour_minute_second||strict_date_optional_time"
     },
     "updatedAt": {
       "type": "date",
-      "format": "date_hour_minute_second"
+      "format": "date_hour_minute_second||strict_date_optional_time"
     }
   }
 }

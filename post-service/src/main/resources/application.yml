@@ -41,11 +41,6 @@ spring:
     listener:
       concurrency: 3 # 리스너의 병렬 처리 수준 (보통 파티션 개수와 맞춤)
       ack-mode: manual_immediate # 메시지 수신 확인 모드 (manual_immediate: 로직 완료 후 즉시 커밋)
-    topics:
-      post-events: "post-service.post.events"
-      post-commands: "post-service.post.commands"
-      comment-events: "post-service.comment.events"
-      like-events: "post-service.like.events"
 
   cloud:
     aws:
@@ -71,4 +66,10 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
-# Eureka
+app:
+  kafka:
+    topics:
+      post-events: "post-service.post.events"
+      post-commands: "post-service.post.commands"
+      comment-events: "post-service.comment.events"
+      like-events: "post-service.like.events"

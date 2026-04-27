@@ -1,15 +1,10 @@
 package com.traveler.common.api.swagger.annotation;
 
-import com.traveler.common.core.code.ErrorCode;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+@Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ApiErrorCodeExamples {
-
-    // ErrorCode
-    ErrorCode[] value() default {};
-}
+public @interface SwaggerErrorResponse {}

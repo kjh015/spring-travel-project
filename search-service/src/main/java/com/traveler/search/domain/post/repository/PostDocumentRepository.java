@@ -1,11 +1,10 @@
 package com.traveler.search.domain.post.repository;
 
 import com.traveler.search.domain.post.document.PostDocument;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-
-import java.util.List;
 
 public interface PostDocumentRepository
         extends ElasticsearchRepository<PostDocument, Long>, PostDocumentRepositoryCustom {

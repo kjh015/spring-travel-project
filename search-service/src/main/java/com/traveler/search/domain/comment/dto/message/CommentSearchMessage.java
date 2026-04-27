@@ -2,7 +2,9 @@ package com.traveler.search.domain.comment.dto.message;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class CommentSearchMessage {
     public record CreatedDTO(Long commentId, Long postId, Long memberId, String content, Integer star) {}
 

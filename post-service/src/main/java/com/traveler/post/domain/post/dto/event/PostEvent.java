@@ -1,7 +1,9 @@
 package com.traveler.post.domain.post.dto.event;
 
 import com.traveler.post.domain.post.dto.message.PostMessage;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class PostEvent {
     public record Created(PostMessage.CreatedDTO postMsg) {}
 

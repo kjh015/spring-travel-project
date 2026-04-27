@@ -22,9 +22,19 @@ public class PostMessageConsumer {
 
     @SneakyThrows
     @KafkaListener(topics = "${spring.kafka.topics.post-commands}", groupId = "${spring.kafka.consumer.group-id}")
-    public void consumeS3Delete(@Payload String payload, @Header("event-type") String eventType, Acknowledgment ack) {
+    public void consumeS3Delete(
+            @Payload String payload,
+            @Header(value = "event-type", required = false) String eventType,
+            Acknowledgment ack) {
 
-        log.info("Kafka Consumer [post-commands]: Type=[{}], Payload=[{}]", eventType, payload);
+        log.debug("S3 Kafka Consumer [post-commands]: Type=[{}], Payload=[{}]", eventType, payload);
+
+        if (eventType == null) {
+            log.error("Missing 'event-type' header. Payload: {}", payload);
+            ack.acknowledge();
+            return;
+        }
+
         switch (eventType) {
             case "IMAGE_DELETED", "IMAGE_BATCH_DELETED" -> {
                 var dto = objectMapper.readValue(payload, PostMessage.ImagesDeleteDTO.class);
@@ -32,5 +42,6 @@ public class PostMessageConsumer {
             }
             default -> log.warn("지원하지 않는 커맨드 타입입니다: {}", eventType);
         }
+        ack.acknowledge();
     }
 }

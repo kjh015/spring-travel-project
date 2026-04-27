@@ -6,13 +6,14 @@ import com.traveler.search.global.exception.SearchServiceException;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
 public class KafkaExceptionHandler {
     public void handle(Exception exception, ConsumerRecord<?, ?> record) {
-        Throwable cause = (exception.getCause() != null) ? exception.getCause() : exception;
+        Throwable cause = NestedExceptionUtils.getMostSpecificCause(exception);
 
         switch (cause) {
             case SearchServiceException sse -> {
