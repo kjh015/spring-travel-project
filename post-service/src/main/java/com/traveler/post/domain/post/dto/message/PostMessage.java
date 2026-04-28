@@ -2,7 +2,7 @@ package com.traveler.post.domain.post.dto.message;
 
 import com.traveler.post.domain.post.enums.Category;
 import com.traveler.post.domain.post.enums.Region;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import lombok.experimental.UtilityClass;
 
@@ -20,6 +20,7 @@ public class PostMessage {
             Region region,
             String travelPlace,
             String address,
+            Instant createdAt,
             List<ImageInfo> images) {}
 
     public record UpdatedDTO(
@@ -30,9 +31,10 @@ public class PostMessage {
             Region region,
             String travelPlace,
             String address,
+            Instant updatedAt,
             List<ImageInfo> images) {}
 
-    public record DeletedDTO(Long postId, LocalDateTime deletedAt) {}
+    public record DeletedDTO(Long postId) {}
 
     public record ImagesDeleteDTO(Long postId, List<String> imageKeys) {
         public ImagesDeleteDTO {

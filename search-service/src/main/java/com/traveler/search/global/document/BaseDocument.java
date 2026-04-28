@@ -1,6 +1,6 @@
 package com.traveler.search.global.document;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,9 +18,9 @@ public abstract class BaseDocument {
     @Id
     private Long id;
 
-    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
-    private LocalDateTime createdAt;
+    @Field(type = FieldType.Date, format = DateFormat.strict_date_optional_time_nanos)
+    private Instant createdAt;
 
-    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
-    private LocalDateTime updatedAt;
+    @Field(type = FieldType.Date, format = DateFormat.strict_date_optional_time_nanos)
+    private Instant updatedAt;
 }

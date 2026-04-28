@@ -18,7 +18,10 @@ import org.mapstruct.ReportingPolicy;
 public interface CommentMapper {
 
     @Mapping(source = "dto.content", target = "content")
+    @Mapping(target = "star", source = "dto.star") // 별점 매핑 누락 방지
+    @Mapping(target = "post", source = "post")
     @Mapping(target = "memberId", source = "memberId")
+    @Mapping(target = "id", ignore = true)
     Comment toCreateEntity(CommentRequest.CreateDTO dto, Post post, Long memberId);
 
     @Mapping(source = "id", target = "commentId")
@@ -31,7 +34,7 @@ public interface CommentMapper {
     CommentResponse.DeleteDTO toDeleteDTO(Comment comment);
 
     // Message
-    @Mapping(source = "id", target = "commentId")
+    @Mapping(source = "comment.id", target = "commentId")
     CommentMessage.CreatedDTO toCreatedMsgDTO(Comment comment, Long postId);
 
     @Mapping(source = "id", target = "commentId")

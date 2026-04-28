@@ -12,7 +12,7 @@ import org.springframework.data.elasticsearch.annotations.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuperBuilder
-@Document(indexName = "${elasticsearch.indices.like}")
+@Document(indexName = "#{@environment.getProperty('app.elasticsearch.indices.like')}")
 @Setting(settingPath = "/elasticsearch/like-settings.json")
 @Mapping(mappingPath = "/elasticsearch/like-mappings.json")
 public class LikeDocument extends BaseDocument {

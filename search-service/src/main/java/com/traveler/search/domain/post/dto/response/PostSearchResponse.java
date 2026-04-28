@@ -1,7 +1,7 @@
 package com.traveler.search.domain.post.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import lombok.experimental.UtilityClass;
 
@@ -25,7 +25,8 @@ public class PostSearchResponse {
             @Schema(description = "조회수", example = "1250") Long viewCount,
             @Schema(description = "좋아요 수", example = "45") Long likeCount,
             @Schema(description = "댓글 수", example = "12") Long commentCount,
-            @Schema(description = "최종 수정 일시", example = "2026-04-27T19:39:46") LocalDateTime updatedAt) {}
+            @Schema(description = "인기 점수", example = "10.1") Long popularityScore,
+            @Schema(description = "최종 수정 일시", example = "2026-04-27T19:39:46") Instant updatedAt) {}
 
     @Schema(description = "게시글 상세 정보 (검색 엔진 기준)")
     public record DetailDTO(
@@ -41,7 +42,7 @@ public class PostSearchResponse {
             @Schema(description = "조회수", example = "1250") Long viewCount,
             @Schema(description = "좋아요 수", example = "45") Long likeCount,
             @Schema(description = "댓글 수", example = "12") Long commentCount,
-            @Schema(description = "최종 수정 일시", example = "2026-04-27T19:39:46") LocalDateTime updatedAt,
+            @Schema(description = "최종 수정 일시", example = "2026-04-27T19:39:46") Instant updatedAt,
             @Schema(description = "이미지 리스트") List<ImageInfo> images) {}
 
     @Schema(description = "검색어 자동완성 응답")
@@ -59,5 +60,6 @@ public class PostSearchResponse {
             @Schema(description = "조회수", example = "500") Long viewCount,
             @Schema(description = "좋아요 수", example = "20") Long likeCount,
             @Schema(description = "댓글 수", example = "5") Long commentCount,
-            @Schema(description = "최종 수정 일시", example = "2026-04-27T19:39:46") LocalDateTime updatedAt) {}
+            @Schema(description = "인기 점수", example = "10.1") Long popularityScore,
+            @Schema(description = "최종 수정 일시", example = "2026-04-27T19:39:46") Instant updatedAt) {}
 }

@@ -8,7 +8,8 @@ import com.traveler.post.global.outbox.entity.Outbox;
 import com.traveler.post.global.outbox.event.OutboxEvent;
 import com.traveler.post.global.outbox.mapper.OutboxMapper;
 import com.traveler.post.global.outbox.repository.OutboxRepository;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -47,7 +48,7 @@ public class OutboxService {
     }
 
     public void retry() {
-        LocalDateTime threshold = LocalDateTime.now().minusMinutes(5);
+        Instant threshold = Instant.now().minus(5, ChronoUnit.MINUTES);
         Pageable pageable = PageRequest.of(0, BATCH_SIZE_RETRY);
 
         while (true) {
@@ -72,7 +73,7 @@ public class OutboxService {
     }
 
     public void cleanupOldSentMessages(int daysToKeep) {
-        LocalDateTime threshold = LocalDateTime.now().minusDays(daysToKeep);
+        Instant threshold = Instant.now().minus(daysToKeep, ChronoUnit.DAYS);
         int totalDeleted = 0;
 
         while (true) {

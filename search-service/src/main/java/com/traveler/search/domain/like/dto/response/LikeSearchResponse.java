@@ -1,7 +1,7 @@
 package com.traveler.search.domain.like.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -18,5 +18,5 @@ public class LikeSearchResponse {
             @Schema(description = "조회수", example = "300") Long viewCount,
             @Schema(description = "좋아요 수", example = "150") Long likeCount,
             @Schema(description = "댓글 수", example = "25") Long commentCount,
-            @Schema(description = "게시글 최종 수정 일시", example = "2026-04-27T19:41:00") LocalDateTime updatedAt) {}
+            @Schema(description = "게시글 최종 수정 일시", example = "2026-04-27T19:41:00") Instant updatedAt) {}
 }

@@ -1,5 +1,6 @@
 package com.traveler.search.global.swagger;
 
+import com.traveler.common.api.swagger.annotation.SwaggerErrorResponse;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.search.global.code.SearchServiceErrorCode;
 import java.lang.annotation.ElementType;
@@ -9,6 +10,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
+@SwaggerErrorResponse
 public @interface ApiErrorCodeExamples {
 
     // ErrorCode

@@ -10,7 +10,7 @@ import org.springframework.data.elasticsearch.annotations.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuperBuilder
-@Document(indexName = "${elasticsearch.indices.post}")
+@Document(indexName = "#{@environment.getProperty('app.elasticsearch.indices.post')}")
 @Setting(settingPath = "/elasticsearch/post-settings.json")
 @Mapping(mappingPath = "/elasticsearch/post-mappings.json")
 public class PostDocument extends BaseDocument {
@@ -75,8 +75,7 @@ public class PostDocument extends BaseDocument {
     private Long commentCount = 0L;
 
     @Field(type = FieldType.Rank_Feature)
-    @Builder.Default
-    private Double popularityScore = 0.0;
+    private Long popularityScore;
 
     @Field(type = FieldType.Nested)
     private List<PostImage> images;

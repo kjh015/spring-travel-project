@@ -2,7 +2,8 @@ package com.traveler.post.domain.comment.scheduler;
 
 import com.traveler.post.domain.comment.repository.CommentRepository;
 import com.traveler.post.domain.comment.service.CommentService;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +22,7 @@ public class CommentScheduler {
 
     @Scheduled(cron = "0 30 3 * * *")
     public void cleanupExpiredComments() {
-        LocalDateTime threshold = LocalDateTime.now().minusDays(30);
+        Instant threshold = Instant.now().minus(30, ChronoUnit.DAYS);
         log.info("[CommentCleanup] 만료된 댓글 삭제 배치 시작: 기준일자 {}", threshold);
 
         int totalDeleted = 0;

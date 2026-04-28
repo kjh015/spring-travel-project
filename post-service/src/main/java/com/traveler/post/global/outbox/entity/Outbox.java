@@ -6,7 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,11 +37,11 @@ public class Outbox extends BaseEntity {
     @Builder.Default
     private int retryCount = 0;
 
-    private LocalDateTime sentAt;
+    private Instant sentAt;
 
     public void sent() {
         this.status = OutboxStatus.SENT;
-        this.sentAt = LocalDateTime.now();
+        this.sentAt = Instant.now();
     }
 
     public void failed() {

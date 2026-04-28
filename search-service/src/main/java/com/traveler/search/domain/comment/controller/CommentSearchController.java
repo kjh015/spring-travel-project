@@ -10,6 +10,7 @@ import com.traveler.search.domain.comment.service.CommentSearchQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -31,7 +32,8 @@ public class CommentSearchController {
     @GetMapping
     public ApiResponse<PageResponse<CommentSearchResponse.ListDTO>> getComments(
             @RequestParam Long postId,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+                    Pageable pageable) {
         return ApiResponse.onSuccess(SuccessCode.OK, commentSearchQueryService.getComments(postId, pageable));
     }
 
@@ -39,7 +41,8 @@ public class CommentSearchController {
     @GetMapping("/me")
     public ApiResponse<PageResponse<CommentSearchResponse.MyDTO>> getMyComments(
             @LoginUser UserContext user,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+                    Pageable pageable) {
         return ApiResponse.onSuccess(SuccessCode.OK, commentSearchQueryService.getMyComments(user.id(), pageable));
     }
 }

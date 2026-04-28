@@ -46,6 +46,10 @@ public interface PostDocumentMapper {
 
     // 가중치 계산 로직
     private double calculatePopularityScore(PostSearchMessage.StatUpdatedDTO msg) {
-        return (msg.likeCount() * 5.0) + (msg.commentCount() * 3.0) + (msg.viewCount() * 0.1) + (msg.starAvg() * 10.0);
+        double score =
+                (msg.likeCount() * 5.0) + (msg.commentCount() * 3.0) + (msg.viewCount() * 0.1) + (msg.starAvg() * 10.0);
+
+        // rank_feature는 0보다 커야 하므로 최소값 보정
+        return Math.max(score, 0.0001);
     }
 }

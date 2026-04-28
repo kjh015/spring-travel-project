@@ -20,12 +20,12 @@ public class CommentSearchMessageConsumer {
     private final ObjectMapper objectMapper;
 
     @SneakyThrows
-    @KafkaListener(topics = "${spring.kafka.topics.comment-events}", groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = "${app.kafka.topics.comment-events}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(
             @Payload String payload,
             @Header(value = "event-type", required = false) String eventType,
             Acknowledgment ack) {
-        log.debug("CommentSearch Kafka Consumer: Type=[{}], Payload=[{}]", eventType, payload);
+        log.info("CommentSearch Kafka Consumer: Type=[{}], Payload=[{}]", eventType, payload);
 
         if (eventType == null) {
             log.error("Missing 'event-type' header. Payload: {}", payload);

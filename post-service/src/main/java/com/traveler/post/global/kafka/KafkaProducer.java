@@ -24,7 +24,7 @@ public class KafkaProducer {
 
         return kafkaTemplate.send(record).whenComplete((result, ex) -> {
             if (ex == null) {
-                log.debug(
+                log.info(
                         "Kafka 메시지 전송 성공: topic=[{}], offset=[{}]",
                         topic,
                         result.getRecordMetadata().offset());

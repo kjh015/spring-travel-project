@@ -14,7 +14,7 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = "com.traveler.search.domain.post.repository")
+@EnableElasticsearchRepositories(basePackages = "com.traveler.search.domain")
 public class ElasticsearchConfig extends ElasticsearchConfiguration {
 
     @Value("${spring.elasticsearch.uris}")

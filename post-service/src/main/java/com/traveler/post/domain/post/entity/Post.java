@@ -4,7 +4,7 @@ import com.traveler.common.db.entity.BaseEntity;
 import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
@@ -62,7 +62,7 @@ public class Post extends BaseEntity {
     @Builder.Default
     private boolean isDeleted = false;
 
-    private LocalDateTime deletedAt;
+    private Instant deletedAt;
 
     public void addPostImage(String imageKey, int sortOrder) {
         PostImage postImage = PostImage.builder()
@@ -84,7 +84,7 @@ public class Post extends BaseEntity {
             return;
         }
         this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
+        this.deletedAt = Instant.now();
     }
 
     public List<String> setImages(List<String> newUrls) {

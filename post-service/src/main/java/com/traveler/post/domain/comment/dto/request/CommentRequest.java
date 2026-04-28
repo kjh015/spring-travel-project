@@ -6,6 +6,7 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class CommentRequest {
+    @Schema(name = "CommentCreateRequest")
     public record CreateDTO(
             @NotNull(message = "게시글 ID는 필수입니다.") @Schema(description = "대상 게시글 ID", example = "101") Long postId,
             @NotBlank(message = "댓글 내용은 필수이며 공백일 수 없습니다.")
@@ -18,6 +19,7 @@ public class CommentRequest {
                     @Schema(description = "별점 (1~5)", example = "5")
                     Integer star) {}
 
+    @Schema(name = "CommentUpdateRequest")
     public record UpdateDTO(
             @NotBlank(message = "수정할 댓글 내용은 필수입니다.")
                     @Size(max = 500, message = "댓글은 500자 이내로 작성해야 합니다.")

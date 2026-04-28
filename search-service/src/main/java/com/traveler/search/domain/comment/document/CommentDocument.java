@@ -12,7 +12,7 @@ import org.springframework.data.elasticsearch.annotations.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuperBuilder
-@Document(indexName = "${elasticsearch.indices.comment}")
+@Document(indexName = "#{@environment.getProperty('app.elasticsearch.indices.comment')}")
 @Setting(settingPath = "/elasticsearch/comment-settings.json")
 @Mapping(mappingPath = "/elasticsearch/comment-mappings.json")
 public class CommentDocument extends BaseDocument {

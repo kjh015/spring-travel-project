@@ -1,7 +1,7 @@
 package com.traveler.search.domain.post.dto.message;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import lombok.experimental.UtilityClass;
 
@@ -19,6 +19,7 @@ public class PostSearchMessage {
             String region,
             String travelPlace,
             String address,
+            Instant createdAt,
             List<ImageInfo> images) {}
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY) // null이나 ""은 JSON 직렬화에서 제외
@@ -30,9 +31,10 @@ public class PostSearchMessage {
             String region,
             String travelPlace,
             String address,
+            Instant updatedAt,
             List<ImageInfo> images) {}
 
-    public record DeletedDTO(Long postId, LocalDateTime deletedAt) {}
+    public record DeletedDTO(Long postId) {}
 
     public record StatUpdatedDTO(Long postId, Double starAvg, Long commentCount, Long likeCount, Long viewCount) {}
 

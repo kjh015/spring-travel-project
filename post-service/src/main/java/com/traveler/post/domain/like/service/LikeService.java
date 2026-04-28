@@ -26,13 +26,13 @@ public class LikeService {
     private final ApplicationEventPublisher eventPublisher;
 
     public void addLike(LikeRequest.AddDTO dto, Long memberId) {
-        if (likeRepository.existsByPostIdAndMemberId(dto.postId(), memberId)) {
-            return;
-        }
-
         Post post = postRepository
                 .findByIdWithLock(dto.postId())
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
+
+        if (likeRepository.existsByPostIdAndMemberId(dto.postId(), memberId)) {
+            return;
+        }
 
         try {
             Like savedLike = likeRepository.save(likeMapper.toAddEntity(post, memberId));
@@ -46,11 +46,11 @@ public class LikeService {
     }
 
     public void removeLike(Long postId, Long memberId) {
-        likeRepository.findByPostIdAndMemberId(postId, memberId).ifPresent(like -> {
-            Post post = postRepository
-                    .findByIdWithLock(postId)
-                    .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
+        Post post = postRepository
+                .findByIdWithLock(postId)
+                .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.POST_NOT_FOUND));
 
+        likeRepository.findByPostIdAndMemberId(postId, memberId).ifPresent(like -> {
             likeRepository.delete(like);
             post.removeLike();
 

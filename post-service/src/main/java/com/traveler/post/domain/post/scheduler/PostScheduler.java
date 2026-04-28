@@ -2,7 +2,8 @@ package com.traveler.post.domain.post.scheduler;
 
 import com.traveler.post.domain.post.repository.PostRepository;
 import com.traveler.post.domain.post.service.PostService;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +23,7 @@ public class PostScheduler {
     // 매일 새벽 3시에 실행 (초 분 시 일 월 요일)
     @Scheduled(cron = "0 0 3 * * *")
     public void cleanupExpiredPosts() {
-        LocalDateTime threshold = LocalDateTime.now().minusDays(30);
+        Instant threshold = Instant.now().minus(30, ChronoUnit.DAYS);
         log.info("[PostCleanup] 만료된 게시글 삭제 배치 시작 (기준일시: {})", threshold);
 
         int totalDeleted = 0;

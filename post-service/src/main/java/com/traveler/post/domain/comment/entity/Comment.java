@@ -5,7 +5,7 @@ import com.traveler.post.domain.post.entity.Post;
 import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public class Comment extends BaseEntity {
     @Builder.Default
     private boolean isDeleted = false;
 
-    private LocalDateTime deletedAt;
+    private Instant deletedAt;
 
     public void update(String content, Integer star) {
         validateNotDeleted();
@@ -50,7 +50,7 @@ public class Comment extends BaseEntity {
             return;
         }
         this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
+        this.deletedAt = Instant.now();
     }
 
     private void validateNotDeleted() {

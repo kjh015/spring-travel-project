@@ -21,13 +21,13 @@ public class PostMessageConsumer {
     private final ObjectMapper objectMapper;
 
     @SneakyThrows
-    @KafkaListener(topics = "${spring.kafka.topics.post-commands}", groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = "${app.kafka.topics.post-commands}", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeS3Delete(
             @Payload String payload,
             @Header(value = "event-type", required = false) String eventType,
             Acknowledgment ack) {
 
-        log.debug("S3 Kafka Consumer [post-commands]: Type=[{}], Payload=[{}]", eventType, payload);
+        log.info("S3 Kafka Consumer [post-commands]: Type=[{}], Payload=[{}]", eventType, payload);
 
         if (eventType == null) {
             log.error("Missing 'event-type' header. Payload: {}", payload);

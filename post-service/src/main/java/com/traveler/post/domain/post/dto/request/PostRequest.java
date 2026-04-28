@@ -11,6 +11,7 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PostRequest {
+    @Schema(name = "PostCreateRequest")
     public record CreateDTO(
             @NotBlank(message = "제목은 필수입니다.")
                     @Size(max = 100, message = "제목은 100자를 초과할 수 없습니다.")
@@ -23,11 +24,12 @@ public class PostRequest {
             @NotBlank(message = "여행 장소는 필수입니다.") @Schema(description = "여행 장소 명칭", example = "황리단길") String travelPlace,
             @NotBlank(message = "주소는 필수입니다.") @Schema(description = "상세 주소", example = "경상북도 경주시 포석로") String address,
             @NotNull(message = "카테고리는 필수입니다.") @Schema(description = "카테고리", example = "FOOD") Category category,
-            @NotNull(message = "지역은 필수입니다.") @Schema(description = "지역", example = "GYEONGJU") Region region,
+            @NotNull(message = "지역은 필수입니다.") @Schema(description = "지역", example = "GYEONGGI") Region region,
             @Size(max = 10, message = "이미지는 최대 10개까지 업로드 가능합니다.")
-                    @Schema(description = "S3 이미지 키 리스트", example = "images/2026/04/27/a1b2c3d4-e5f6-g7h8.png")
+                    @Schema(description = "S3 이미지 키 리스트", example = "[images/2026/04/27/a1b2c3d4-e5f6-g7h8.png]")
                     List<String> images) {}
 
+    @Schema(name = "PostUpdateRequest")
     public record UpdateDTO(
             @NotBlank(message = "제목은 필수입니다.")
                     @Size(max = 100, message = "제목은 100자를 초과할 수 없습니다.")
@@ -40,8 +42,8 @@ public class PostRequest {
             @NotBlank(message = "여행 장소는 필수입니다.") @Schema(description = "여행 장소 명칭", example = "황리단길") String travelPlace,
             @NotBlank(message = "주소는 필수입니다.") @Schema(description = "상세 주소", example = "경상북도 경주시 포석로") String address,
             @NotNull(message = "카테고리는 필수입니다.") @Schema(description = "카테고리", example = "FOOD") Category category,
-            @NotNull(message = "지역은 필수입니다.") @Schema(description = "지역", example = "GYEONGJU") Region region,
+            @NotNull(message = "지역은 필수입니다.") @Schema(description = "지역", example = "GYEONGGI") Region region,
             @Size(max = 10, message = "이미지는 최대 10개까지 업로드 가능합니다.")
-                    @Schema(description = "S3 이미지 키 리스트", example = "images/2026/04/27/a1b2c3d4-e5f6-g7h8.png")
+                    @Schema(description = "S3 이미지 키 리스트", example = "[images/2026/04/27/a1b2c3d4-e5f6-g7h8.png]")
                     List<String> images) {}
 }

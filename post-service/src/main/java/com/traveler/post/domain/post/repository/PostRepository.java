@@ -3,7 +3,7 @@ package com.traveler.post.domain.post.repository;
 import com.traveler.post.domain.post.entity.Post;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +23,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(
             value = "SELECT p.id FROM Post p WHERE p.deleted_at <= :threshold AND p.is_deleted = true",
             nativeQuery = true)
-    Slice<Long> findExpiredPostIds(@Param("threshold") LocalDateTime threshold, Pageable pageable);
+    Slice<Long> findExpiredPostIds(@Param("threshold") Instant threshold, Pageable pageable);
 
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM Post p WHERE p.id IN :postIds")

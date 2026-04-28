@@ -7,11 +7,11 @@ import com.traveler.search.domain.post.document.PostDocument;
 import com.traveler.search.domain.post.dto.message.PostSearchMessage;
 import com.traveler.search.domain.post.dto.request.PostSearchRequest;
 import com.traveler.search.domain.post.enums.PostSortType;
-import jakarta.annotation.PostConstruct;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
@@ -28,12 +28,9 @@ import org.springframework.util.StringUtils;
 public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom {
     private final ElasticsearchOperations operations;
     private final ElasticsearchClient client;
-    private IndexCoordinates postIndex;
 
-    @PostConstruct
-    public void init() {
-        this.postIndex = operations.getIndexCoordinatesFor(PostDocument.class);
-    }
+    @Value("${app.elasticsearch.indices.post}")
+    private String postIndexName;
 
     private static final int BOOST_TITLE = 5;
     private static final int BOOST_TITLE_AUTOCOMPLETE = 3;
@@ -54,7 +51,8 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
             return b;
         }));
 
-        SearchHits<PostDocument> searchHits = operations.search(queryBuilder.build(), PostDocument.class);
+        SearchHits<PostDocument> searchHits =
+                operations.search(queryBuilder.build(), PostDocument.class, IndexCoordinates.of(postIndexName));
         return SearchHitSupport.searchPageFor(searchHits, pageable).map(SearchHit::getContent);
     }
 
@@ -77,7 +75,8 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
         queryBuilder.withSourceFilter(new FetchSourceFilter(new String[] {"title"}, null));
         queryBuilder.withMaxResults(10);
 
-        SearchHits<PostDocument> searchHits = operations.search(queryBuilder.build(), PostDocument.class);
+        SearchHits<PostDocument> searchHits =
+                operations.search(queryBuilder.build(), PostDocument.class, IndexCoordinates.of(postIndexName));
 
         return searchHits.stream().map(hit -> hit.getContent().getTitle()).toList();
     }
@@ -86,7 +85,7 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
     @SneakyThrows
     public void updatePartial(PostSearchMessage.UpdatedDTO dto) {
         client.update(
-                u -> u.index(postIndex.getIndexName())
+                u -> u.index(postIndexName)
                         .id(String.valueOf(dto.postId()))
                         .doc(dto)
                         .retryOnConflict(3),
@@ -97,7 +96,7 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
     @Override
     public void updateStatistics(PostSearchMessage.StatUpdateDoc doc) {
         client.update(
-                u -> u.index(postIndex.getIndexName())
+                u -> u.index(postIndexName)
                         .id(String.valueOf(doc.postId()))
                         .doc(doc)
                         .retryOnConflict(3),
@@ -115,6 +114,9 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
                             PostDocument.Fields.ADDRESS)
                     .query(keyword)
                     .type(TextQueryType.MostFields)));
+        } else {
+            // 키워드가 없을 경우 match_all 추가
+            b.must(m -> m.matchAll(ma -> ma));
         }
     }
 

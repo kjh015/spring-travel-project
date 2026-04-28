@@ -3,7 +3,7 @@ package com.traveler.post.global.outbox.repository;
 import com.traveler.post.global.outbox.entity.Outbox;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -18,10 +18,10 @@ public interface OutboxRepository extends JpaRepository<Outbox, Long> {
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "-2")})
     @Query("SELECT o FROM Outbox o WHERE " + "(o.status = 'INIT' AND o.createdAt < :threshold) OR "
             + "(o.status = 'FAILED' AND o.retryCount < :maxRetry)")
-    Slice<Outbox> findRetryableMessages(LocalDateTime threshold, int maxRetry, Pageable pageable);
+    Slice<Outbox> findRetryableMessages(Instant threshold, int maxRetry, Pageable pageable);
 
     @Query("SELECT o.id FROM Outbox o WHERE o.status = 'SENT' AND o.sentAt < :threshold")
-    Slice<Long> findSentOutboxIds(LocalDateTime threshold, Pageable pageable);
+    Slice<Long> findSentOutboxIds(Instant threshold, Pageable pageable);
 
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM Outbox o WHERE o.id IN :ids")
