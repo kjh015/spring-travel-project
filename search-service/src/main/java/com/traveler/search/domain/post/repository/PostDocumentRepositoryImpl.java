@@ -1,19 +1,21 @@
 package com.traveler.search.domain.post.repository;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import com.traveler.search.domain.post.document.PostDocument;
 import com.traveler.search.domain.post.dto.message.PostSearchMessage;
 import com.traveler.search.domain.post.dto.request.PostSearchRequest;
 import com.traveler.search.domain.post.enums.PostSortType;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregations;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -22,6 +24,9 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -101,6 +106,36 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
                         .doc(doc)
                         .retryOnConflict(3),
                 PostSearchMessage.StatUpdateDoc.class);
+    }
+
+    @SneakyThrows
+    @Override
+    public List<RankingResult> aggregateTopPopular(String field, int topN) {
+        // 1. NativeQueryBuilder를 사용하여 집계 쿼리 생성
+        NativeQuery query = NativeQuery.builder()
+                .withMaxResults(0) // 실제 문서는 필요 없음 (size: 0)
+                .withAggregation("top_tags", Aggregation.of(a -> a.terms(
+                                t -> t.field(field).size(topN))
+                        .aggregations("total_score", sub -> sub.sum(sum -> sum.field("popularityScore")))))
+                .build();
+
+        // 2. 실행
+        SearchHits<PostDocument> searchHits = operations.search(query, PostDocument.class);
+
+        // 3. 결과 파싱
+        ElasticsearchAggregations aggregations = (ElasticsearchAggregations) searchHits.getAggregations();
+        if (aggregations == null) return List.of();
+
+        return Objects.requireNonNull(aggregations.get("top_tags"))
+                .aggregation()
+                .getAggregate()
+                .sterms() // String Terms 집계
+                .buckets()
+                .array()
+                .stream()
+                .map(bucket -> RankingResult.of(bucket.key().stringValue(), (long)
+                        bucket.aggregations().get("total_score").sum().value()))
+                .toList();
     }
 
     private void buildMustClause(BoolQuery.Builder b, String keyword) {

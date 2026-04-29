@@ -29,6 +29,11 @@ spring:
       concurrency: 3 # 리스너의 병렬 처리 수준 (보통 파티션 개수와 맞춤)
       ack-mode: manual_immediate # 메시지 수신 확인 모드 (manual_immediate: 로직 완료 후 즉시 커밋)
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost} # BFF가 사용하는 Redis 호스트와 동일하게 설정
+      port: 6379
+
 swagger:
   info:
     paths-to-match:
