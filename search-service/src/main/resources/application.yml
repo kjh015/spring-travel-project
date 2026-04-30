@@ -31,17 +31,17 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_HOST:localhost} # BFF가 사용하는 Redis 호스트와 동일하게 설정
+      host: ${REDIS_HOST:localhost}
       port: 6379
 
 swagger:
   info:
     paths-to-match:
-      - "/api/v1/search/**"
+      - "/v1/search/**"
 
 springdoc:
   api-docs:
-    path: /api/v1/search/v3/api-docs
+    path: /v1/search/v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
 

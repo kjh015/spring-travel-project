@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Comment Search", description = "댓글 조회 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/search/comments")
+@RequestMapping("/v1/search/comments")
 @Validated
 public class CommentSearchController {
     private final CommentSearchQueryService commentSearchQueryService;

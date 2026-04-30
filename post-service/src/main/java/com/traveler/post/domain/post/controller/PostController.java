@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Post", description = "게시글 관련 API (작성, 수정, 삭제)")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/posts")
+@RequestMapping("/v1/posts")
 public class PostController {
     private final PostService postService;
 

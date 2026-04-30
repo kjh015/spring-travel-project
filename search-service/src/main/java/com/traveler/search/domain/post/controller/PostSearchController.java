@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Post Search", description = "게시글 조회 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/search/posts")
+@RequestMapping("/v1/search/posts")
 public class PostSearchController {
     private final PostSearchQueryService postSearchQueryService;
 

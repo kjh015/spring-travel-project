@@ -56,13 +56,13 @@ spring:
 swagger:
   info:
     paths-to-match:
-      - "/api/v1/posts/**"
-      - "/api/v1/comments/**"
-      - "/api/v1/likes/**"
+      - "/v1/posts/**"
+      - "/v1/comments/**"
+      - "/v1/likes/**"
 
 springdoc:
   api-docs:
-    path: /api/v1/posts/v3/api-docs
+    path: /v1/posts/v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
 

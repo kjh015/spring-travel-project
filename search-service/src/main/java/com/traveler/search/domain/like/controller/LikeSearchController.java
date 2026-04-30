@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Like Search", description = "좋아요 조회 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/search/likes")
+@RequestMapping("/v1/search/likes")
 public class LikeSearchController {
     private final LikeSearchQueryService likeSearchQueryService;
 
