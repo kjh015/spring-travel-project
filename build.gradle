@@ -62,7 +62,9 @@ tasks.register('installGitHooks', Copy) {
         }
     }
 }
-
+tasks.named('clean') {
+    dependsOn 'installGitHooks'
+}
 tasks.named('build') {
     dependsOn 'installGitHooks'
 }
