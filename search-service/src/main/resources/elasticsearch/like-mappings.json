@@ -1,0 +1,15 @@
+{
+  "properties": {
+    "id": { "type": "long" },
+    "memberId": { "type": "long" },
+    "postId": { "type": "long" },
+    "createdAt": {
+      "type": "date",
+      "format": "strict_date_optional_time_nanos||strict_date_optional_time||epoch_millis"
+    },
+    "updatedAt": {
+      "type": "date",
+      "format": "strict_date_optional_time_nanos||strict_date_optional_time||epoch_millis"
+    }
+  }
+}

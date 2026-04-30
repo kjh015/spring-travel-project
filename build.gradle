@@ -5,8 +5,14 @@ plugins {
     id 'com.diffplug.spotless' version '6.25.0' apply false
 }
 
-group = 'module'
-version = '0.0.1-SNAPSHOT'
+allprojects {
+    group = 'module'
+    version = '0.0.1-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+}
 
 java {
 	toolchain {
@@ -48,29 +54,17 @@ tasks.register('installGitHooks', Copy) {
     from new File(rootProject.rootDir, 'scripts/pre-commit')
     // .git/hooks 폴더로 복사
     into { new File(rootProject.rootDir, '.git/hooks') }
-    // 실행 권한을 부여 (Linux/Mac 필수)
-    filePermissions {
-        user {
-            read = true
-            write = true
-            execute = true
-        }
-        group {
-            read = true
-            execute = true
-        }
-        other {
-            read = true
-            execute = true
+    // 복사 시점에 실행 권한 강제 부여 (Unix-like OS)
+    doLast {
+        def hookFile = new File(rootProject.rootDir, '.git/hooks/pre-commit')
+        if (hookFile.exists()) {
+            hookFile.setExecutable(true)
         }
     }
 }
-
-// 빌드 프로세스가 시작될 때 Hook이 항상 설치되도록 연결
-tasks.named('processResources') {
+tasks.named('clean') {
     dependsOn 'installGitHooks'
 }
-
-tasks.named('classes') {
+tasks.named('build') {
     dependsOn 'installGitHooks'
 }

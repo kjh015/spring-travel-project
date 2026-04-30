@@ -1,0 +1,18 @@
+{
+  "index": {
+    "analysis": {
+      "analyzer": {
+        "korean_nori": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "nori_tokenizer": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "discard"
+        }
+      }
+    }
+  }
+}

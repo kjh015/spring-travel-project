@@ -33,6 +33,9 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	implementation 'io.jsonwebtoken:jjwt-gson:0.12.6'
 //	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+    // Swagger (Webflux)
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.16'
 }
 
 dependencyManagement {

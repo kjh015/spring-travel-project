@@ -1,0 +1,72 @@
+package com.traveler.post.global.s3;
+
+import com.traveler.common.core.code.ErrorCode;
+import com.traveler.post.global.exception.PostServiceException;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.S3Error;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class S3Service {
+
+    private final software.amazon.awssdk.services.s3.S3Client s3Client;
+
+    @Value("${spring.cloud.aws.s3.bucket}")
+    private String bucket;
+
+    private static final int S3_DELETE_BATCH_SIZE = 1000; // S3 API 제약
+
+    public void deleteFilesByKeys(List<String> keys) {
+        if (keys == null || keys.isEmpty()) return;
+
+        // 1000개 단위로 파티셔닝하여 실행
+        for (int i = 0; i < keys.size(); i += S3_DELETE_BATCH_SIZE) {
+            List<String> subKeys = keys.subList(i, Math.min(i + S3_DELETE_BATCH_SIZE, keys.size()));
+            executeDelete(subKeys);
+        }
+    }
+
+    private void executeDelete(List<String> keys) {
+        List<ObjectIdentifier> identifiers = keys.stream()
+                .map(key -> ObjectIdentifier.builder().key(key).build())
+                .toList();
+
+        DeleteObjectsRequest multiObjectDeleteRequest = DeleteObjectsRequest.builder()
+                .bucket(bucket)
+                .delete(d -> d.objects(identifiers))
+                .build();
+
+        DeleteObjectsResponse response = s3Client.deleteObjects(multiObjectDeleteRequest);
+
+        // 부분 실패 확인
+        if (response.hasErrors()) {
+            List<S3Error> errors = response.errors();
+            log.error("Partial failure in S3 delete. Errors: {}", errors);
+            throw new PostServiceException(ErrorCode.S3_DELETE_ERROR);
+        }
+
+        log.info("Successfully deleted {} keys from S3", keys.size());
+    }
+
+    public void deleteFilesByUrls(List<String> fileUrls) {
+        if (fileUrls == null || fileUrls.isEmpty()) return;
+        List<String> keys = fileUrls.stream().map(this::extractKey).toList();
+        deleteFilesByKeys(keys);
+    }
+
+    private String extractKey(String fileUrl) {
+        String path = java.net.URI.create(fileUrl).getPath();
+        if (path == null || path.isEmpty()) {
+            throw new PostServiceException(ErrorCode.S3_INVALID_URL);
+        }
+        return path.startsWith("/") ? path.substring(1) : path;
+    }
+}
