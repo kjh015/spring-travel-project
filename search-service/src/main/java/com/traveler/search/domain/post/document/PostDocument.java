@@ -20,6 +20,7 @@ public class PostDocument extends BaseDocument {
         public static final String TITLE = "title";
         public static final String TITLE_AUTOCOMPLETE = "title.autocomplete";
         public static final String TITLE_NGRAM = "title.ngram";
+        public static final String TITLE_CHOSUNG = "titleChosung";
         public static final String CONTENT = "content";
         public static final String TRAVEL_PLACE = "travelPlace";
         public static final String ADDRESS = "address";

@@ -11,8 +11,9 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PostDocumentMapper {
 
-    @Mapping(source = "postId", target = "id")
-    PostDocument toCreateDocument(PostSearchMessage.CreatedDTO msg);
+    @Mapping(source = "msg.postId", target = "id")
+    @Mapping(source = "titleChosung", target = "titleChosung")
+    PostDocument toCreateDocument(PostSearchMessage.CreatedDTO msg, String titleChosung);
 
     @Mapping(source = "id", target = "postId")
     PostSearchResponse.SearchDTO toSearchDTO(PostDocument doc);

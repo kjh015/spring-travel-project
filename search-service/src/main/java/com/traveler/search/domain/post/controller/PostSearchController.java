@@ -37,7 +37,7 @@ public class PostSearchController {
         return ApiResponse.onSuccess(SuccessCode.OK, postSearchQueryService.search(dto));
     }
 
-    @Operation(summary = "게시글 상세 조회(검색용)", description = "검색 엔진(ES)에 저장된 게시글의 상세 정보를 조회합니다.")
+    @Operation(summary = "게시글 상세 조회", description = "게시글의 상세 정보를 조회합니다.")
     @ApiErrorCodeExamples(search = {SearchServiceErrorCode.POST_NOT_FOUND})
     @GetMapping("/{postId}")
     public ApiResponse<PostSearchResponse.DetailDTO> getPost(

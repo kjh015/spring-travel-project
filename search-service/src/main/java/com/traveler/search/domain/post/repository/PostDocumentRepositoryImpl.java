@@ -38,8 +38,8 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
     private String postIndexName;
 
     private static final int BOOST_TITLE = 5;
-    private static final int BOOST_TITLE_AUTOCOMPLETE = 3;
-    private static final int BOOST_TITLE_NGRAM = 2;
+    private static final int BOOST_TITLE_NGRAM = 3;
+    private static final int BOOST_TITLE_CHOSUNG = 2;
 
     @Override
     public Page<PostDocument> search(PostSearchRequest.SearchDTO dto, Pageable pageable) {
@@ -67,17 +67,19 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
 
         queryBuilder.withQuery(q -> q.bool(b -> {
             // 1. 일반 완성형 자동완성 (Edge-Ngram) - 높은 가중치
-            b.should(s ->
-                    s.prefix(p -> p.field("title.autocomplete").value(keyword).boost(5.0f)));
+            b.should(s -> s.prefix(p -> p.field(PostDocument.Fields.TITLE_AUTOCOMPLETE)
+                    .value(keyword)
+                    .boost(5.0f)));
 
             // 2. 초성 자동완성 (Ngram) - 낮은 가중치
-            b.should(s -> s.match(m -> m.field("titleChosung").query(keyword).analyzer("chosung_ngram_analyzer")));
+            b.should(s -> s.match(m ->
+                    m.field(PostDocument.Fields.TITLE_CHOSUNG).query(keyword).analyzer("chosung_ngram_analyzer")));
 
             return b;
         }));
 
         // 3. 성능 최적화: 필요한 필드(title)만 fetch, 10개 제한
-        queryBuilder.withSourceFilter(new FetchSourceFilter(new String[] {"title"}, null));
+        queryBuilder.withSourceFilter(new FetchSourceFilter(new String[] {PostDocument.Fields.TITLE}, null));
         queryBuilder.withMaxResults(10);
 
         SearchHits<PostDocument> searchHits =
@@ -116,7 +118,8 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
                 .withMaxResults(0) // 실제 문서는 필요 없음 (size: 0)
                 .withAggregation("top_tags", Aggregation.of(a -> a.terms(
                                 t -> t.field(field).size(topN))
-                        .aggregations("total_score", sub -> sub.sum(sum -> sum.field("popularityScore")))))
+                        .aggregations(
+                                "total_score", sub -> sub.sum(sum -> sum.field(PostDocument.Fields.POPULARITY_SCORE)))))
                 .build();
 
         // 2. 실행
@@ -142,8 +145,8 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
         if (StringUtils.hasText(keyword)) {
             b.must(m -> m.multiMatch(mm -> mm.fields(
                             boost(PostDocument.Fields.TITLE, BOOST_TITLE),
-                            boost(PostDocument.Fields.TITLE_AUTOCOMPLETE, BOOST_TITLE_AUTOCOMPLETE),
                             boost(PostDocument.Fields.TITLE_NGRAM, BOOST_TITLE_NGRAM),
+                            boost(PostDocument.Fields.TITLE_CHOSUNG, BOOST_TITLE_CHOSUNG),
                             PostDocument.Fields.CONTENT,
                             PostDocument.Fields.TRAVEL_PLACE,
                             PostDocument.Fields.ADDRESS)
@@ -157,10 +160,10 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
 
     private void buildFilterClause(BoolQuery.Builder b, String category, String region) {
         if (StringUtils.hasText(category)) {
-            b.filter(f -> f.term(t -> t.field("category").value(category)));
+            b.filter(f -> f.term(t -> t.field(PostDocument.Fields.CATEGORY).value(category)));
         }
         if (StringUtils.hasText(region)) {
-            b.filter(f -> f.term(t -> t.field("region").value(region)));
+            b.filter(f -> f.term(t -> t.field(PostDocument.Fields.REGION).value(region)));
         }
     }
 
