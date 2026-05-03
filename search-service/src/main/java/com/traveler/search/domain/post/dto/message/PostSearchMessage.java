@@ -3,10 +3,12 @@ package com.traveler.search.domain.post.dto.message;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 import java.util.List;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public class PostSearchMessage {
+public final class PostSearchMessage {
+
+    private PostSearchMessage() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     public record ImageInfo(String imageKey, int sortOrder) {}
 

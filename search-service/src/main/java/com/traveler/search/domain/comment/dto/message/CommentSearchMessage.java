@@ -2,10 +2,13 @@ package com.traveler.search.domain.comment.dto.message;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public class CommentSearchMessage {
+public final class CommentSearchMessage {
+
+    private CommentSearchMessage() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     public record CreatedDTO(
             Long commentId, Long postId, Long memberId, String content, Integer star, Instant createdAt) {}
 

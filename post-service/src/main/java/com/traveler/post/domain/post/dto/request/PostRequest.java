@@ -7,10 +7,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public class PostRequest {
+public final class PostRequest {
+
+    private PostRequest() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     @Schema(name = "PostCreateRequest")
     public record CreateDTO(
             @NotBlank(message = "제목은 필수입니다.")
@@ -26,7 +29,7 @@ public class PostRequest {
             @NotNull(message = "카테고리는 필수입니다.") @Schema(description = "카테고리", example = "FOOD") Category category,
             @NotNull(message = "지역은 필수입니다.") @Schema(description = "지역", example = "GYEONGGI") Region region,
             @Size(max = 10, message = "이미지는 최대 10개까지 업로드 가능합니다.")
-                    @Schema(description = "S3 이미지 키 리스트", example = "['images/2026/04/27/a1b2c3d4-e5f6-g7h8.png']")
+                    @Schema(description = "S3 이미지 키 리스트", example = "[\"images/2026/04/27/a1b2c3d4-e5f6-g7h8.png\"]")
                     List<String> images) {}
 
     @Schema(name = "PostUpdateRequest")
@@ -44,6 +47,6 @@ public class PostRequest {
             @NotNull(message = "카테고리는 필수입니다.") @Schema(description = "카테고리", example = "FOOD") Category category,
             @NotNull(message = "지역은 필수입니다.") @Schema(description = "지역", example = "GYEONGGI") Region region,
             @Size(max = 10, message = "이미지는 최대 10개까지 업로드 가능합니다.")
-                    @Schema(description = "S3 이미지 키 리스트", example = "[images/2026/04/27/a1b2c3d4-e5f6-g7h8.png]")
+                    @Schema(description = "S3 이미지 키 리스트", example = "[\"images/2026/04/27/a1b2c3d4-e5f6-g7h8.png\"]")
                     List<String> images) {}
 }

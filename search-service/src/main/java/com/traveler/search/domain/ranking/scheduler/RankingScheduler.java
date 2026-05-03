@@ -17,9 +17,7 @@ public class RankingScheduler {
     // 이전 집계 결과를 보관 (메모리 캐시)
     private RankingResponse.LiveDTO lastResponse;
 
-    /**
-     * 10초마다 인기 순위를 집계하고, 변화가 있을 경우에만 Redis Pub/Sub으로 발행합니다.
-     */
+    /** 10초마다 인기 순위를 집계하고, 변화가 있을 경우에만 Redis Pub/Sub으로 발행합니다. */
     @Scheduled(fixedRate = 10000)
     public void refreshAndPublishRankings() {
         // 최신 데이터 집계

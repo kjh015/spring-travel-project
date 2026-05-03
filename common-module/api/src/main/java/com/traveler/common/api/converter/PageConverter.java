@@ -9,6 +9,7 @@ public final class PageConverter {
     private PageConverter() {
         throw new UnsupportedOperationException("Utility class");
     }
+
     /**
      * Page&lt;T&gt;를 PageResponse&lt;T&gt;로 변환합니다.
      *
@@ -23,8 +24,8 @@ public final class PageConverter {
     }
 
     /**
-     * Page&lt;Entity&gt;를 PageResponse&lt;DTO&gt;로 변환합니다. Page&lt;Entity&gt;의 내용을 Converter를 통해 DTO 타입으로
-     * 바꾼 뒤 PageResponse&lt;DTO&gt;을 생성합니다.
+     * Page&lt;Entity&gt;를 PageResponse&lt;DTO&gt;로 변환합니다. Page&lt;Entity&gt;의 내용을 Converter를 통해 DTO
+     * 타입으로 바꾼 뒤 PageResponse&lt;DTO&gt;을 생성합니다.
      *
      * @param pageData Page 객체
      * @param converter 리스트 내부의 각 요소를 변환할 함수 (사용 예: DomainConverter::toDto)
@@ -38,10 +39,7 @@ public final class PageConverter {
         return buildPageResponse(content, pageData);
     }
 
-    /**
-     * 빈 페이지 응답 생성
-     * 결과가 없을 때 일관된 응답 구조를 반환하기 위해 사용합니다.
-     */
+    /** 빈 페이지 응답 생성 결과가 없을 때 일관된 응답 구조를 반환하기 위해 사용합니다. */
     public static <R> PageResponse<R> emptyPageResponse(int size) {
         return PageResponse.<R>builder()
                 .content(List.of())

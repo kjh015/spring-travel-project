@@ -32,9 +32,7 @@ public class ExceptionConverter {
                 .toList();
     }
 
-    /**
-     * PathVariable이나 QueryParameter에서 발생한 제약 조건 위반 처리
-     */
+    /** PathVariable이나 QueryParameter에서 발생한 제약 조건 위반 처리 */
     public List<ErrorResponse> from(ConstraintViolationException ex) {
         return ex.getConstraintViolations().stream()
                 .map(violation -> {
@@ -49,9 +47,7 @@ public class ExceptionConverter {
                 .toList();
     }
 
-    /**
-     * 컨트롤러 메서드 파라미터 타입이 일치하지 않을 때 처리 (ex: Integer 자리에 String 입력)
-     */
+    /** 컨트롤러 메서드 파라미터 타입이 일치하지 않을 때 처리 (ex: Integer 자리에 String 입력) */
     public List<ErrorResponse> from(MethodArgumentTypeMismatchException ex) {
         Class<?> requiredType = ex.getRequiredType();
 
@@ -64,9 +60,7 @@ public class ExceptionConverter {
                 .build());
     }
 
-    /**
-     * JSON 파싱 과정에서 포맷이 맞지 않거나 Enum 값이 잘못된 경우 처리
-     */
+    /** JSON 파싱 과정에서 포맷이 맞지 않거나 Enum 값이 잘못된 경우 처리 */
     public List<ErrorResponse> from(InvalidFormatException ife) {
         String fieldPath = ife.getPath().stream()
                 .map(ref -> ref.getFieldName() != null
@@ -85,18 +79,14 @@ public class ExceptionConverter {
                 .build());
     }
 
-    /**
-     * 일반적인 문자열 메시지
-     */
+    /** 일반적인 문자열 메시지 */
     public List<ErrorResponse> from(String reason) {
         return List.of(
                 ErrorResponse.builder().field("").value("").reason(reason).build());
     }
 
     // --------- Util ---------
-    /**
-     * 타겟 타입에 따른 에러 메시지 생성 (Enum 특화)
-     */
+    /** 타겟 타입에 따른 에러 메시지 생성 (Enum 특화) */
     private String getErrorMessage(Class<?> targetType) {
         if (targetType != null && targetType.isEnum()) {
             return String.format("잘못된 형식입니다. 허용값=[%s]", getAllowedEnumValues(targetType));
@@ -104,9 +94,7 @@ public class ExceptionConverter {
         return "잘못된 형식의 값입니다.";
     }
 
-    /**
-     * Enum 클래스의 모든 상수 값을 콤마로 연결하여 반환
-     */
+    /** Enum 클래스의 모든 상수 값을 콤마로 연결하여 반환 */
     private String getAllowedEnumValues(Class<?> enumType) {
         return Arrays.stream(enumType.getEnumConstants()).map(Object::toString).collect(Collectors.joining(", "));
     }

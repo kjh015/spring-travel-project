@@ -29,9 +29,7 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
                 .build();
     }
 
-    /**
-     * Java API Client 빈 등록
-     */
+    /** Java API Client 빈 등록 */
     @Bean
     public ElasticsearchClient elasticsearchClient(RestClient restClient, ObjectMapper objectMapper) {
         return new ElasticsearchClient(new RestClientTransport(restClient, new JacksonJsonpMapper(objectMapper)));

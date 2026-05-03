@@ -33,18 +33,14 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
 
     private final ExceptionConverter exceptionConverter;
 
-    /**
-     * [Business Exception] 커스텀 비즈니스 로직 예외 처리
-     */
+    /** [Business Exception] 커스텀 비즈니스 로직 예외 처리 */
     @ExceptionHandler(GeneralException.class)
     protected ResponseEntity<ApiResponse<Void>> handleGeneralException(GeneralException ex) {
         log.warn("[Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
         return createErrorResponse(ex.getCode(), null);
     }
 
-    /**
-     * [Validation Exception] @RequestBody, @ModelAttribute 객체의 @Valid 검증 실패
-     */
+    /** [Validation Exception] @RequestBody, @ModelAttribute 객체의 @Valid 검증 실패 */
     @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleBindException(BindException ex) {
         List<ErrorResponse> errors = exceptionConverter.from(ex);
@@ -55,9 +51,7 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
         return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, errors);
     }
 
-    /**
-     * [Validation Exception] @Validated가 선언된 클래스 내 @RequestParam, @PathVariable 제약 조건 위반
-     */
+    /** [Validation Exception] @Validated가 선언된 클래스 내 @RequestParam, @PathVariable 제약 조건 위반 */
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleConstraintViolationException(
             ConstraintViolationException ex) {
@@ -68,9 +62,7 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
         return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, errors);
     }
 
-    /**
-     * [Type Mismatch] @RequestParam, @PathVariable 요청 값의 타입이 파라미터 타입과 불일치
-     */
+    /** [Type Mismatch] @RequestParam, @PathVariable 요청 값의 타입이 파라미터 타입과 불일치 */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException ex) {
@@ -79,9 +71,7 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
         return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, errors);
     }
 
-    /**
-     * [JSON Parsing Error] @RequestBody 데이터 파싱 실패 또는 Enum 타입 불일치
-     */
+    /** [JSON Parsing Error] @RequestBody 데이터 파싱 실패 또는 Enum 타입 불일치 */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException ex) {
@@ -95,9 +85,7 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
         return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, exceptionConverter.from("요청 JSON 형식이 올바르지 않습니다."));
     }
 
-    /**
-     * [404 Error] 존재하지 않는 URL 호출 (404)
-     */
+    /** [404 Error] 존재하지 않는 URL 호출 (404) */
     @ExceptionHandler(NoResourceFoundException.class)
     protected ResponseEntity<ApiResponse<Void>> handleNoResourceFoundException(
             NoResourceFoundException ex, HttpServletRequest request) {
@@ -105,9 +93,7 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
         return createErrorResponse(ErrorCode.NOT_FOUND, null);
     }
 
-    /**
-     * [405 Error] 지원하지 않는 HTTP 메서드 호출 (405)
-     */
+    /** [405 Error] 지원하지 않는 HTTP 메서드 호출 (405) */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     protected ResponseEntity<ApiResponse<Void>> handleMethodNotAllowed(
             HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
@@ -115,9 +101,7 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
         return createErrorResponse(ErrorCode.METHOD_NOT_ALLOWED, null);
     }
 
-    /**
-     * [Missing Parameter] @RequestParam(required = true) 설정된 필수 쿼리 파라미터 누락
-     */
+    /** [Missing Parameter] @RequestParam(required = true) 설정된 필수 쿼리 파라미터 누락 */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleMissingServletRequestParameterException(
             MissingServletRequestParameterException ex) {
@@ -126,9 +110,7 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
                 ErrorCode.BAD_REQUEST, exceptionConverter.from(ex.getParameterName() + " 파라미터가 누락되었습니다."));
     }
 
-    /**
-     * [415 Error] 지원하지 않는 Media Type(Content-Type)으로 요청 (415)
-     */
+    /** [415 Error] 지원하지 않는 Media Type(Content-Type)으로 요청 (415) */
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     protected ResponseEntity<ApiResponse<Void>> handleHttpMediaTypeNotSupportedException(
             HttpMediaTypeNotSupportedException ex) {
@@ -136,9 +118,7 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
         return createErrorResponse(ErrorCode.UNSUPPORTED_MEDIA_TYPE, null);
     }
 
-    /**
-     * [500 Internal Server Error] 사전에 정의되지 않은 모든 예외 처리
-     */
+    /** [500 Internal Server Error] 사전에 정의되지 않은 모든 예외 처리 */
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ApiResponse<Void>> handleGlobalException(Exception ex, HttpServletRequest request) {
         log.error(

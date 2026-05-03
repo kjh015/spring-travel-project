@@ -2,10 +2,13 @@ package com.traveler.post.domain.comment.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public class CommentRequest {
+public final class CommentRequest {
+
+    private CommentRequest() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     @Schema(name = "CommentCreateRequest")
     public record CreateDTO(
             @NotNull(message = "게시글 ID는 필수입니다.") @Schema(description = "대상 게시글 ID", example = "101") Long postId,

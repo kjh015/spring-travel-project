@@ -41,7 +41,7 @@ public class PostSearchController {
     @ApiErrorCodeExamples(search = {SearchServiceErrorCode.POST_NOT_FOUND})
     @GetMapping("/{postId}")
     public ApiResponse<PostSearchResponse.DetailDTO> getPost(
-            @Parameter(description = "게시글 식별자", example = "101") @PathVariable Long postId) {
+            @Parameter(description = "게시글 ID", example = "101") @PathVariable Long postId) {
         return ApiResponse.onSuccess(SuccessCode.OK, postSearchQueryService.getPostDetail(postId));
     }
 

@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class WebApiServiceExceptionAdvice implements BaseExceptionAdvice {
 
-    /**
-     * WebApi Service에서 발생하는 커스텀 비즈니스 예외 처리
-     */
+    /** WebApi Service에서 발생하는 커스텀 비즈니스 예외 처리 */
     @ExceptionHandler(WebApiServiceException.class)
     protected ResponseEntity<ApiResponse<Void>> handleGeneralException(WebApiServiceException ex) {
         log.warn("[WebApi Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());

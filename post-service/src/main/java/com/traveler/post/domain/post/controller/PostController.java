@@ -42,7 +42,7 @@ public class PostController {
             })
     @PatchMapping("/{postId}")
     public ApiResponse<PostResponse.UpdateDTO> updatePost(
-            @Parameter(description = "게시글 식별자", example = "1") @PathVariable Long postId,
+            @Parameter(description = "게시글 ID", example = "1") @PathVariable Long postId,
             @Valid @RequestBody PostRequest.UpdateDTO dto,
             @Parameter(hidden = true) @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.OK, postService.updatePost(postId, user.id(), dto));
@@ -54,7 +54,7 @@ public class PostController {
             post = {PostServiceErrorCode.POST_NOT_FOUND})
     @DeleteMapping("/{postId}")
     public ApiResponse<PostResponse.DeleteDTO> deletePost(
-            @Parameter(description = "게시글 식별자", example = "1") @PathVariable Long postId,
+            @Parameter(description = "게시글 ID", example = "1") @PathVariable Long postId,
             @Parameter(hidden = true) @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.OK, postService.deletePost(postId, user.id()));
     }

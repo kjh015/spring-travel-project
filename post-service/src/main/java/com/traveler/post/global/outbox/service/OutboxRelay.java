@@ -13,9 +13,7 @@ public class OutboxRelay {
     private final KafkaProducer kafkaProducer;
     private final OutboxStatusManager outboxStatusManager;
 
-    /**
-     * 비동기 전달
-     */
+    /** 비동기 전달 */
     public void relayAsync(String eventId, String topic, String eventType, String payload) {
         kafkaProducer.send(topic, eventType, payload).whenComplete((result, ex) -> {
             try {
@@ -31,9 +29,7 @@ public class OutboxRelay {
         });
     }
 
-    /**
-     * 동기 전달: 재시도 로직에서 사용
-     */
+    /** 동기 전달: 재시도 로직에서 사용 */
     public void relaySync(String eventId, String topic, String eventType, String payload) {
         try {
             kafkaProducer.send(topic, eventType, payload).get(5, TimeUnit.SECONDS);

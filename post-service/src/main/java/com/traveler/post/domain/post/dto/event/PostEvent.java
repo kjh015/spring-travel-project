@@ -1,10 +1,13 @@
 package com.traveler.post.domain.post.dto.event;
 
 import com.traveler.post.domain.post.dto.message.PostMessage;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public class PostEvent {
+public final class PostEvent {
+
+    private PostEvent() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     public record Created(PostMessage.CreatedDTO postMsg) {}
 
     public record Updated(PostMessage.UpdatedDTO postMsg) {}

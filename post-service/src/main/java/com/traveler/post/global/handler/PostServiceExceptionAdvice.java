@@ -21,9 +21,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @Slf4j
 public class PostServiceExceptionAdvice implements BaseExceptionAdvice {
 
-    /**
-     * AWS S3 관련 SDK 예외 처리
-     */
+    /** AWS S3 관련 SDK 예외 처리 */
     @ExceptionHandler(S3Exception.class)
     protected ResponseEntity<ApiResponse<Void>> handleS3Exception(S3Exception ex) {
         String errorMessage = Optional.ofNullable(ex.awsErrorDetails())
@@ -45,9 +43,7 @@ public class PostServiceExceptionAdvice implements BaseExceptionAdvice {
         return createErrorResponse(mappedErrorCode, null);
     }
 
-    /**
-     * Post Service에서 발생하는 커스텀 비즈니스 예외 처리
-     */
+    /** Post Service에서 발생하는 커스텀 비즈니스 예외 처리 */
     @ExceptionHandler(PostServiceException.class)
     protected ResponseEntity<ApiResponse<Void>> handleGeneralException(PostServiceException ex) {
         log.warn("[Post Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());

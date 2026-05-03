@@ -6,11 +6,14 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.Sort;
 
-@UtilityClass
-public class PostSearchRequest {
+public final class PostSearchRequest {
+
+    private PostSearchRequest() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     @Builder
     public record SearchDTO(
             @Schema(description = "검색어 (제목, 본문, 장소 포함 검색)", example = "맛집")
