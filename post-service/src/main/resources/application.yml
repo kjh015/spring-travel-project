@@ -1,5 +1,5 @@
 server:
-  port: 1234
+  port: 8080
   forward-headers-strategy: framework
 
 spring:
@@ -65,6 +65,16 @@ springdoc:
     path: /v1/posts/v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVERS:http://localhost:8761}/eureka
 
 app:
   kafka:
