@@ -1,6 +1,6 @@
 package com.traveler.post.global.s3;
 
-import com.traveler.common.core.code.ErrorCode;
+import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +50,7 @@ public class S3Service {
         if (response.hasErrors()) {
             List<S3Error> errors = response.errors();
             log.error("Partial failure in S3 delete. Errors: {}", errors);
-            throw new PostServiceException(ErrorCode.S3_DELETE_ERROR);
+            throw new PostServiceException(PostServiceErrorCode.S3_DELETE_ERROR);
         }
 
         log.info("Successfully deleted {} keys from S3", keys.size());
@@ -65,7 +65,7 @@ public class S3Service {
     private String extractKey(String fileUrl) {
         String path = java.net.URI.create(fileUrl).getPath();
         if (path == null || path.isEmpty()) {
-            throw new PostServiceException(ErrorCode.S3_INVALID_URL);
+            throw new PostServiceException(PostServiceErrorCode.S3_INVALID_URL);
         }
         return path.startsWith("/") ? path.substring(1) : path;
     }

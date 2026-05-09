@@ -1,8 +1,8 @@
 package com.traveler.post.global.handler;
 
 import com.traveler.common.api.handler.BaseExceptionAdvice;
-import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.response.ApiResponse;
+import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -32,12 +32,12 @@ public class PostServiceExceptionAdvice implements BaseExceptionAdvice {
                 .orElse("UNKNOWN");
         log.error("[S3 Error] Status: {}, Message: {}", ex.statusCode(), errorMessage);
 
-        ErrorCode mappedErrorCode =
+        PostServiceErrorCode mappedErrorCode =
                 switch (errorCode) {
-                    case "NoSuchKey" -> ErrorCode.S3_FILE_NOT_FOUND;
-                    case "AccessDenied" -> ErrorCode.S3_ACCESS_DENIED;
-                    case "InvalidRequest", "InvalidArgument" -> ErrorCode.S3_INVALID_URL;
-                    default -> ErrorCode.S3_DELETE_ERROR;
+                    case "NoSuchKey" -> PostServiceErrorCode.S3_FILE_NOT_FOUND;
+                    case "AccessDenied" -> PostServiceErrorCode.S3_ACCESS_DENIED;
+                    case "InvalidRequest", "InvalidArgument" -> PostServiceErrorCode.S3_INVALID_URL;
+                    default -> PostServiceErrorCode.S3_DELETE_ERROR;
                 };
 
         return createErrorResponse(mappedErrorCode, null);

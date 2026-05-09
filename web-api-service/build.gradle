@@ -32,7 +32,7 @@ ext {
 
 dependencies {
     // Common Module
-    implementation project(':common-module:api')
+    implementation project(':common:api')
 
     // Web & Lombok
     implementation 'org.springframework.boot:spring-boot-starter-web'

@@ -1,0 +1,69 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: api-gateway
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+
+  cloud:
+    gateway:
+      routes:
+        - id: post-service
+          uri: lb://post-service
+          predicates:
+            - Path=/v1/posts/**
+          filters:
+            - name: JwtAuthenticationFilter
+              args:
+                excludePaths: [ ]
+        - id: web-api-service
+          uri: lb://web-api-service
+          predicates:
+            - Path=/api/v1/**
+          filters:
+            - name: JwtAuthenticationFilter
+              args:
+                excludePaths: [ ]
+
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 5s
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedHeaders:
+              - "*"
+            allowedMethods:
+              - "GET"
+              - "POST"
+              - "OPTIONS"
+            allowCredentials: true
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVERS:http://localhost:8761}/eureka
+
+#security key
+springboot:
+  jwt:
+    secret: ${JWT_SECRET_KEY:qwertyuiopasdfghjklzxcvbnm!qwertyuiopasdfghjklzxcvbnm}
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Post Service
+        url: /api/v1/posts/v3/api-docs/post-service
