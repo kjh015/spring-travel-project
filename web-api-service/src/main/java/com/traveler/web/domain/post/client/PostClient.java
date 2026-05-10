@@ -7,7 +7,11 @@ import com.traveler.web.global.feign.config.FeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "post-service", path = "/v1/posts", configuration = FeignClientConfig.class)
+@FeignClient(
+        name = "post-service",
+        contextId = "PostClient",
+        path = "/v1/posts",
+        configuration = FeignClientConfig.class)
 public interface PostClient {
     @PostMapping
     ApiResponse<PostClientResponse.CreateDTO> createPost(@RequestBody PostClientRequest.CreateDTO dto);

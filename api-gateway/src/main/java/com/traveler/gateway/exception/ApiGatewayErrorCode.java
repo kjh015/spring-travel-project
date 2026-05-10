@@ -7,6 +7,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ApiGatewayErrorCode implements BaseErrorCode {
+    // Routing
+    ROUTE_NOT_FOUND(404, "GATEWAY404_1", "요청하신 경로를 찾을 수 없거나 직접 호출이 제한된 경로입니다."),
     // JWT
     EXPIRED_JWT(401, "GATEWAY401_1", "만료된 JWT 토큰입니다."),
     UNSUPPORTED_JWT(401, "GATEWAY401_2", "지원되지 않는 JWT 토큰입니다."),
@@ -17,7 +19,7 @@ public enum ApiGatewayErrorCode implements BaseErrorCode {
     MALFORMED_JWT(401, "GATEWAY401_7", "잘못된 구조의 JWT 토큰입니다."),
     BLACKLISTED_TOKEN(401, "GATEWAY401_8", "로그아웃된 토큰입니다. 다시 로그인해주세요."),
     TOKEN_REISSUE_FAILED(401, "GATEWAY401_9", "토큰 재발급에 실패했습니다."),
-    REFRESH_TOKEN_NOT_FOUND(404, "GATEWAY404_1", "존재하지 않거나 만료된 리프레시 토큰입니다.");
+    REFRESH_TOKEN_NOT_FOUND(404, "GATEWAY404_2", "존재하지 않거나 만료된 리프레시 토큰입니다.");
 
     private final int status;
     private final String code;

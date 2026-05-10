@@ -6,10 +6,12 @@ import com.traveler.web.domain.post.dto.request.LikeRequest;
 import com.traveler.web.domain.post.facade.LikeFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Like", description = "좋아요 관련 API")
 @RestController
 @RequestMapping("/api/v1/likes")
 @RequiredArgsConstructor

@@ -6,6 +6,7 @@ import com.traveler.common.core.response.PageResponse;
 import com.traveler.web.domain.search.dto.response.PostSearchResponse;
 import com.traveler.web.domain.search.facade.LikeSearchFacade;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Like Search", description = "좋아요 조회 API")
 @RestController
 @RequestMapping("/api/v1/search/likes")
 @RequiredArgsConstructor

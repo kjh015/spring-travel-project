@@ -18,17 +18,17 @@ public class PostFacade {
     public PostResponse.CreateDTO createPost(PostRequest.CreateDTO dto) {
         ApiResponse<PostClientResponse.CreateDTO> response =
                 postClient.createPost(postMapper.toCreateClientRequest(dto));
-        return postMapper.toCreateResponse(response.getResult());
+        return postMapper.toCreateResponse(response.result());
     }
 
     public PostResponse.UpdateDTO updatePost(Long postId, PostRequest.UpdateDTO dto) {
         ApiResponse<PostClientResponse.UpdateDTO> response =
                 postClient.updatePost(postId, postMapper.toUpdateClientRequest(dto));
-        return postMapper.toUpdateResponse(response.getResult());
+        return postMapper.toUpdateResponse(response.result());
     }
 
     public PostResponse.DeleteDTO deletePost(Long postId) {
         ApiResponse<PostClientResponse.DeleteDTO> response = postClient.deletePost(postId);
-        return postMapper.toDeleteResponse(response.getResult());
+        return postMapper.toDeleteResponse(response.result());
     }
 }

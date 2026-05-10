@@ -18,17 +18,17 @@ public class CommentFacade {
     public CommentResponse.CreateDTO createComment(CommentRequest.CreateDTO dto) {
         ApiResponse<CommentClientResponse.CreateDTO> response =
                 commentClient.createComment(commentMapper.toCreateClientRequest(dto));
-        return commentMapper.toCreateResponse(response.getResult());
+        return commentMapper.toCreateResponse(response.result());
     }
 
     public CommentResponse.UpdateDTO updateComment(Long commentId, CommentRequest.UpdateDTO dto) {
         ApiResponse<CommentClientResponse.UpdateDTO> response =
                 commentClient.updateComment(commentId, commentMapper.toUpdateClientRequest(dto));
-        return commentMapper.toUpdateResponse(response.getResult());
+        return commentMapper.toUpdateResponse(response.result());
     }
 
     public CommentResponse.DeleteDTO deleteComment(Long commentId) {
         ApiResponse<CommentClientResponse.DeleteDTO> response = commentClient.deleteComment(commentId);
-        return commentMapper.toDeleteResponse(response.getResult());
+        return commentMapper.toDeleteResponse(response.result());
     }
 }

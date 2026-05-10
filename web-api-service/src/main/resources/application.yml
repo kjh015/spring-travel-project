@@ -32,7 +32,7 @@ swagger:
 
 springdoc:
   api-docs:
-    path: /api/v1/posts/v3/api-docs
+    path: /api/v1/web-api/v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
 

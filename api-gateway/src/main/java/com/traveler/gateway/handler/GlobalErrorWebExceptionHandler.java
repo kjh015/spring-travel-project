@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.common.core.code.BaseErrorCode;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.response.ApiResponse;
+import com.traveler.gateway.exception.ApiGatewayErrorCode;
 import com.traveler.gateway.exception.ApiGatewayException;
 import com.traveler.gateway.exception.ApiGatewayNoStackException;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.resource.NoResourceFoundException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -43,6 +45,9 @@ public class GlobalErrorWebExceptionHandler implements ErrorWebExceptionHandler 
         }
         if (ex instanceof ApiGatewayNoStackException agne) {
             return agne.getCode();
+        }
+        if (ex instanceof NoResourceFoundException) {
+            return ApiGatewayErrorCode.ROUTE_NOT_FOUND;
         }
         return ErrorCode.INTERNAL_SERVER_ERROR;
     }

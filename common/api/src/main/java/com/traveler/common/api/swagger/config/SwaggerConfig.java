@@ -1,6 +1,7 @@
 package com.traveler.common.api.swagger.config;
 
 import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.core.auth.AuthConstants;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -17,19 +18,21 @@ public class SwaggerConfig {
         SpringDocUtils.getConfig().addAnnotationsToIgnore(LoginUser.class);
     }
 
-    private static final String USER_ID_HEADER = "X-User-Id";
-    private static final String USER_ROLE_HEADER = "X-User-Role";
+    private static final String BEARER_TOKEN_PREFIX = "JWT Token";
 
     /** OpenAPI 객체의 공통 설정을 담당하는 커스텀 로직 */
     public OpenApiCustomizer createOpenApiCustomizer(String title, String version, String description) {
         return openApi -> {
             openApi.info(new Info().title(title).version(version).description(description));
             openApi.setServers(List.of(new Server().url("/")));
-            openApi.addSecurityItem(
-                    new SecurityRequirement().addList(USER_ID_HEADER).addList(USER_ROLE_HEADER));
+            openApi.addSecurityItem(new SecurityRequirement()
+                    .addList(BEARER_TOKEN_PREFIX)
+                    .addList(AuthConstants.X_USER_ID)
+                    .addList(AuthConstants.X_USER_ROLES));
             openApi.getComponents()
-                    .addSecuritySchemes(USER_ID_HEADER, createHeaderScheme(USER_ID_HEADER))
-                    .addSecuritySchemes(USER_ROLE_HEADER, createHeaderScheme(USER_ROLE_HEADER));
+                    .addSecuritySchemes(BEARER_TOKEN_PREFIX, createBearerScheme())
+                    .addSecuritySchemes(AuthConstants.X_USER_ID, createHeaderScheme(AuthConstants.X_USER_ID))
+                    .addSecuritySchemes(AuthConstants.X_USER_ROLES, createHeaderScheme(AuthConstants.X_USER_ROLES));
             openApi.getComponents()
                     .addSchemas(
                             "ApiResponse",
@@ -42,6 +45,15 @@ public class SwaggerConfig {
                                             "result",
                                             new Schema<>().type("object").nullable(true)));
         };
+    }
+    /** JWT Bearer 인증을 위한 스키마 생성 */
+    private SecurityScheme createBearerScheme() {
+        return new SecurityScheme()
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT")
+                .in(SecurityScheme.In.HEADER)
+                .name(AuthConstants.AUTHORIZATION_HEADER);
     }
 
     /** 헤더 입력을 위한 API Key 스키마 생성 */

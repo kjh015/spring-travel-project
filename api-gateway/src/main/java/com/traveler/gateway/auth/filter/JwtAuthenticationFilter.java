@@ -1,7 +1,7 @@
 package com.traveler.gateway.auth.filter;
 
-import com.traveler.common.core.constant.AuthConstants;
-import com.traveler.gateway.auth.context.AuthenticatedUser;
+import com.traveler.common.core.auth.AuthConstants;
+import com.traveler.common.core.auth.UserContext;
 import com.traveler.gateway.auth.support.AuthContextManager;
 import com.traveler.gateway.auth.support.JwtTokenProvider;
 import com.traveler.gateway.auth.support.TokenBlacklistManager;
@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
-import org.springframework.http.server.RequestPath;
+import org.springframework.http.server.PathContainer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         List<PathPattern> patterns = parsePatterns(config.getExcludePaths());
 
         return (exchange, chain) -> {
-            RequestPath path = exchange.getRequest().getPath();
+            var path = exchange.getRequest().getPath().pathWithinApplication();
 
             // 제외 경로 확인
             if (isExcluded(path, patterns)) {
@@ -61,10 +61,10 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
                     .flatMap(
                             token -> tokenBlacklistManager.checkBlacklist(token).then(Mono.just(token)))
                     .flatMap(jwtTokenProvider::validateToken)
-                    .map(claims -> AuthenticatedUser.of(claims.getSubject(), jwtTokenProvider.getRoles(claims)))
+                    .map(claims -> UserContext.of(Long.valueOf(claims.getSubject()), jwtTokenProvider.getRoles(claims)))
                     .flatMap(authUser -> {
                         // 컨텍스트 저장 및 헤더 주입
-                        authContextManager.storeAttributes(exchange, authUser);
+                        authContextManager.storeAuthenticatedUser(exchange, authUser);
                         return chain.filter(authContextManager.prepareAuthorizedExchange(exchange, authUser));
                     });
         };
@@ -84,7 +84,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         return paths.stream().map(parser::parse).toList();
     }
 
-    private boolean isExcluded(RequestPath path, List<PathPattern> patterns) {
+    private boolean isExcluded(PathContainer path, List<PathPattern> patterns) {
         return patterns.stream().anyMatch(pattern -> pattern.matches(path));
     }
 }

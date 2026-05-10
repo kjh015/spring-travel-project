@@ -47,7 +47,7 @@ dependencies {
 //	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
     // Swagger (Webflux)
-    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.16'
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.7.0'
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'

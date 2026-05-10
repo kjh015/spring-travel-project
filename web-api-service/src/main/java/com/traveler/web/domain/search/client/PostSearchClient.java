@@ -12,7 +12,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "search-service", path = "/v1/search/posts", configuration = FeignClientConfig.class)
+@FeignClient(
+        name = "search-service",
+        contextId = "SearchPostClient",
+        path = "/v1/search/posts",
+        configuration = FeignClientConfig.class)
 public interface PostSearchClient {
     @GetMapping
     ApiResponse<PageResponse<PostSearchClientResponse.SearchDTO>> search(

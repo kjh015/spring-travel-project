@@ -1,7 +1,7 @@
 package com.traveler.common.api.auth.resolver;
 
-import com.traveler.common.api.auth.context.UserContext;
 import com.traveler.common.api.auth.context.UserContextHolder;
+import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.exception.GeneralException;
 import org.springframework.core.MethodParameter;

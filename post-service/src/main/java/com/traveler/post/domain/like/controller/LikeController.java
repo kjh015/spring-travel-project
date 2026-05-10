@@ -1,7 +1,7 @@
 package com.traveler.post.domain.like.controller;
 
-import com.traveler.common.api.auth.context.UserContext;
 import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.post.domain.like.dto.request.LikeRequest;

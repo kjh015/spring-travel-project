@@ -8,6 +8,7 @@ import com.traveler.web.domain.search.dto.response.PostSearchResponse;
 import com.traveler.web.domain.search.facade.PostSearchFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Post Search", description = "게시글 조회 API")
 @RestController
 @RequestMapping("/api/v1/search/posts")
 @RequiredArgsConstructor

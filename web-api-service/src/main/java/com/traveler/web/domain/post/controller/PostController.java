@@ -7,10 +7,12 @@ import com.traveler.web.domain.post.dto.response.PostResponse;
 import com.traveler.web.domain.post.facade.PostFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Post", description = "게시글 관련 API (작성, 수정, 삭제)")
 @RestController
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor

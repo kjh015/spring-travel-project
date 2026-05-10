@@ -26,7 +26,7 @@ public class FeignErrorDecoder implements ErrorDecoder {
             ApiResponse<?> apiResponse = objectMapper.readValue(bodyIs, ApiResponse.class);
 
             BaseErrorCode serviceErrorCode =
-                    ServiceErrorCode.of(response.status(), apiResponse.getCode(), apiResponse.getMessage());
+                    ServiceErrorCode.of(response.status(), apiResponse.code(), apiResponse.message());
 
             log.warn(
                     "[Feign Error] Method: {}, Status: {}, Code: {}, Message: {}",

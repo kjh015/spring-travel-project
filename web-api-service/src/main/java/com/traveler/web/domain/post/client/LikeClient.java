@@ -6,7 +6,11 @@ import com.traveler.web.global.feign.config.FeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "post-service", path = "/v1/likes", configuration = FeignClientConfig.class)
+@FeignClient(
+        name = "post-service",
+        contextId = "LikeClient",
+        path = "/v1/likes",
+        configuration = FeignClientConfig.class)
 public interface LikeClient {
     @PostMapping
     ApiResponse<Void> addLike(@RequestBody LikeClientRequest.AddDTO dto);

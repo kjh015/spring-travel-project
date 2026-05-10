@@ -23,7 +23,7 @@ public class CommentSearchFacade {
 
         String tmpMemberNickname = "임시 닉네임";
 
-        return response.getResult().map(clientDto -> commentSearchMapper.toListResponse(clientDto, tmpMemberNickname));
+        return response.result().map(clientDto -> commentSearchMapper.toListResponse(clientDto, tmpMemberNickname));
     }
 
     public PageResponse<PostSearchResponse.ListDTO> getMyComments(Pageable pageable) {
@@ -32,7 +32,6 @@ public class CommentSearchFacade {
 
         String tmpMemberNickname = "임시 닉네임";
 
-        return response.getResult()
-                .map(clientDto -> commentSearchMapper.toMyListResponse(clientDto, tmpMemberNickname));
+        return response.result().map(clientDto -> commentSearchMapper.toMyListResponse(clientDto, tmpMemberNickname));
     }
 }

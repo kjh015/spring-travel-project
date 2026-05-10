@@ -23,8 +23,7 @@ public class PostSearchFacade {
 
         String tmpMemberNickname = "임시 닉네임";
 
-        return response.getResult()
-                .map(clientDto -> postSearchMapper.toSearchListResponse(clientDto, tmpMemberNickname));
+        return response.result().map(clientDto -> postSearchMapper.toSearchListResponse(clientDto, tmpMemberNickname));
     }
 
     public PostSearchResponse.DetailDTO getPostDetail(Long postId) {
@@ -32,13 +31,13 @@ public class PostSearchFacade {
 
         String tmpMemberNickname = "임시 닉네임";
 
-        return postSearchMapper.toDetailResponse(response.getResult(), tmpMemberNickname);
+        return postSearchMapper.toDetailResponse(response.result(), tmpMemberNickname);
     }
 
     public PostSearchResponse.AutocompleteDTO autocomplete(String keyword) {
         ApiResponse<PostSearchClientResponse.AutocompleteDTO> response = postSearchClient.autocomplete(keyword);
 
-        return postSearchMapper.toAutocompleteResponse(response.getResult());
+        return postSearchMapper.toAutocompleteResponse(response.result());
     }
 
     public PageResponse<PostSearchResponse.ListDTO> getMyPosts(Pageable pageable) {
@@ -46,6 +45,6 @@ public class PostSearchFacade {
 
         String tmpMemberNickname = "임시 닉네임";
 
-        return response.getResult().map(clientDto -> postSearchMapper.toMyListResponse(clientDto, tmpMemberNickname));
+        return response.result().map(clientDto -> postSearchMapper.toMyListResponse(clientDto, tmpMemberNickname));
     }
 }

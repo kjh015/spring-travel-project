@@ -8,7 +8,11 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@FeignClient(name = "search-service", path = "/v1/search/likes", configuration = FeignClientConfig.class)
+@FeignClient(
+        name = "search-service",
+        contextId = "SearchLikeClient",
+        path = "/v1/search/likes",
+        configuration = FeignClientConfig.class)
 public interface LikeSearchClient {
 
     @GetMapping("/me")

@@ -1,5 +1,7 @@
 package com.traveler.common.api.auth.context;
 
+import com.traveler.common.core.auth.UserContext;
+
 public class UserContextHolder {
     private static final ThreadLocal<UserContext> USER_CONTEXT = new ThreadLocal<>();
 

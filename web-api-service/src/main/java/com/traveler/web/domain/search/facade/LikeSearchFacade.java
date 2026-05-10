@@ -21,6 +21,6 @@ public class LikeSearchFacade {
 
         String tmpMemberNickname = "임시 닉네임";
 
-        return response.getResult().map(clientDto -> likeSearchMapper.toMyListResponse(clientDto, tmpMemberNickname));
+        return response.result().map(clientDto -> likeSearchMapper.toMyListResponse(clientDto, tmpMemberNickname));
     }
 }
