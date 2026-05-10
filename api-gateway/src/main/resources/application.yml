@@ -28,8 +28,6 @@ spring:
             - Path=/api/v1/posts/**, /api/v1/comments/**, /api/v1/likes/**, /api/v1/search/*/me
           filters:
             - name: JwtAuthenticationFilter
-              args:
-                excludePaths:
 
         - id: post-service-docs
           uri: lb://post-service
