@@ -10,10 +10,10 @@ spring:
     import: optional:file:search-service/.env[.properties]
 
   elasticsearch:
-    uris: ${ELASTICSEARCH_URIS:localhost:9200}
+    uris: ${ELASTICSEARCH_URIS}
 
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -31,7 +31,7 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
+      host: ${REDIS_HOST}
       port: 6379
 
 swagger:
@@ -57,7 +57,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: ${EUREKA_SERVERS:http://localhost:8761}/eureka
+      defaultZone: ${EUREKA_SERVERS}/eureka
 
 app:
   kafka:

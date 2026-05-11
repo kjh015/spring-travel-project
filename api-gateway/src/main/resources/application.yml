@@ -7,7 +7,7 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
+      host: ${REDIS_HOST}
       port: 6379
 
   web:
@@ -50,11 +50,18 @@ spring:
             allowedOrigins: "http://localhost:3000"
             allowedHeaders:
               - "*"
+            exposedHeaders:
+              - "Authorization"
+              - "Set-Cookie"
             allowedMethods:
               - "GET"
               - "POST"
+              - "DELETE"
+              - "PUT"
+              - "PATCH"
               - "OPTIONS"
             allowCredentials: true
+            maxAge: 3600
 
 
 eureka:
@@ -65,12 +72,12 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: ${EUREKA_SERVERS:http://localhost:8761}/eureka
+      defaultZone: ${EUREKA_SERVERS}/eureka
 
 #security key
 springboot:
   jwt:
-    secret: ${JWT_SECRET_KEY:V2hhdElzTG92ZUJhYnlob250aHVydG1lbm9tb3JlMTIzNDU2Nzg5MDEyMzQ=}
+    secret: ${JWT_SECRET_KEY}
 
 springdoc:
   enable-native-support: true

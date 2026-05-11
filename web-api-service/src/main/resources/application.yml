@@ -11,7 +11,7 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
+      host: ${REDIS_HOST}
       port: 6379
 
   cloud:
@@ -44,4 +44,4 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: ${EUREKA_SERVERS:http://localhost:8761}/eureka
+      defaultZone: ${EUREKA_SERVERS}/eureka

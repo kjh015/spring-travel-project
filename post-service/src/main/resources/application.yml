@@ -24,9 +24,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        #default_batch_fetch_size: 100
+        default_batch_fetch_size: 100
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -74,7 +74,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: ${EUREKA_SERVERS:http://localhost:8761}/eureka
+      defaultZone: ${EUREKA_SERVERS}/eureka
 
 app:
   kafka:
