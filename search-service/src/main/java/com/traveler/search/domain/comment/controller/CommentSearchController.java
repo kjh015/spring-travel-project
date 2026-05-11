@@ -1,7 +1,7 @@
 package com.traveler.search.domain.comment.controller;
 
-import com.traveler.common.api.auth.context.UserContext;
 import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.common.core.response.PageResponse;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Comment Search", description = "댓글 조회 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/search/comments")
+@RequestMapping("/v1/search/comments")
 @Validated
 public class CommentSearchController {
     private final CommentSearchQueryService commentSearchQueryService;

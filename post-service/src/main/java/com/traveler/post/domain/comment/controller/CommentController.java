@@ -1,7 +1,7 @@
 package com.traveler.post.domain.comment.controller;
 
-import com.traveler.common.api.auth.context.UserContext;
 import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
@@ -11,6 +11,7 @@ import com.traveler.post.domain.comment.service.CommentService;
 import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.swagger.ApiErrorCodeExamples;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Comment", description = "댓글 관련 API (작성, 수정, 삭제)")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/comments")
+@RequestMapping("/v1/comments")
 public class CommentController {
     private final CommentService commentService;
 
@@ -27,7 +28,7 @@ public class CommentController {
     @ApiErrorCodeExamples(post = {PostServiceErrorCode.POST_NOT_FOUND})
     @PostMapping
     public ApiResponse<CommentResponse.CreateDTO> createComment(
-            @Valid @RequestBody CommentRequest.CreateDTO dto, @LoginUser UserContext user) {
+            @Valid @RequestBody CommentRequest.CreateDTO dto, @Parameter(hidden = true) @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.CREATED, commentService.createComment(user.id(), dto));
     }
 
@@ -41,9 +42,9 @@ public class CommentController {
             })
     @PatchMapping("/{commentId}")
     public ApiResponse<CommentResponse.UpdateDTO> updateComment(
-            @PathVariable Long commentId,
+            @Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId,
             @Valid @RequestBody CommentRequest.UpdateDTO dto,
-            @LoginUser UserContext user) {
+            @Parameter(hidden = true) @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.OK, commentService.updateComment(commentId, user.id(), dto));
     }
 
@@ -53,7 +54,8 @@ public class CommentController {
             post = {PostServiceErrorCode.COMMENT_NOT_FOUND, PostServiceErrorCode.POST_NOT_FOUND})
     @DeleteMapping("/{commentId}")
     public ApiResponse<CommentResponse.DeleteDTO> deleteComment(
-            @PathVariable Long commentId, @LoginUser UserContext user) {
+            @Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId,
+            @Parameter(hidden = true) @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.OK, commentService.deleteComment(commentId, user.id()));
     }
 }

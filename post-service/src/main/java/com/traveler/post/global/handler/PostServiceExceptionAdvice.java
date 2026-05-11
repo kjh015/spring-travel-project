@@ -1,8 +1,8 @@
 package com.traveler.post.global.handler;
 
 import com.traveler.common.api.handler.BaseExceptionAdvice;
-import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.response.ApiResponse;
+import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +21,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @Slf4j
 public class PostServiceExceptionAdvice implements BaseExceptionAdvice {
 
-    /**
-     * AWS S3 관련 SDK 예외 처리
-     */
+    /** AWS S3 관련 SDK 예외 처리 */
     @ExceptionHandler(S3Exception.class)
     protected ResponseEntity<ApiResponse<Void>> handleS3Exception(S3Exception ex) {
         String errorMessage = Optional.ofNullable(ex.awsErrorDetails())
@@ -34,20 +32,18 @@ public class PostServiceExceptionAdvice implements BaseExceptionAdvice {
                 .orElse("UNKNOWN");
         log.error("[S3 Error] Status: {}, Message: {}", ex.statusCode(), errorMessage);
 
-        ErrorCode mappedErrorCode =
+        PostServiceErrorCode mappedErrorCode =
                 switch (errorCode) {
-                    case "NoSuchKey" -> ErrorCode.S3_FILE_NOT_FOUND;
-                    case "AccessDenied" -> ErrorCode.S3_ACCESS_DENIED;
-                    case "InvalidRequest", "InvalidArgument" -> ErrorCode.S3_INVALID_URL;
-                    default -> ErrorCode.S3_DELETE_ERROR;
+                    case "NoSuchKey" -> PostServiceErrorCode.S3_FILE_NOT_FOUND;
+                    case "AccessDenied" -> PostServiceErrorCode.S3_ACCESS_DENIED;
+                    case "InvalidRequest", "InvalidArgument" -> PostServiceErrorCode.S3_INVALID_URL;
+                    default -> PostServiceErrorCode.S3_DELETE_ERROR;
                 };
 
         return createErrorResponse(mappedErrorCode, null);
     }
 
-    /**
-     * Post Service에서 발생하는 커스텀 비즈니스 예외 처리
-     */
+    /** Post Service에서 발생하는 커스텀 비즈니스 예외 처리 */
     @ExceptionHandler(PostServiceException.class)
     protected ResponseEntity<ApiResponse<Void>> handleGeneralException(PostServiceException ex) {
         log.warn("[Post Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());

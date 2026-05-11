@@ -1,16 +1,16 @@
 package com.traveler.post.global.s3;
 
-import com.traveler.common.core.code.ErrorCode;
+import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
+import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
-import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
-import software.amazon.awssdk.services.s3.model.S3Error;
+import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @Slf4j
 @Service
@@ -18,6 +18,7 @@ import software.amazon.awssdk.services.s3.model.S3Error;
 public class S3Service {
 
     private final software.amazon.awssdk.services.s3.S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
@@ -50,7 +51,7 @@ public class S3Service {
         if (response.hasErrors()) {
             List<S3Error> errors = response.errors();
             log.error("Partial failure in S3 delete. Errors: {}", errors);
-            throw new PostServiceException(ErrorCode.S3_DELETE_ERROR);
+            throw new PostServiceException(PostServiceErrorCode.S3_DELETE_ERROR);
         }
 
         log.info("Successfully deleted {} keys from S3", keys.size());
@@ -65,8 +66,23 @@ public class S3Service {
     private String extractKey(String fileUrl) {
         String path = java.net.URI.create(fileUrl).getPath();
         if (path == null || path.isEmpty()) {
-            throw new PostServiceException(ErrorCode.S3_INVALID_URL);
+            throw new PostServiceException(PostServiceErrorCode.S3_INVALID_URL);
         }
         return path.startsWith("/") ? path.substring(1) : path;
+    }
+
+    public String generatePresignedUrl(String key, String contentType) {
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .contentType(contentType)
+                .build();
+
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(10)) // 10분 유효
+                .putObjectRequest(putObjectRequest)
+                .build();
+
+        return s3Presigner.presignPutObject(presignRequest).url().toString();
     }
 }

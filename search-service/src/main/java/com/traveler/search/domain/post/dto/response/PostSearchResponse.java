@@ -3,11 +3,12 @@ package com.traveler.search.domain.post.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
 @Schema(description = "게시글 검색 응답 DTO")
-public class PostSearchResponse {
+public final class PostSearchResponse {
+    private PostSearchResponse() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     @Schema(description = "게시글 이미지 정보")
     public record ImageInfo(
@@ -16,8 +17,8 @@ public class PostSearchResponse {
 
     @Schema(description = "게시글 검색 결과 요약 정보")
     public record SearchDTO(
-            @Schema(description = "게시글 식별자", example = "101") Long postId,
-            @Schema(description = "작성자 식별자", example = "202") Long memberId,
+            @Schema(description = "게시글 ID", example = "101") Long postId,
+            @Schema(description = "작성자 ID", example = "202") Long memberId,
             @Schema(description = "게시글 제목", example = "경주 황리단길 맛집 투어") String title,
             @Schema(description = "카테고리", example = "FOOD") String category,
             @Schema(description = "지역", example = "GYEONGJU") String region,
@@ -28,10 +29,10 @@ public class PostSearchResponse {
             @Schema(description = "인기 점수", example = "10.1") Long popularityScore,
             @Schema(description = "최종 수정 일시", example = "2026-04-27T19:39:46") Instant updatedAt) {}
 
-    @Schema(description = "게시글 상세 정보 (검색 엔진 기준)")
+    @Schema(description = "게시글 상세 정보")
     public record DetailDTO(
-            @Schema(description = "게시글 식별자", example = "101") Long postId,
-            @Schema(description = "작성자 식별자", example = "202") Long memberId,
+            @Schema(description = "게시글 ID", example = "101") Long postId,
+            @Schema(description = "작성자 ID", example = "202") Long memberId,
             @Schema(description = "게시글 제목", example = "경주 황리단길 맛집 투어") String title,
             @Schema(description = "게시글 본문 내용", example = "황리단길에서 정말 맛있는 식당을 발견했습니다...") String content,
             @Schema(description = "여행 장소 명칭", example = "황리단길") String travelPlace,
@@ -51,8 +52,8 @@ public class PostSearchResponse {
 
     @Schema(description = "내 게시글 검색 결과")
     public record MyDTO(
-            @Schema(description = "게시글 식별자", example = "101") Long postId,
-            @Schema(description = "작성자 식별자", example = "202") Long memberId,
+            @Schema(description = "게시글 ID", example = "101") Long postId,
+            @Schema(description = "작성자 ID", example = "202") Long memberId,
             @Schema(description = "게시글 제목", example = "내가 쓴 경주 여행기") String title,
             @Schema(description = "카테고리", example = "TRAVEL") String category,
             @Schema(description = "지역", example = "GYEONGJU") String region,

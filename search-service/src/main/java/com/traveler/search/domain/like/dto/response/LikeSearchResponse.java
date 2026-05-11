@@ -2,15 +2,17 @@ package com.traveler.search.domain.like.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public class LikeSearchResponse {
+public final class LikeSearchResponse {
+
+    private LikeSearchResponse() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     @Schema(description = "내가 좋아요 한 게시글 정보")
     public record MyDTO(
-            @Schema(description = "게시글 식별자", example = "101") Long postId,
-            @Schema(description = "작성자 식별자", example = "202") Long memberId,
+            @Schema(description = "게시글 ID", example = "101") Long postId,
+            @Schema(description = "작성자 ID", example = "202") Long memberId,
             @Schema(description = "게시글 제목", example = "내가 좋아한 여행지") String title,
             @Schema(description = "카테고리", example = "ACTIVITY") String category,
             @Schema(description = "지역", example = "BUSAN") String region,

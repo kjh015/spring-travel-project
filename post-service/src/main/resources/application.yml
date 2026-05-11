@@ -1,5 +1,5 @@
 server:
-  port: 1234
+  port: 8080
   forward-headers-strategy: framework
 
 spring:
@@ -24,9 +24,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        #default_batch_fetch_size: 100
+        default_batch_fetch_size: 100
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -56,15 +56,25 @@ spring:
 swagger:
   info:
     paths-to-match:
-      - "/api/v1/posts/**"
-      - "/api/v1/comments/**"
-      - "/api/v1/likes/**"
+      - "/v1/posts/**"
+      - "/v1/comments/**"
+      - "/v1/likes/**"
 
 springdoc:
   api-docs:
-    path: /api/v1/posts/v3/api-docs
+    path: /v1/posts/v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVERS}/eureka
 
 app:
   kafka:

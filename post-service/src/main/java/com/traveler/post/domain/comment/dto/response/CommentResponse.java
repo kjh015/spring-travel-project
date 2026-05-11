@@ -2,10 +2,12 @@ package com.traveler.post.domain.comment.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public class CommentResponse {
+public final class CommentResponse {
+
+    private CommentResponse() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     public record CreateDTO(
             @Schema(description = "생성된 댓글 ID", example = "501") Long commentId,
