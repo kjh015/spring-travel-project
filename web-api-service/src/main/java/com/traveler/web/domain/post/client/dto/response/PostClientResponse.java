@@ -13,4 +13,6 @@ public final class PostClientResponse {
     public record UpdateDTO(Long postId, Instant updatedAt) {}
 
     public record DeleteDTO(Long postId, Instant deletedAt) {}
+
+    public record PresignedUrlDTO(String url, String imageKey) {}
 }

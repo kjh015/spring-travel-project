@@ -18,4 +18,6 @@ public interface PostMapper {
     PostResponse.UpdateDTO toUpdateResponse(PostClientResponse.UpdateDTO response);
 
     PostResponse.DeleteDTO toDeleteResponse(PostClientResponse.DeleteDTO response);
+
+    PostResponse.PresignedUrlDTO toPresignedUrlResponse(PostClientResponse.PresignedUrlDTO response);
 }

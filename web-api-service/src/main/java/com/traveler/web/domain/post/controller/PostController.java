@@ -39,4 +39,11 @@ public class PostController {
             @Parameter(description = "게시글 ID", example = "1") @PathVariable Long postId) {
         return ApiResponse.onSuccess(SuccessCode.OK, postFacade.deletePost(postId));
     }
+
+    @Operation(summary = "이미지 업로드용 Presigned URL 발급")
+    @GetMapping("/images/presigned-url")
+    public ApiResponse<PostResponse.PresignedUrlDTO> getPresignedUrl(
+            @RequestParam String fileName, @RequestParam String contentType) {
+        return ApiResponse.onSuccess(SuccessCode.OK, postFacade.getPresignedUrl(fileName, contentType));
+    }
 }

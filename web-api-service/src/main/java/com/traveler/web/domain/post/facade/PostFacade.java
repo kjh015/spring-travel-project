@@ -31,4 +31,9 @@ public class PostFacade {
         ApiResponse<PostClientResponse.DeleteDTO> response = postClient.deletePost(postId);
         return postMapper.toDeleteResponse(response.result());
     }
+
+    public PostResponse.PresignedUrlDTO getPresignedUrl(String fileName, String contentType) {
+        ApiResponse<PostClientResponse.PresignedUrlDTO> response = postClient.getPresignedUrl(fileName, contentType);
+        return postMapper.toPresignedUrlResponse(response.result());
+    }
 }

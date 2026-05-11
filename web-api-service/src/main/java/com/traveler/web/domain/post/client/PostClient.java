@@ -22,4 +22,8 @@ public interface PostClient {
 
     @DeleteMapping("/{postId}")
     ApiResponse<PostClientResponse.DeleteDTO> deletePost(@PathVariable Long postId);
+
+    @GetMapping("/images/presigned-url")
+    ApiResponse<PostClientResponse.PresignedUrlDTO> getPresignedUrl(
+            @RequestParam("fileName") String fileName, @RequestParam("contentType") String contentType);
 }

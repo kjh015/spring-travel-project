@@ -6,7 +6,7 @@ import java.util.List;
 
 @Schema(description = "게시글 조회 응답 DTO")
 public final class PostSearchResponse {
-    public PostSearchResponse() {
+    private PostSearchResponse() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 

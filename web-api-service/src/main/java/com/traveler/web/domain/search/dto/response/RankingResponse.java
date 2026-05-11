@@ -3,7 +3,7 @@ package com.traveler.web.domain.search.dto.response;
 import java.util.List;
 
 public final class RankingResponse {
-    public RankingResponse() {
+    private RankingResponse() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
