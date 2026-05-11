@@ -3,11 +3,12 @@ package com.traveler.search.domain.post.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
 @Schema(description = "게시글 검색 응답 DTO")
-public class PostSearchResponse {
+public final class PostSearchResponse {
+    public PostSearchResponse() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     @Schema(description = "게시글 이미지 정보")
     public record ImageInfo(

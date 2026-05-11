@@ -1,4 +1,4 @@
-package com.traveler.search.domain.ranking.dto.response;
+package com.traveler.web.domain.search.dto.response;
 
 import java.util.List;
 

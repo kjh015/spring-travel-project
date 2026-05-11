@@ -20,7 +20,7 @@ spring:
         - id: web-api-service-guest
           uri: lb://web-api-service
           predicates:
-            - Path=/api/v1/search/**, /api/v1/web-api/v3/api-docs/**
+            - Path=/api/v1/search/**, /api/v1/web-api/v3/api-docs/**, /api/v1/rankings/live
 
         - id: web-api-service-user
           uri: lb://web-api-service
