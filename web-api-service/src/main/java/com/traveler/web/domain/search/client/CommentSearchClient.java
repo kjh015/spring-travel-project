@@ -5,6 +5,7 @@ import com.traveler.common.core.response.PageResponse;
 import com.traveler.web.domain.search.client.dto.response.CommentSearchClientResponse;
 import com.traveler.web.global.feign.config.FeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface CommentSearchClient {
     @GetMapping
     ApiResponse<PageResponse<CommentSearchClientResponse.ListDTO>> getComments(
-            @RequestParam Long postId, Pageable pageable);
+            @RequestParam Long postId, @SpringQueryMap Pageable pageable);
 
     @GetMapping("/me")
-    ApiResponse<PageResponse<CommentSearchClientResponse.MyDTO>> getMyComments(Pageable pageable);
+    ApiResponse<PageResponse<CommentSearchClientResponse.MyDTO>> getMyComments(@SpringQueryMap Pageable pageable);
 }

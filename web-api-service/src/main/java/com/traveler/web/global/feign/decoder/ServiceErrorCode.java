@@ -20,7 +20,8 @@ public record ServiceErrorCode(int status, String code, String message) implemen
     }
 
     public static ServiceErrorCode of(int status, String code, String message) {
-        return new ServiceErrorCode(
-                status, code != null ? code : "SERVICE" + status, message != null ? message : "하위 서비스에서 에러가 발생했습니다.");
+        String normalizedCode = (code == null || code.isBlank()) ? "SERVICE" + status : code;
+        String normalizedMessage = (message == null || message.isBlank()) ? "하위 서비스에서 에러가 발생했습니다." : message;
+        return new ServiceErrorCode(status, normalizedCode, normalizedMessage);
     }
 }

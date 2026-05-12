@@ -48,8 +48,8 @@ public class RankingService {
         };
 
         // 연결 종료/타임아웃 시 리스트에서 제거
-        emitter.onCompletion(() -> this.emitters.remove(emitter));
-        emitter.onTimeout(() -> this.emitters.remove(emitter));
+        emitter.onCompletion(removeHandler);
+        emitter.onTimeout(removeHandler);
         emitter.onError((e) -> removeHandler.run());
 
         sendToClient(emitter, EVENT_CONNECTED, "SSE connected at " + LocalDateTime.now());
@@ -82,6 +82,7 @@ public class RankingService {
                     emitter.send(SseEmitter.event().comment("heartbeat"));
                 } catch (IOException e) {
                     emitters.remove(emitter);
+                    emitter.complete();
                 }
             });
         }

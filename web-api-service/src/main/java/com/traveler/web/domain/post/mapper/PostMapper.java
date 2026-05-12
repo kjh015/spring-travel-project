@@ -11,13 +11,13 @@ import org.mapstruct.ReportingPolicy;
 public interface PostMapper {
     PostClientRequest.CreateDTO toCreateClientRequest(PostRequest.CreateDTO dto);
 
-    PostResponse.CreateDTO toCreateResponse(PostClientResponse.CreateDTO response);
+    PostResponse.CreateDTO toCreateResponse(PostClientResponse.CreateDTO result);
 
     PostClientRequest.UpdateDTO toUpdateClientRequest(PostRequest.UpdateDTO dto);
 
-    PostResponse.UpdateDTO toUpdateResponse(PostClientResponse.UpdateDTO response);
+    PostResponse.UpdateDTO toUpdateResponse(PostClientResponse.UpdateDTO result);
 
-    PostResponse.DeleteDTO toDeleteResponse(PostClientResponse.DeleteDTO response);
+    PostResponse.DeleteDTO toDeleteResponse(PostClientResponse.DeleteDTO result);
 
-    PostResponse.PresignedUrlDTO toPresignedUrlResponse(PostClientResponse.PresignedUrlDTO response);
+    PostResponse.PresignedUrlDTO toPresignedUrlResponse(PostClientResponse.PresignedUrlDTO result);
 }

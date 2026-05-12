@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -43,10 +42,7 @@ public class PostSearchController {
     @Operation(summary = "검색어 자동완성", description = "입력 중인 키워드에 대해 게시글 제목 기반의 자동완성 목록을 제공합니다. 초성 검색을 지원합니다.")
     @GetMapping("/autocomplete")
     public ApiResponse<PostSearchResponse.AutocompleteDTO> autocomplete(
-            @Parameter(description = "검색 키워드", example = "경주")
-                    @RequestParam
-                    @NotBlank(message = "검색어는 공백일 수 없습니다.")
-                    @Size(min = 1, message = "최소 1자 이상 입력해야 합니다.")
+            @Parameter(description = "검색 키워드", example = "경주") @RequestParam @NotBlank(message = "검색어는 공백일 수 없습니다.")
                     String keyword) {
         return ApiResponse.onSuccess(SuccessCode.OK, postSearchFacade.autocomplete(keyword));
     }

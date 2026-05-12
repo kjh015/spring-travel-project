@@ -43,7 +43,14 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
                 .switchIfEmpty(Mono.error(new ApiGatewayNoStackException(ApiGatewayErrorCode.INVALID_TOKEN_TYPE)))
                 .flatMap(token -> tokenBlacklistManager.checkBlacklist(token).then(Mono.just(token)))
                 .flatMap(jwtTokenProvider::validateToken)
-                .map(claims -> UserContext.of(Long.valueOf(claims.getSubject()), jwtTokenProvider.getRoles(claims)))
+                .<UserContext>handle((claims, sink) -> {
+                    try {
+                        Long userId = Long.valueOf(claims.getSubject());
+                        sink.next(UserContext.of(userId, jwtTokenProvider.getRoles(claims)));
+                    } catch (NumberFormatException e) {
+                        sink.error(new ApiGatewayNoStackException(ApiGatewayErrorCode.INVALID_TOKEN_TYPE));
+                    }
+                })
                 .flatMap(authUser -> {
                     // 컨텍스트 저장 및 헤더 주입
                     authContextManager.storeAuthenticatedUser(exchange, authUser);
@@ -54,7 +61,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
     private String resolveToken(ServerHttpRequest request) {
         String bearerToken = request.getHeaders().getFirst(AuthConstants.AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
-            return bearerToken.substring(7);
+            return bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
         }
         return null;
     }

@@ -13,7 +13,9 @@ public class FeignAuthInterceptor implements RequestInterceptor {
         UserContext context = UserContextHolder.getContext();
 
         if (context != null) {
-            template.header(AuthConstants.X_USER_ID, String.valueOf(context.id()));
+            if (context.id() != null) {
+                template.header(AuthConstants.X_USER_ID, String.valueOf(context.id()));
+            }
             if (context.roles() != null && !context.roles().isEmpty()) {
                 String rolesHeader = String.join(",", context.roles());
                 template.header(AuthConstants.X_USER_ROLES, rolesHeader);

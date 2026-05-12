@@ -8,11 +8,13 @@ import com.traveler.web.global.exception.WebApiServiceException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import java.io.InputStream;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 public class FeignErrorDecoder implements ErrorDecoder {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @Override
     public Exception decode(String methodKey, Response response) {

@@ -11,8 +11,8 @@ import org.mapstruct.ReportingPolicy;
 public interface CommentSearchMapper {
 
     @Mapping(source = "memberNickname", target = "memberNickname")
-    CommentSearchResponse.ListDTO toListResponse(CommentSearchClientResponse.ListDTO response, String memberNickname);
+    CommentSearchResponse.ListDTO toListResponse(CommentSearchClientResponse.ListDTO result, String memberNickname);
 
     @Mapping(source = "memberNickname", target = "memberNickname")
-    PostSearchResponse.ListDTO toMyListResponse(CommentSearchClientResponse.MyDTO response, String memberNickname);
+    PostSearchResponse.ListDTO toMyListResponse(CommentSearchClientResponse.MyDTO result, String memberNickname);
 }

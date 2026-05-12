@@ -11,7 +11,7 @@ import org.mapstruct.ReportingPolicy;
 public interface CommentMapper {
     CommentClientRequest.CreateDTO toCreateClientRequest(CommentRequest.CreateDTO dto);
 
-    CommentResponse.CreateDTO toCreateResponse(CommentClientResponse.CreateDTO response);
+    CommentResponse.CreateDTO toCreateResponse(CommentClientResponse.CreateDTO result);
 
     CommentClientRequest.UpdateDTO toUpdateClientRequest(CommentRequest.UpdateDTO dto);
 
