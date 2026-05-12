@@ -1,10 +1,13 @@
 package com.traveler.search.domain.comment.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public class CommentSearchResponse {
+public final class CommentSearchResponse {
+
+    private CommentSearchResponse() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     @Schema(description = "댓글 검색 결과 리스트 항목")
     public record ListDTO(
             @Schema(description = "댓글 ID", example = "501") Long commentId,

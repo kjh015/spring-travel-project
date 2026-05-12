@@ -1,7 +1,7 @@
 package com.traveler.search.domain.post.controller;
 
-import com.traveler.common.api.auth.context.UserContext;
 import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.common.core.response.PageResponse;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Post Search", description = "게시글 조회 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/search/posts")
+@RequestMapping("/v1/search/posts")
 public class PostSearchController {
     private final PostSearchQueryService postSearchQueryService;
 
@@ -41,7 +41,7 @@ public class PostSearchController {
     @ApiErrorCodeExamples(search = {SearchServiceErrorCode.POST_NOT_FOUND})
     @GetMapping("/{postId}")
     public ApiResponse<PostSearchResponse.DetailDTO> getPost(
-            @Parameter(description = "게시글 식별자", example = "101") @PathVariable Long postId) {
+            @Parameter(description = "게시글 ID", example = "101") @PathVariable Long postId) {
         return ApiResponse.onSuccess(SuccessCode.OK, postSearchQueryService.getPostDetail(postId));
     }
 

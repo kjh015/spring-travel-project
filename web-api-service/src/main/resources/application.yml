@@ -1,0 +1,47 @@
+server:
+  port: 8001
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: "web-api-service"
+
+  config:
+    import: optional:file:web-api-service/.env[.properties]
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+
+  cloud:
+    openfeign:
+      httpclient:
+        hc5:
+          enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 3000
+            readTimeout: 5000
+
+swagger:
+  info:
+    paths-to-match:
+      - "/api/v1/**"
+
+springdoc:
+  api-docs:
+    path: /api/v1/web-api/v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVERS}/eureka
