@@ -6,14 +6,13 @@ plugins {
 
 group = 'com.traveler'
 version = '0.0.1-SNAPSHOT'
-description = 'web-api-service'
+description = 'member-service'
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
-
 
 configurations {
     compileOnly {
@@ -29,21 +28,20 @@ ext {
     set('springCloudVersion', "2024.0.1")
 }
 
-
 dependencies {
     // Common Module
     implementation project(':common:api')
+    implementation project(':common:db')
 
-    // Web & Lombok
+    // Web & Lombok & Mysql
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testCompileOnly 'org.projectlombok:lombok'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testAnnotationProcessor 'org.projectlombok:lombok'
 
-    //Eureka
+    // Eureka
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     // MapStruct
@@ -51,12 +49,12 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.0'
 
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
-    // OpenFeign
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-    implementation 'io.github.openfeign:feign-hc5'
 }
 
 dependencyManagement {
