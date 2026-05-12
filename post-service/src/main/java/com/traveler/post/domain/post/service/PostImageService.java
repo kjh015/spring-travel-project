@@ -5,6 +5,7 @@ import com.traveler.post.domain.post.mapper.PostImageMapper;
 import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
 import com.traveler.post.global.s3.S3Service;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +17,11 @@ public class PostImageService {
     private final S3Service s3Service;
     private final PostImageMapper postImageMapper;
 
-    // 허용된 확장자 및 MIME 타입 정의
-    private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp");
-    private static final Set<String> ALLOWED_MIME_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
+    private static final Map<String, Set<String>> ALLOWED_FILE_TYPES = Map.of(
+            "jpg", Set.of("image/jpeg"),
+            "jpeg", Set.of("image/jpeg"),
+            "png", Set.of("image/png"),
+            "webp", Set.of("image/webp"));
 
     public PostImageResponse.PresignedUrlDTO getPresignedUrl(Long memberId, String fileName, String contentType) {
         validateFile(fileName, contentType);
@@ -31,14 +34,25 @@ public class PostImageService {
     }
 
     private void validateFile(String fileName, String contentType) {
-        if (!ALLOWED_MIME_TYPES.contains(contentType)) {
+        if (fileName == null || fileName.isBlank()) {
+            throw new PostServiceException(PostServiceErrorCode.S3_INVALID_FILE_EXTENSION);
+        }
+        if (contentType == null || contentType.isBlank()) {
             throw new PostServiceException(PostServiceErrorCode.S3_INVALID_FILE_TYPE);
         }
 
         int dotIndex = fileName.lastIndexOf(".");
-        if (dotIndex == -1
-                || !ALLOWED_EXTENSIONS.contains(fileName.substring(dotIndex + 1).toLowerCase())) {
+        if (dotIndex == -1) {
             throw new PostServiceException(PostServiceErrorCode.S3_INVALID_FILE_EXTENSION);
+        }
+
+        String extension = fileName.substring(dotIndex + 1).toLowerCase();
+        Set<String> allowedMimeTypes = ALLOWED_FILE_TYPES.get(extension);
+        if (allowedMimeTypes == null) {
+            throw new PostServiceException(PostServiceErrorCode.S3_INVALID_FILE_EXTENSION);
+        }
+        if (!allowedMimeTypes.contains(contentType)) {
+            throw new PostServiceException(PostServiceErrorCode.S3_INVALID_FILE_TYPE);
         }
     }
 }

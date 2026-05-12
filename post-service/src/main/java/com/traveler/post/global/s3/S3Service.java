@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
@@ -16,13 +17,18 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 @Service
 @RequiredArgsConstructor
 public class S3Service {
-
-    private final software.amazon.awssdk.services.s3.S3Client s3Client;
+    private final S3Client s3Client;
     private final S3Presigner s3Presigner;
 
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
 
+    @Value("${aws.s3.presigned-url.duration-minutes:10}")
+    private int presignedUrlDurationMinutes;
+
+    private static final List<String> ALLOWED_CONTENT_TYPES =
+            List.of("image/jpeg", "image/png", "image/gif", "image/webp");
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     private static final int S3_DELETE_BATCH_SIZE = 1000; // S3 API 제약
 
     public void deleteFilesByKeys(List<String> keys) {
@@ -72,14 +78,23 @@ public class S3Service {
     }
 
     public String generatePresignedUrl(String key, String contentType) {
+        // key 검증: 상대 경로나 특수 문자 차단
+        if (key.contains("..") || key.startsWith("/")) {
+            throw new PostServiceException(PostServiceErrorCode.S3_INVALID_KEY);
+        }
+        // contentType 검증
+        if (!ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            throw new PostServiceException(PostServiceErrorCode.S3_INVALID_CONTENT_TYPE);
+        }
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
                 .contentType(contentType)
+                .contentLength(MAX_FILE_SIZE)
                 .build();
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(10)) // 10분 유효
+                .signatureDuration(Duration.ofMinutes(presignedUrlDurationMinutes))
                 .putObjectRequest(putObjectRequest)
                 .build();
 

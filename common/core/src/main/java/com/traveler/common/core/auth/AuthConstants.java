@@ -1,10 +1,9 @@
 package com.traveler.common.core.auth;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor(access = AccessLevel.PRIVATE) // 인스턴스화 방지
 public final class AuthConstants {
+    private AuthConstants() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     // HTTP Header 관련
     public static final String AUTHORIZATION_HEADER = "Authorization";

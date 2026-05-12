@@ -37,7 +37,7 @@ public class PostServiceExceptionAdvice implements BaseExceptionAdvice {
                     case "NoSuchKey" -> PostServiceErrorCode.S3_FILE_NOT_FOUND;
                     case "AccessDenied" -> PostServiceErrorCode.S3_ACCESS_DENIED;
                     case "InvalidRequest", "InvalidArgument" -> PostServiceErrorCode.S3_INVALID_URL;
-                    default -> PostServiceErrorCode.S3_DELETE_ERROR;
+                    default -> PostServiceErrorCode.S3_OPERATION_ERROR;
                 };
 
         return createErrorResponse(mappedErrorCode, null);

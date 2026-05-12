@@ -13,6 +13,11 @@ public record PageResponse<T>(
         int totalPages,
         boolean isFirst,
         boolean isLast) {
+    public PageResponse {
+        if (content == null) {
+            throw new IllegalArgumentException("content must not be null");
+        }
+    }
     /**
      * 내부 content의 요소를 변환 함수를 통해 가공한 새로운 PageResponse를 반환합니다.
      */

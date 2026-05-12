@@ -20,6 +20,7 @@ public class SwaggerServiceConfig {
     private final SwaggerConfig swaggerConfig; // 기존 공통 로직 재사용
 
     @Bean
+    @ConditionalOnMissingBean(ApiErrorCodeOperationCustomizer.class)
     public ApiErrorCodeOperationCustomizer apiErrorCodeOperationCustomizer() {
         return new ApiErrorCodeOperationCustomizer();
     }

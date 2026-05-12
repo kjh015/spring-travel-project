@@ -1,9 +1,9 @@
 package com.traveler.common.api.converter;
 
 import com.traveler.common.core.response.PageResponse;
-import java.util.List;
 import java.util.function.Function;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 public final class PageConverter {
     private PageConverter() {
@@ -20,7 +20,15 @@ public final class PageConverter {
      * @return 페이징 정보가 담긴 PageResponse
      */
     public static <T> PageResponse<T> toPageResponse(Page<T> pageData) {
-        return buildPageResponse(pageData.getContent(), pageData);
+        return PageResponse.<T>builder()
+                .content(pageData.getContent())
+                .currentPage(pageData.getNumber() + 1)
+                .size(pageData.getSize())
+                .totalElements(pageData.getTotalElements())
+                .totalPages(pageData.getTotalPages())
+                .isFirst(pageData.isFirst())
+                .isLast(pageData.isLast())
+                .build();
     }
 
     /**
@@ -34,33 +42,11 @@ public final class PageConverter {
      * @return 변환된 데이터 리스트와 페이징 정보가 담긴 PageResponse
      */
     public static <E, R> PageResponse<R> toPageResponse(Page<E> pageData, Function<E, R> converter) {
-        List<R> content = pageData.getContent().stream().map(converter).toList();
-
-        return buildPageResponse(content, pageData);
+        return toPageResponse(pageData.map(converter));
     }
 
     /** 빈 페이지 응답 생성 결과가 없을 때 일관된 응답 구조를 반환하기 위해 사용합니다. */
     public static <R> PageResponse<R> emptyPageResponse(int size) {
-        return PageResponse.<R>builder()
-                .content(List.of())
-                .currentPage(1)
-                .size(size)
-                .totalElements(0L)
-                .totalPages(0)
-                .isFirst(true)
-                .isLast(true)
-                .build();
-    }
-
-    private static <T> PageResponse<T> buildPageResponse(List<T> content, Page<?> pageData) {
-        return PageResponse.<T>builder()
-                .content(content)
-                .currentPage(pageData.getNumber() + 1)
-                .size(pageData.getSize())
-                .totalElements(pageData.getTotalElements())
-                .totalPages(pageData.getTotalPages())
-                .isFirst(pageData.isFirst())
-                .isLast(pageData.isLast())
-                .build();
+        return toPageResponse(Page.empty(PageRequest.of(0, size)));
     }
 }
