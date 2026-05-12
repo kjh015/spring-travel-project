@@ -1,9 +1,9 @@
 package com.traveler.member.domain.member.dto.request;
 
-public final class MemberRequest {
-    private MemberRequest() {
+public final class AuthRequest {
+    private AuthRequest() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public record SignUpDTO() {}
+    public record LoginDTO() {}
 }
