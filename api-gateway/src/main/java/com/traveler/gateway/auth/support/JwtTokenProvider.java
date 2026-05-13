@@ -29,7 +29,7 @@ public class JwtTokenProvider {
         return Mono.fromCallable(() -> jwtParser.parseSignedClaims(token).getPayload())
                 .subscribeOn(Schedulers.boundedElastic())
                 .onErrorResume(e -> {
-                    ApiGatewayErrorCode errorCode = determineErrorCode((Exception) e);
+                    ApiGatewayErrorCode errorCode = determineErrorCode(e);
                     // 스택 트레이스 없이 에러 시그널만 전파
                     return Mono.error(new ApiGatewayNoStackException(errorCode));
                 });
@@ -46,7 +46,7 @@ public class JwtTokenProvider {
         return Collections.emptyList();
     }
 
-    private ApiGatewayErrorCode determineErrorCode(Exception e) {
+    private ApiGatewayErrorCode determineErrorCode(Throwable e) {
         if (e instanceof SignatureException) return ApiGatewayErrorCode.SIGNATURE_INVALID_JWT;
         if (e instanceof ExpiredJwtException) return ApiGatewayErrorCode.EXPIRED_JWT;
         if (e instanceof UnsupportedJwtException) return ApiGatewayErrorCode.UNSUPPORTED_JWT;

@@ -8,8 +8,7 @@ public class ApiGatewayNoStackException extends RuntimeException {
 
     public ApiGatewayNoStackException(BaseErrorCode code) {
         // message, cause, enableSuppression, writableStackTrace 순서
-        super(code.getMessage(), null, false, false);
-        Objects.requireNonNull(code, "BaseErrorCode must not be null");
+        super(Objects.requireNonNull(code, "BaseErrorCode must not be null").getMessage(), null, false, false);
         this.code = code;
     }
 
