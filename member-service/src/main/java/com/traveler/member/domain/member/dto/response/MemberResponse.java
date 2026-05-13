@@ -1,23 +1,35 @@
 package com.traveler.member.domain.member.dto.response;
 
+import com.traveler.member.domain.member.enums.AvailabilityType;
+import com.traveler.member.domain.member.enums.RoleType;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+
 public final class MemberResponse {
     private MemberResponse() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public record SignUpDTO() {}
+    public record SignUpDTO(Long memberId, Instant createdAt) {}
 
-    public record WithdrawDTO() {}
+    public record WithdrawDTO(Long memberId, Instant deletedAt) {}
 
-    public record UpdateDTO() {}
+    public record UpdateDTO(Long memberId, Instant updatedAt) {}
 
-    public record UpdatePasswordDTO() {}
+    public record UpdatePasswordDTO(Long memberId, Instant updatedAt) {}
 
-    public record ListDTO() {}
+    public record MyProfileDTO(
+            Long memberId,
+            String loginId,
+            String email,
+            String nickname,
+            String gender,
+            LocalDate birthDate,
+            Integer age,
+            List<RoleType> roles) {}
 
-    public record DetailDTO() {}
+    public record ProfileDTO(Long memberId, String nickname, String gender, LocalDate birthDate, Integer age) {}
 
-    public record NicknameDTO() {}
-
-    public record CheckDTO() {}
+    public record AvailabilityDTO(boolean isAvailable, String value, AvailabilityType reason) {}
 }

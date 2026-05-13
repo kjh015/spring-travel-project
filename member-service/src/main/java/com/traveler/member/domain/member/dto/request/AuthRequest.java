@@ -5,5 +5,5 @@ public final class AuthRequest {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public record LoginDTO() {}
+    public record LoginDTO(String loginId, String password) {}
 }

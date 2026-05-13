@@ -22,41 +22,48 @@ public class MemberController {
 
     @PostMapping()
     public ApiResponse<MemberResponse.SignUpDTO> signUp(@RequestBody MemberRequest.SignUpDTO dto) {
-        return ApiResponse.onSuccess(SuccessCode.OK, null);
+        return ApiResponse.onSuccess(SuccessCode.OK, memberCommandService.signUp(dto));
     }
 
     @DeleteMapping("/me")
     public ApiResponse<MemberResponse.WithdrawDTO> withdraw(@LoginUser UserContext user) {
-        return ApiResponse.onSuccess(SuccessCode.OK, null);
+        return ApiResponse.onSuccess(SuccessCode.OK, memberCommandService.withdraw(user.id()));
     }
 
     @PatchMapping("/me")
-    public ApiResponse<MemberResponse.UpdateDTO> updateMember(@LoginUser UserContext user) {
-        return ApiResponse.onSuccess(SuccessCode.OK, null);
+    public ApiResponse<MemberResponse.UpdateDTO> updateMember(
+            @RequestBody MemberRequest.UpdateDTO dto, @LoginUser UserContext user) {
+        return ApiResponse.onSuccess(SuccessCode.OK, memberCommandService.updateMember(dto, user.id()));
     }
 
     @PatchMapping("/me/password")
-    public ApiResponse<MemberResponse.UpdatePasswordDTO> updatePassword(@LoginUser UserContext user) {
-        return ApiResponse.onSuccess(SuccessCode.OK, null);
-    }
-
-    @GetMapping()
-    public ApiResponse<MemberResponse.ListDTO> getMembers() {
-        return ApiResponse.onSuccess(SuccessCode.OK, null);
+    public ApiResponse<MemberResponse.UpdatePasswordDTO> updatePassword(
+            @RequestBody MemberRequest.UpdatePasswordDTO dto, @LoginUser UserContext user) {
+        return ApiResponse.onSuccess(SuccessCode.OK, memberCommandService.updatePassword(dto, user.id()));
     }
 
     @GetMapping("/{memberId}")
-    public ApiResponse<MemberResponse.DetailDTO> getMember(@PathVariable String memberId) {
-        return ApiResponse.onSuccess(SuccessCode.OK, null);
+    public ApiResponse<MemberResponse.ProfileDTO> getMemberProfile(@PathVariable Long memberId) {
+        return ApiResponse.onSuccess(SuccessCode.OK, memberQueryService.getMemberProfile(memberId));
     }
 
-    @GetMapping("/{memberId}/nickname")
-    public ApiResponse<MemberResponse.NicknameDTO> getNickname(@PathVariable String memberId) {
-        return ApiResponse.onSuccess(SuccessCode.OK, null);
+    @GetMapping("/me")
+    public ApiResponse<MemberResponse.MyProfileDTO> getMyProfile(@LoginUser UserContext user) {
+        return ApiResponse.onSuccess(SuccessCode.OK, memberQueryService.getMyProfile(user.id()));
     }
 
-    @GetMapping("/check")
-    public ApiResponse<MemberResponse.CheckDTO> checkDuplicate() {
-        return ApiResponse.onSuccess(SuccessCode.OK, null);
+    @GetMapping("/availability/login-id")
+    public ApiResponse<MemberResponse.AvailabilityDTO> checkLoginIdAvailability(@RequestParam String loginId) {
+        return ApiResponse.onSuccess(SuccessCode.OK, memberQueryService.checkLoginIdAvailability(loginId));
+    }
+
+    @GetMapping("/availability/email")
+    public ApiResponse<MemberResponse.AvailabilityDTO> checkEmailAvailability(@RequestParam String email) {
+        return ApiResponse.onSuccess(SuccessCode.OK, memberQueryService.checkEmailAvailability(email));
+    }
+
+    @GetMapping("/availability/nickname")
+    public ApiResponse<MemberResponse.AvailabilityDTO> checkNicknameAvailability(@RequestParam String nickname) {
+        return ApiResponse.onSuccess(SuccessCode.OK, memberQueryService.checkNicknameAvailability(nickname));
     }
 }

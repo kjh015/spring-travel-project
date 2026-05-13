@@ -5,7 +5,7 @@ public final class AuthResponse {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public record LoginDTO() {}
+    public record LoginDTO(Long memberId, String nickname) {}
 
     public record LogoutDTO() {}
 

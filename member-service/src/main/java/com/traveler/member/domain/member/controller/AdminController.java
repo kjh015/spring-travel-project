@@ -13,12 +13,22 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/admin")
 public class AdminController {
     @PatchMapping("/members/{memberId}/role")
-    public ApiResponse<AdminResponse.GrantAdminDTO> grantAdminRole(@PathVariable String memberId) {
+    public ApiResponse<AdminResponse.GrantAdminDTO> grantAdminRole(@PathVariable Long memberId) {
         return ApiResponse.onSuccess(SuccessCode.OK, null);
     }
 
     @DeleteMapping("/members/{memberId}")
-    public ApiResponse<AdminResponse.DeleteDTO> deleteMember(@PathVariable String memberId) {
+    public ApiResponse<AdminResponse.DeleteDTO> deleteMember(@PathVariable Long memberId) {
+        return ApiResponse.onSuccess(SuccessCode.OK, null);
+    }
+
+    @GetMapping("/members")
+    public ApiResponse<AdminResponse.ListDTO> getMembers() {
+        return ApiResponse.onSuccess(SuccessCode.OK, null);
+    }
+
+    @GetMapping("/members/{memberId}")
+    public ApiResponse<AdminResponse.DetailDTO> getMember(@PathVariable Long memberId) {
         return ApiResponse.onSuccess(SuccessCode.OK, null);
     }
 }
