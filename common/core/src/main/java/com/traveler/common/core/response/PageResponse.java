@@ -24,13 +24,14 @@ public record PageResponse<T>(
     public <U> PageResponse<U> map(Function<? super T, U> converter) {
         List<U> mappedContent = this.content.stream().map(converter).toList();
 
-        return new PageResponse<>(
-                mappedContent,
-                this.currentPage,
-                this.size,
-                this.totalElements,
-                this.totalPages,
-                this.isFirst,
-                this.isLast);
+        return PageResponse.<U>builder()
+                .content(mappedContent)
+                .currentPage(this.currentPage)
+                .size(this.size)
+                .totalElements(this.totalElements)
+                .totalPages(this.totalPages)
+                .isFirst(this.isFirst)
+                .isLast(this.isLast)
+                .build();
     }
 }

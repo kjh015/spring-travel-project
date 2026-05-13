@@ -28,14 +28,19 @@ public class RoleAuthorizationFilter extends AbstractGatewayFilterFactory<RoleAu
 
     @Override
     public GatewayFilter apply(Config config) {
+        String requiredRole = config.getRequiredRole();
+        if (requiredRole == null || requiredRole.isBlank()) {
+            log.error("[Auth] requiredRole is missing in RoleAuthorizationFilter config");
+            return (exchange, chain) -> Mono.error(new ApiGatewayNoStackException(ErrorCode.INTERNAL_SERVER_ERROR));
+        }
         return (exchange, chain) -> authContextManager
                 .getAuthenticatedUser(exchange)
                 .map(authUser -> {
                     List<String> userRoles = authUser.roles();
 
                     // 권한 포함 여부 확인
-                    if (userRoles == null || !userRoles.contains(config.getRequiredRole())) {
-                        log.warn("[Auth] Access Denied. Required: {}, Actual: {}", config.getRequiredRole(), userRoles);
+                    if (userRoles == null || !userRoles.contains(requiredRole)) {
+                        log.warn("[Auth] Access Denied. Required: {}, Actual: {}", requiredRole, userRoles);
                         return Mono.<Void>error(new ApiGatewayNoStackException(ErrorCode.FORBIDDEN));
                     }
 
