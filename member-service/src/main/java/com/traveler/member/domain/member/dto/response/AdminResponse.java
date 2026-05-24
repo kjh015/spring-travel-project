@@ -35,6 +35,6 @@ public final class AdminResponse {
             List<RoleType> roles,
             Instant createdAt,
             Instant updatedAt,
-            Boolean isDeleted,
+            boolean isDeleted,
             Instant deletedAt) {}
 }

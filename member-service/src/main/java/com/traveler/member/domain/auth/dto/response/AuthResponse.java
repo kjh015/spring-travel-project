@@ -1,4 +1,6 @@
-package com.traveler.member.domain.member.dto.response;
+package com.traveler.member.domain.auth.dto.response;
+
+import com.traveler.member.domain.auth.dto.AuthTokens;
 
 public final class AuthResponse {
     private AuthResponse() {
@@ -7,7 +9,5 @@ public final class AuthResponse {
 
     public record LoginDTO(Long memberId, String nickname) {}
 
-    public record LogoutDTO() {}
-
-    public record RefreshDTO() {}
+    public record LoginResult(AuthTokens tokens, LoginDTO loginInfo) {}
 }

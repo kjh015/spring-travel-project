@@ -1,4 +1,4 @@
-package com.traveler.member.domain.member.dto.request;
+package com.traveler.member.domain.auth.dto.request;
 
 public final class AuthRequest {
     private AuthRequest() {

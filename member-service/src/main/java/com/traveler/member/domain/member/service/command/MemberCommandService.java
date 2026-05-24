@@ -1,8 +1,10 @@
 package com.traveler.member.domain.member.service.command;
 
 import com.traveler.member.domain.member.dto.request.MemberRequest;
+import com.traveler.member.domain.member.dto.response.AdminResponse;
 import com.traveler.member.domain.member.dto.response.MemberResponse;
 import com.traveler.member.domain.member.entity.Member;
+import com.traveler.member.domain.member.enums.RoleType;
 import com.traveler.member.domain.member.mapper.MemberMapper;
 import com.traveler.member.domain.member.repository.MemberRepository;
 import com.traveler.member.global.exception.MemberServiceException;
@@ -73,5 +75,25 @@ public class MemberCommandService {
         member.updatePassword(encodedNewPassword);
 
         return memberMapper.toUpdatePasswordDTO(member);
+    }
+
+    public AdminResponse.GrantAdminDTO grantAdminRole(Long memberId) {
+        Member member = memberRepository
+                .findById(memberId)
+                .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
+
+        member.addRole(RoleType.ROLE_ADMIN);
+
+        return memberMapper.toGrantAdminDTO(member);
+    }
+
+    public AdminResponse.DeleteDTO deleteMember(Long memberId) {
+        Member member = memberRepository
+                .findById(memberId)
+                .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
+
+        member.delete();
+
+        return memberMapper.toDeleteDTO(member);
     }
 }

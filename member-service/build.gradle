@@ -41,6 +41,12 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // JJWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    implementation 'io.jsonwebtoken:jjwt-gson:0.12.6'
+
     // Eureka
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
@@ -55,6 +61,8 @@ dependencies {
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+
 }
 
 dependencyManagement {

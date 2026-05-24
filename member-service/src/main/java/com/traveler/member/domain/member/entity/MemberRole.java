@@ -13,7 +13,6 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "member_roles")
 public class MemberRole extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

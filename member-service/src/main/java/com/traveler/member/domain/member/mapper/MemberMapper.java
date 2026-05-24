@@ -1,6 +1,7 @@
 package com.traveler.member.domain.member.mapper;
 
 import com.traveler.member.domain.member.dto.request.MemberRequest;
+import com.traveler.member.domain.member.dto.response.AdminResponse;
 import com.traveler.member.domain.member.dto.response.MemberResponse;
 import com.traveler.member.domain.member.entity.Member;
 import com.traveler.member.domain.member.enums.AvailabilityType;
@@ -32,4 +33,16 @@ public interface MemberMapper {
     MemberResponse.MyProfileDTO toMyProfileDTO(Member member, Integer age);
 
     MemberResponse.AvailabilityDTO AvailabilityDTO(boolean isAvailable, String value, AvailabilityType reason);
+
+    @Mapping(source = "id", target = "memberId")
+    AdminResponse.GrantAdminDTO toGrantAdminDTO(Member member);
+
+    @Mapping(source = "id", target = "memberId")
+    AdminResponse.DeleteDTO toDeleteDTO(Member member);
+
+    @Mapping(source = "id", target = "memberId")
+    AdminResponse.ListDTO toListDTO(Member member);
+
+    @Mapping(source = "id", target = "memberId")
+    AdminResponse.DetailDTO toDetailDTO(Member member);
 }

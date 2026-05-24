@@ -2,6 +2,7 @@ package com.traveler.member.domain.member.entity;
 
 import com.traveler.common.db.entity.BaseEntity;
 import com.traveler.member.domain.member.enums.Gender;
+import com.traveler.member.domain.member.enums.RoleType;
 import com.traveler.member.global.exception.MemberServiceException;
 import com.traveler.member.global.exception.code.MemberServiceErrorCode;
 import jakarta.persistence.*;
@@ -23,7 +24,7 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("is_deleted = false")
 @Table(
-        name = "members",
+        name = "member",
         indexes = {@Index(name = "idx_member_deleted_at_status", columnList = "isDeleted, deletedAt")})
 public class Member extends BaseEntity {
 
@@ -44,8 +45,7 @@ public class Member extends BaseEntity {
 
     private LocalDate birthDate;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "member_id")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<MemberRole> roles = new ArrayList<>();
 
@@ -77,6 +77,23 @@ public class Member extends BaseEntity {
             return null;
         }
         return (int) ChronoUnit.YEARS.between(this.birthDate, LocalDate.now());
+    }
+
+    public List<RoleType> getRoleTypes() {
+        return this.roles.stream().map(MemberRole::getRoleType).toList();
+    }
+
+    public void addRole(RoleType roleType) {
+        validateNotDeleted();
+
+        // 이미 해당 권한을 가지고 있는지 검증
+        boolean hasRole = this.roles.stream().anyMatch(role -> role.getRoleType() == roleType);
+
+        if (!hasRole) {
+            MemberRole newRole =
+                    MemberRole.builder().member(this).roleType(roleType).build();
+            this.roles.add(newRole);
+        }
     }
 
     private void validateNotDeleted() {
