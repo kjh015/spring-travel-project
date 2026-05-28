@@ -7,12 +7,12 @@ import com.traveler.common.core.response.ApiResponse;
 import com.traveler.member.domain.auth.dto.request.AuthRequest;
 import com.traveler.member.domain.auth.dto.response.AuthResponse;
 import com.traveler.member.domain.auth.service.AuthService;
-import com.traveler.member.domain.auth.support.AuthHttpSupport;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Auth", description = "Auth API")
 @RestController
@@ -20,37 +20,21 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/auth")
 public class AuthController {
     private final AuthService authService;
-    private final AuthHttpSupport authHttpSupport;
 
     @PostMapping("/login")
-    public ApiResponse<AuthResponse.LoginDTO> login(
-            @RequestBody AuthRequest.LoginDTO dto, HttpServletResponse response) {
-        AuthResponse.LoginResult result = authService.login(dto);
-
-        authHttpSupport.setAuthResponse(response, result.tokens());
-
-        return ApiResponse.onSuccess(SuccessCode.OK, result.loginInfo());
+    public ApiResponse<AuthResponse.LoginResult> login(@RequestBody AuthRequest.LoginDTO dto) {
+        return ApiResponse.onSuccess(SuccessCode.OK, authService.login(dto));
     }
 
     @PostMapping("/logout")
-    public ApiResponse<Void> logout(
-            @LoginUser UserContext user, HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = authHttpSupport.resolveAccessToken(request);
-
-        authService.logout(user.id(), accessToken);
-
-        authHttpSupport.clearAuthResponse(response);
+    public ApiResponse<Void> logout(@LoginUser UserContext user) {
+        authService.logout(user.id(), user.accessToken());
         return ApiResponse.onSuccess(SuccessCode.OK, null);
     }
 
     @PostMapping("/tokens/refresh")
-    public ApiResponse<AuthResponse.LoginDTO> reissueRefreshToken(
-            @CookieValue(name = "refreshToken") String refreshToken, HttpServletResponse response) {
-        AuthResponse.LoginResult result = authService.reissue(refreshToken);
-
-        // 새로운 토큰 세팅 (AT: Header, RT: Cookie)
-        authHttpSupport.setAuthResponse(response, result.tokens());
-
-        return ApiResponse.onSuccess(SuccessCode.OK, result.loginInfo());
+    public ApiResponse<AuthResponse.LoginResult> reissueRefreshToken(@RequestBody AuthRequest.ReissueDTO dto) {
+        // BFF가 추출하여 Body로 쏴준 RefreshToken을 기반으로 재발급
+        return ApiResponse.onSuccess(SuccessCode.OK, authService.reissue(dto.refreshToken()));
     }
 }

@@ -1,4 +1,4 @@
-package com.traveler.member.domain.auth.dto.request;
+package com.traveler.web.domain.member.dto.request;
 
 public final class AuthRequest {
     private AuthRequest() {
@@ -6,6 +6,4 @@ public final class AuthRequest {
     }
 
     public record LoginDTO(String loginId, String password) {}
-
-    public record ReissueDTO(String refreshToken) {}
 }

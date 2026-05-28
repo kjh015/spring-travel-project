@@ -12,6 +12,7 @@ public final class AuthConstants {
     // Gateway -> Microservice 전달용 내부 보안 헤더
     public static final String X_USER_ID = "X-User-Id";
     public static final String X_USER_ROLES = "X-User-Roles";
+    public static final String X_ACCESS_TOKEN = "X-Access-Token";
 
     // Redis 관련 키 접두사
     public static final String REDIS_BLACKLIST_PREFIX = "blacklist:";

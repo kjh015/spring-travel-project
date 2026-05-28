@@ -16,12 +16,16 @@ public class AuthContextManager {
                     // 상시 삭제 (보안 헤더 스푸핑 방지)
                     headers.remove(AuthConstants.X_USER_ID);
                     headers.remove(AuthConstants.X_USER_ROLES);
+                    headers.remove(AuthConstants.X_ACCESS_TOKEN);
 
                     // 인증 정보가 있는 경우에만 주입 (Late Binding)
                     if (user != null) {
                         headers.add(AuthConstants.X_USER_ID, String.valueOf(user.id()));
                         if (user.roles() != null && !user.roles().isEmpty()) {
                             headers.add(AuthConstants.X_USER_ROLES, String.join(",", user.roles()));
+                        }
+                        if (user.accessToken() != null) {
+                            headers.add(AuthConstants.X_ACCESS_TOKEN, user.accessToken());
                         }
                     }
                 }))

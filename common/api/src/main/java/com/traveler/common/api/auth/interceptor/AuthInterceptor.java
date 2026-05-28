@@ -16,12 +16,13 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String userId = request.getHeader(AuthConstants.X_USER_ID);
         String roles = request.getHeader(AuthConstants.X_USER_ROLES);
+        String accessToken = request.getHeader(AuthConstants.X_ACCESS_TOKEN);
 
         if (userId != null && roles != null) {
             try {
                 List<String> roleList =
                         Arrays.stream(roles.split(",")).map(String::trim).toList();
-                UserContext context = UserContext.of(Long.valueOf(userId), roleList);
+                UserContext context = UserContext.of(Long.valueOf(userId), roleList, accessToken);
                 UserContextHolder.setContext(context);
             } catch (NumberFormatException e) {
                 throw new GeneralException(ErrorCode.BAD_REQUEST);

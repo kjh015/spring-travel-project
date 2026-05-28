@@ -10,6 +10,8 @@ import com.traveler.member.domain.member.mapper.MemberMapper;
 import com.traveler.member.domain.member.repository.MemberRepository;
 import com.traveler.member.global.exception.MemberServiceException;
 import com.traveler.member.global.exception.code.MemberServiceErrorCode;
+import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -65,5 +67,17 @@ public class MemberQueryService {
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
 
         return memberMapper.toDetailDTO(member);
+    }
+
+    public List<MemberResponse.ProfileDTO> getMemberProfiles(Set<Long> memberIds) {
+        if (memberIds == null || memberIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Member> members = memberRepository.findAllById(memberIds);
+
+        return members.stream()
+                .map(member -> memberMapper.toProfileDTO(member, member.getAge()))
+                .toList();
     }
 }

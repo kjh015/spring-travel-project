@@ -42,15 +42,16 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         return (exchange, chain) -> Mono.justOrEmpty(resolveToken(exchange.getRequest()))
                 .switchIfEmpty(Mono.error(new ApiGatewayNoStackException(ApiGatewayErrorCode.INVALID_TOKEN_TYPE)))
                 .flatMap(token -> tokenBlacklistManager.checkBlacklist(token).then(Mono.just(token)))
-                .flatMap(jwtTokenProvider::validateToken)
-                .<UserContext>handle((claims, sink) -> {
-                    try {
-                        Long userId = Long.valueOf(claims.getSubject());
-                        sink.next(UserContext.of(userId, jwtTokenProvider.getRoles(claims)));
-                    } catch (NumberFormatException e) {
-                        sink.error(new ApiGatewayNoStackException(ApiGatewayErrorCode.INVALID_TOKEN_TYPE));
-                    }
-                })
+                .flatMap(token -> jwtTokenProvider
+                        .validateToken(token)
+                        .<UserContext>handle((claims, sink) -> { // map을 사용하여 token과 claims를 결합
+                            try {
+                                Long userId = Long.valueOf(claims.getSubject());
+                                sink.next(UserContext.of(userId, jwtTokenProvider.getRoles(claims), token));
+                            } catch (NumberFormatException e) {
+                                sink.error(new ApiGatewayNoStackException(ApiGatewayErrorCode.INVALID_TOKEN_TYPE));
+                            }
+                        }))
                 .flatMap(authUser -> {
                     // 컨텍스트 저장 및 헤더 주입
                     authContextManager.storeAuthenticatedUser(exchange, authUser);

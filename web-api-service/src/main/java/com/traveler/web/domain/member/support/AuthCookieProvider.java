@@ -1,4 +1,4 @@
-package com.traveler.member.domain.auth.support;
+package com.traveler.web.domain.member.support;
 
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;

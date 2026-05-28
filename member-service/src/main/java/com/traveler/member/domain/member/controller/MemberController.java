@@ -9,6 +9,8 @@ import com.traveler.member.domain.member.dto.response.MemberResponse;
 import com.traveler.member.domain.member.service.command.MemberCommandService;
 import com.traveler.member.domain.member.service.query.MemberQueryService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +42,11 @@ public class MemberController {
     public ApiResponse<MemberResponse.UpdatePasswordDTO> updatePassword(
             @RequestBody MemberRequest.UpdatePasswordDTO dto, @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.OK, memberCommandService.updatePassword(dto, user.id()));
+    }
+
+    @GetMapping
+    public ApiResponse<List<MemberResponse.ProfileDTO>> getMemberProfiles(@RequestParam Set<Long> memberIds) {
+        return ApiResponse.onSuccess(SuccessCode.OK, memberQueryService.getMemberProfiles(memberIds));
     }
 
     @GetMapping("/{memberId}")

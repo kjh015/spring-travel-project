@@ -1,7 +1,7 @@
-package com.traveler.member.domain.auth.dto.request;
+package com.traveler.web.domain.member.client.dto.request;
 
-public final class AuthRequest {
-    private AuthRequest() {
+public final class AuthClientRequest {
+    private AuthClientRequest() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 

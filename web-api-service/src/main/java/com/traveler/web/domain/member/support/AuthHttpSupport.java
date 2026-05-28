@@ -1,14 +1,12 @@
-package com.traveler.member.domain.auth.support;
+package com.traveler.web.domain.member.support;
 
 import com.traveler.common.core.auth.AuthConstants;
-import com.traveler.member.domain.auth.dto.AuthTokens;
-import jakarta.servlet.http.HttpServletRequest;
+import com.traveler.web.domain.member.dto.AuthTokens;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Component
 @RequiredArgsConstructor
@@ -28,13 +26,5 @@ public class AuthHttpSupport {
     public void clearAuthResponse(HttpServletResponse response) {
         ResponseCookie cookie = cookieProvider.createLogoutCookie();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-    }
-
-    public String resolveAccessToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AuthConstants.AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
-            return bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
-        }
-        return null;
     }
 }

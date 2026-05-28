@@ -45,3 +45,7 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: ${EUREKA_SERVERS}/eureka
+
+app:
+  jwt:
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:1209600000} # 14일
