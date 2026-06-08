@@ -2,7 +2,10 @@ package com.traveler.search.domain.ranking.dto.response;
 
 import java.util.List;
 
-public class RankingResponse {
+public final class RankingResponse {
+    private RankingResponse() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     public record PostRank(Long postId, Long memberId, String title, String thumbnail, Long score) {}
 

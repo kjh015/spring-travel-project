@@ -4,10 +4,12 @@ import com.traveler.post.domain.post.enums.Category;
 import com.traveler.post.domain.post.enums.Region;
 import java.time.Instant;
 import java.util.List;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public class PostMessage {
+public final class PostMessage {
+
+    private PostMessage() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     public record ImageInfo(String imageKey, int sortOrder) {}
 

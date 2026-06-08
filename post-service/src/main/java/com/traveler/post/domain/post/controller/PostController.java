@@ -1,7 +1,7 @@
 package com.traveler.post.domain.post.controller;
 
-import com.traveler.common.api.auth.context.UserContext;
 import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Post", description = "게시글 관련 API (작성, 수정, 삭제)")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/posts")
+@RequestMapping("/v1/posts")
 public class PostController {
     private final PostService postService;
 
@@ -42,7 +42,7 @@ public class PostController {
             })
     @PatchMapping("/{postId}")
     public ApiResponse<PostResponse.UpdateDTO> updatePost(
-            @Parameter(description = "게시글 식별자", example = "1") @PathVariable Long postId,
+            @Parameter(description = "게시글 ID", example = "1") @PathVariable Long postId,
             @Valid @RequestBody PostRequest.UpdateDTO dto,
             @Parameter(hidden = true) @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.OK, postService.updatePost(postId, user.id(), dto));
@@ -54,7 +54,7 @@ public class PostController {
             post = {PostServiceErrorCode.POST_NOT_FOUND})
     @DeleteMapping("/{postId}")
     public ApiResponse<PostResponse.DeleteDTO> deletePost(
-            @Parameter(description = "게시글 식별자", example = "1") @PathVariable Long postId,
+            @Parameter(description = "게시글 ID", example = "1") @PathVariable Long postId,
             @Parameter(hidden = true) @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.OK, postService.deletePost(postId, user.id()));
     }

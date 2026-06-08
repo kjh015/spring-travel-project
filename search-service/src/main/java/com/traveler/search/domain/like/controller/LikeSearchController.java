@@ -1,7 +1,7 @@
 package com.traveler.search.domain.like.controller;
 
-import com.traveler.common.api.auth.context.UserContext;
 import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.common.core.response.PageResponse;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Like Search", description = "좋아요 조회 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/search/likes")
+@RequestMapping("/v1/search/likes")
 public class LikeSearchController {
     private final LikeSearchQueryService likeSearchQueryService;
 

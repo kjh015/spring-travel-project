@@ -12,7 +12,8 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-    @Query("SELECT DISTINCT p FROM Post p " + "LEFT JOIN FETCH p.travelPlace tp "
+    @Query("SELECT DISTINCT p FROM Post p "
+            + "LEFT JOIN FETCH p.travelPlace tp "
             + "LEFT JOIN FETCH p.images im "
             + "WHERE p.id = :postId ")
     Optional<Post> findByIdWithDetails(Long postId);
