@@ -13,8 +13,7 @@ import java.lang.annotation.Target;
 @SwaggerErrorResponse
 public @interface ApiErrorCodeExamples {
 
-    // ErrorCode
-    ErrorCode[] value() default {};
+    MemberServiceErrorCode[] value() default {};
 
-    MemberServiceErrorCode[] post() default {};
+    ErrorCode[] common() default {};
 }

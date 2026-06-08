@@ -26,23 +26,28 @@ public interface MemberMapper {
     @Mapping(source = "id", target = "memberId")
     MemberResponse.UpdatePasswordDTO toUpdatePasswordDTO(Member member);
 
-    @Mapping(source = "id", target = "memberId")
+    @Mapping(source = "member.id", target = "memberId")
     MemberResponse.ProfileDTO toProfileDTO(Member member, Integer age);
 
-    @Mapping(source = "id", target = "memberId")
+    @Mapping(source = "member.id", target = "memberId")
+    @Mapping(source = "member.roleTypes", target = "roles")
     MemberResponse.MyProfileDTO toMyProfileDTO(Member member, Integer age);
 
     MemberResponse.AvailabilityDTO AvailabilityDTO(boolean isAvailable, String value, AvailabilityType reason);
 
+    // Admin
     @Mapping(source = "id", target = "memberId")
+    @Mapping(source = "member.roleTypes", target = "roles")
     AdminResponse.GrantAdminDTO toGrantAdminDTO(Member member);
 
     @Mapping(source = "id", target = "memberId")
     AdminResponse.DeleteDTO toDeleteDTO(Member member);
 
     @Mapping(source = "id", target = "memberId")
+    @Mapping(source = "member.roleTypes", target = "roles")
     AdminResponse.ListDTO toListDTO(Member member);
 
     @Mapping(source = "id", target = "memberId")
+    @Mapping(source = "member.roleTypes", target = "roles")
     AdminResponse.DetailDTO toDetailDTO(Member member);
 }

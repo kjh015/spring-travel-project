@@ -2,6 +2,7 @@ package com.traveler.member.domain.member.entity;
 
 import com.traveler.common.db.entity.BaseEntity;
 import com.traveler.member.domain.member.enums.Gender;
+import com.traveler.member.domain.member.enums.Provider;
 import com.traveler.member.domain.member.enums.RoleType;
 import com.traveler.member.global.exception.MemberServiceException;
 import com.traveler.member.global.exception.code.MemberServiceErrorCode;
@@ -28,12 +29,11 @@ import org.hibernate.annotations.SQLRestriction;
         indexes = {@Index(name = "idx_member_deleted_at_status", columnList = "isDeleted, deletedAt")})
 public class Member extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(unique = true, length = 50)
     private String loginId;
 
     private String password;
 
-    @Column(unique = true, length = 100)
     private String email;
 
     @Column(length = 30)
@@ -44,6 +44,12 @@ public class Member extends BaseEntity {
     private Gender gender = Gender.NONE;
 
     private LocalDate birthDate;
+
+    @Column(unique = true)
+    private String providerId;
+
+    @Enumerated(EnumType.STRING)
+    private Provider provider;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

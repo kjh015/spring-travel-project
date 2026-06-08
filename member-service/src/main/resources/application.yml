@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8082
   forward-headers-strategy: framework
 
 spring:
@@ -34,12 +34,15 @@ swagger:
   info:
     paths-to-match:
       - "/v1/members/**"
+      - "/v1/auth/**"
+      - "/v1/admin/members/**"
 
 springdoc:
   api-docs:
     path: /v1/members/v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+  use-fqn: true
 
 eureka:
   instance:
@@ -53,6 +56,6 @@ eureka:
 
 app:
   jwt:
-    secret: ${JWT_SECRET}
+    secret: ${JWT_SECRET_KEY}
     access-expiration: ${JWT_ACCESS_EXPIRATION:3600000}  # 1시간
     refresh-expiration: ${JWT_REFRESH_EXPIRATION:1209600000} # 14일

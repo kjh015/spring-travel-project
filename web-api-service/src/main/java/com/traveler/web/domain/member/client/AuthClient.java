@@ -22,4 +22,7 @@ public interface AuthClient {
 
     @PostMapping("/tokens/refresh")
     ApiResponse<AuthClientResponse.LoginResult> reissueRefreshToken(@RequestBody AuthClientRequest.ReissueDTO dto);
+
+    @PostMapping("/oauth/login")
+    ApiResponse<AuthClientResponse.LoginResult> oauthLogin(@RequestBody AuthClientRequest.OauthLoginDTO dto);
 }

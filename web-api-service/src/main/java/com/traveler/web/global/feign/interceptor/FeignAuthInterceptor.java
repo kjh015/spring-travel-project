@@ -20,6 +20,9 @@ public class FeignAuthInterceptor implements RequestInterceptor {
                 String rolesHeader = String.join(",", context.roles());
                 template.header(AuthConstants.X_USER_ROLES, rolesHeader);
             }
+            if (context.accessToken() != null && !context.accessToken().isBlank()) {
+                template.header(AuthConstants.X_ACCESS_TOKEN, context.accessToken());
+            }
         }
     }
 }

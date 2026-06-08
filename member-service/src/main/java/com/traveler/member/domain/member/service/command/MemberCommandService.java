@@ -38,6 +38,7 @@ public class MemberCommandService {
         String encodedPassword = passwordEncoder.encode(dto.password());
 
         Member member = memberMapper.toCreateEntity(dto, encodedPassword);
+        member.addRole(RoleType.ROLE_USER);
         memberRepository.save(member);
         return memberMapper.toSignUpDTO(member);
     }
@@ -79,7 +80,7 @@ public class MemberCommandService {
 
     public AdminResponse.GrantAdminDTO grantAdminRole(Long memberId) {
         Member member = memberRepository
-                .findById(memberId)
+                .findByIdWithRoles(memberId)
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
 
         member.addRole(RoleType.ROLE_ADMIN);

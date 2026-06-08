@@ -68,8 +68,8 @@ public class JwtTokenProvider {
         }
     }
 
-    public String getUserId(Claims claims) {
-        return claims.getSubject();
+    public Long getUserId(Claims claims) {
+        return Long.valueOf(claims.getSubject());
     }
 
     public List<RoleType> getRoles(Claims claims) {

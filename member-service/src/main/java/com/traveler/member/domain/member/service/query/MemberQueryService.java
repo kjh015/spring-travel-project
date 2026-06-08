@@ -35,7 +35,7 @@ public class MemberQueryService {
 
     public MemberResponse.MyProfileDTO getMyProfile(Long memberId) {
         Member member = memberRepository
-                .findById(memberId)
+                .findByIdWithRoles(memberId)
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
 
         return memberMapper.toMyProfileDTO(member, member.getAge());
@@ -57,13 +57,14 @@ public class MemberQueryService {
     }
 
     public PageResponse<AdminResponse.ListDTO> getMembers(Pageable pageable) {
+        // BatchSize로 수정필요
         Page<Member> members = memberRepository.findAll(pageable);
         return PageConverter.toPageResponse(members, memberMapper::toListDTO);
     }
 
     public AdminResponse.DetailDTO getMember(Long memberId) {
         Member member = memberRepository
-                .findById(memberId)
+                .findByIdWithRoles(memberId)
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
 
         return memberMapper.toDetailDTO(member);

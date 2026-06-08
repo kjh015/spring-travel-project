@@ -13,8 +13,7 @@ import java.lang.annotation.Target;
 @SwaggerErrorResponse
 public @interface ApiErrorCodeExamples {
 
-    // ErrorCode
-    ErrorCode[] value() default {};
+    ErrorCode[] common() default {};
 
-    WebApiServiceErrorCode[] web() default {};
+    WebApiServiceErrorCode[] value() default {};
 }

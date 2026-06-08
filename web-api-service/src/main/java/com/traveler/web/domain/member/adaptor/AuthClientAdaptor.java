@@ -22,4 +22,8 @@ public class AuthClientAdaptor {
     public AuthClientResponse.LoginResult reissue(AuthClientRequest.ReissueDTO dto) {
         return authClient.reissueRefreshToken(dto).result();
     }
+
+    public AuthClientResponse.LoginResult oauthLogin(AuthClientRequest.OauthLoginDTO dto) {
+        return authClient.oauthLogin(dto).result();
+    }
 }

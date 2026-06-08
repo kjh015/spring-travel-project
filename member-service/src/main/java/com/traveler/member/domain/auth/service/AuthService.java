@@ -58,11 +58,11 @@ public class AuthService {
     public AuthResponse.LoginResult reissue(String refreshToken) {
         // Refresh Token 유효성 검증
         Claims claims = jwtTokenProvider.validateToken(refreshToken);
-        String loginId = jwtTokenProvider.getUserId(claims);
+        Long userId = jwtTokenProvider.getUserId(claims);
 
         // 사용자 및 저장된 토큰 확인
         Member member = memberRepository
-                .findByLoginIdWithRoles(loginId)
+                .findByIdWithRoles(userId)
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
 
         validateStoredRefreshToken(member.getId(), refreshToken);
@@ -71,6 +71,25 @@ public class AuthService {
         AuthTokens tokens = createAuthTokens(member);
 
         // Redis 갱신
+        refreshTokenRepository.save(
+                member.getId(), tokens.refreshToken(), jwtTokenProvider.getRefreshTokenExpireTime());
+
+        return authMapper.toLoginResultDTO(tokens, member);
+    }
+
+    public AuthResponse.LoginResult loginOrSignup(AuthRequest.OAuthLoginDTO dto) {
+
+        Member member = memberRepository
+                .findByProviderAndProviderId(dto.provider(), dto.providerId())
+                .orElseGet(() -> {
+                    // 신규 회원가입
+                    Member newMember = authMapper.toCreateEntity(dto);
+                    newMember.addRole(RoleType.ROLE_USER);
+                    return memberRepository.save(newMember);
+                });
+
+        // 2. 내부 JWT 발급
+        AuthTokens tokens = createAuthTokens(member);
         refreshTokenRepository.save(
                 member.getId(), tokens.refreshToken(), jwtTokenProvider.getRefreshTokenExpireTime());
 
