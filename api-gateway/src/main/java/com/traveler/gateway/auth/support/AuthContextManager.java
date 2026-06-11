@@ -4,6 +4,7 @@ import com.traveler.common.core.auth.AuthConstants;
 import com.traveler.common.core.auth.UserContext;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
 @Component
@@ -24,7 +25,7 @@ public class AuthContextManager {
                         if (user.roles() != null && !user.roles().isEmpty()) {
                             headers.add(AuthConstants.X_USER_ROLES, String.join(",", user.roles()));
                         }
-                        if (user.accessToken() != null) {
+                        if (StringUtils.hasText(user.accessToken())) {
                             headers.add(AuthConstants.X_ACCESS_TOKEN, user.accessToken());
                         }
                     }

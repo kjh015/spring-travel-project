@@ -14,4 +14,10 @@ public final class AuthRequest {
                     String loginId,
             @Schema(description = "비밀번호", example = "password123!") @NotBlank(message = "비밀번호를 입력해주세요.")
                     String password) {}
+
+    @Schema(description = "소셜 로그인 일회용 티켓 교환 요청 DTO")
+    public record TicketDTO(
+            @Schema(description = "리다이렉트 파라미터로 전달받은 일회용 인증 티켓(UUID)", example = "550e8400-e29b-41d4-a716-446655440000")
+                    @NotBlank(message = "티켓 값은 필수입니다.")
+                    String ticket) {}
 }

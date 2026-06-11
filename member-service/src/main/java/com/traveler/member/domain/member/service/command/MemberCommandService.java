@@ -10,6 +10,7 @@ import com.traveler.member.domain.member.repository.MemberRepository;
 import com.traveler.member.global.exception.MemberServiceException;
 import com.traveler.member.global.exception.code.MemberServiceErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +40,12 @@ public class MemberCommandService {
 
         Member member = memberMapper.toCreateEntity(dto, encodedPassword);
         member.addRole(RoleType.ROLE_USER);
-        memberRepository.save(member);
+        try {
+            // DB 강제 플러시 저장
+            memberRepository.saveAndFlush(member);
+        } catch (DataIntegrityViolationException e) {
+            throw new MemberServiceException(MemberServiceErrorCode.MEMBER_ALREADY_EXISTS);
+        }
         return memberMapper.toSignUpDTO(member);
     }
 
@@ -55,6 +61,11 @@ public class MemberCommandService {
         Member member = memberRepository
                 .findById(memberId)
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
+
+        if (!member.getNickname().equals(dto.nickname()) && memberRepository.existsByNickname(dto.nickname())) {
+            throw new MemberServiceException(MemberServiceErrorCode.MEMBER_EXISTS_NICKNAME);
+        }
+
         member.update(dto.nickname());
         return memberMapper.toUpdateDTO(member);
     }

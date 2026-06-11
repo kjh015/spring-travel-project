@@ -43,17 +43,20 @@ public class MemberQueryService {
 
     public MemberResponse.AvailabilityDTO checkLoginIdAvailability(String loginId) {
         boolean isAvailable = !memberRepository.existsByLoginId(loginId);
-        return memberMapper.AvailabilityDTO(isAvailable, loginId, AvailabilityType.DUPLICATED);
+        AvailabilityType reason = isAvailable ? AvailabilityType.AVAILABLE : AvailabilityType.DUPLICATED;
+        return memberMapper.AvailabilityDTO(isAvailable, loginId, reason);
     }
 
     public MemberResponse.AvailabilityDTO checkEmailAvailability(String email) {
         boolean isAvailable = !memberRepository.existsByEmail(email);
-        return memberMapper.AvailabilityDTO(isAvailable, email, AvailabilityType.DUPLICATED);
+        AvailabilityType reason = isAvailable ? AvailabilityType.AVAILABLE : AvailabilityType.DUPLICATED;
+        return memberMapper.AvailabilityDTO(isAvailable, email, reason);
     }
 
     public MemberResponse.AvailabilityDTO checkNicknameAvailability(String nickname) {
         boolean isAvailable = !memberRepository.existsByNickname(nickname);
-        return memberMapper.AvailabilityDTO(isAvailable, nickname, AvailabilityType.DUPLICATED);
+        AvailabilityType reason = isAvailable ? AvailabilityType.AVAILABLE : AvailabilityType.DUPLICATED;
+        return memberMapper.AvailabilityDTO(isAvailable, nickname, reason);
     }
 
     public PageResponse<AdminResponse.ListDTO> getMembers(Pageable pageable) {

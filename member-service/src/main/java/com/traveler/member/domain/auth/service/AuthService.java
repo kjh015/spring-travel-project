@@ -1,5 +1,6 @@
 package com.traveler.member.domain.auth.service;
 
+import com.traveler.common.core.auth.AuthConstants;
 import com.traveler.member.domain.auth.dto.AuthTokens;
 import com.traveler.member.domain.auth.dto.request.AuthRequest;
 import com.traveler.member.domain.auth.dto.response.AuthResponse;
@@ -12,6 +13,7 @@ import com.traveler.member.domain.member.enums.RoleType;
 import com.traveler.member.domain.member.repository.MemberRepository;
 import com.traveler.member.global.exception.MemberServiceException;
 import com.traveler.member.global.exception.code.MemberServiceErrorCode;
+import com.traveler.member.global.util.TokenHashUtil;
 import io.jsonwebtoken.Claims;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +42,9 @@ public class AuthService {
         AuthTokens tokens = createAuthTokens(member);
 
         refreshTokenRepository.save(
-                member.getId(), tokens.refreshToken(), jwtTokenProvider.getRefreshTokenExpireTime());
+                member.getId(),
+                TokenHashUtil.hash(tokens.refreshToken()),
+                jwtTokenProvider.getRefreshTokenExpireTime());
 
         return authMapper.toLoginResultDTO(tokens, member);
     }
@@ -51,13 +55,19 @@ public class AuthService {
 
         long remainingTime = jwtTokenProvider.getRemainingExpirationTime(accessToken);
         if (remainingTime > 0) {
-            tokenBlacklistRepository.save(accessToken, remainingTime);
+            tokenBlacklistRepository.save(TokenHashUtil.hash(accessToken), remainingTime);
         }
     }
 
     public AuthResponse.LoginResult reissue(String refreshToken) {
         // Refresh Token 유효성 검증
         Claims claims = jwtTokenProvider.validateToken(refreshToken);
+
+        String tokenType = jwtTokenProvider.getTokenType(claims);
+        if (!AuthConstants.TOKEN_TYPE_REFRESH.equals(tokenType)) {
+            throw new MemberServiceException(MemberServiceErrorCode.INVALID_TOKEN_TYPE);
+        }
+
         Long userId = jwtTokenProvider.getUserId(claims);
 
         // 사용자 및 저장된 토큰 확인
@@ -72,7 +82,9 @@ public class AuthService {
 
         // Redis 갱신
         refreshTokenRepository.save(
-                member.getId(), tokens.refreshToken(), jwtTokenProvider.getRefreshTokenExpireTime());
+                member.getId(),
+                TokenHashUtil.hash(tokens.refreshToken()),
+                jwtTokenProvider.getRefreshTokenExpireTime());
 
         return authMapper.toLoginResultDTO(tokens, member);
     }
@@ -114,7 +126,7 @@ public class AuthService {
                 .findByMemberId(memberId)
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.INVALID_TOKEN_TYPE));
 
-        if (!savedToken.equals(requestToken)) {
+        if (!savedToken.equals(TokenHashUtil.hash(requestToken))) {
             refreshTokenRepository.deleteByMemberId(memberId);
             throw new MemberServiceException(MemberServiceErrorCode.INVALID_TOKEN_TYPE);
         }

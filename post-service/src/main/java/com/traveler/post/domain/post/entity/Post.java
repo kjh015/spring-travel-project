@@ -21,7 +21,7 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("is_deleted = false")
 @Table(
         name = "post",
-        indexes = {@Index(name = "idx_post_deleted_at_status", columnList = "isDeleted, deletedAt")})
+        indexes = {@Index(name = "idx_post_deleted_at_status", columnList = "is_deleted, deleted_at")})
 public class Post extends BaseEntity {
 
     @Column(nullable = false)

@@ -3,10 +3,7 @@ package com.traveler.web.domain.member.adaptor;
 import com.traveler.web.domain.member.client.MemberClient;
 import com.traveler.web.domain.member.client.dto.request.MemberClientRequest;
 import com.traveler.web.domain.member.client.dto.response.MemberClientResponse;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -53,14 +50,23 @@ public class MemberClientAdaptor {
             return Collections.emptyMap();
         }
 
-        List<MemberClientResponse.ProfileDTO> profiles =
-                memberClient.getMemberProfiles(memberIds).result();
+        try {
+            List<MemberClientResponse.ProfileDTO> profiles =
+                    memberClient.getMemberProfiles(memberIds).result();
+            if (profiles == null || profiles.isEmpty()) {
+                return Collections.emptyMap();
+            }
 
-        return profiles.stream()
-                .collect(Collectors.toMap(
-                        MemberClientResponse.ProfileDTO::memberId,
-                        MemberClientResponse.ProfileDTO::nickname,
-                        (existing, replacement) -> existing));
+            return profiles.stream()
+                    .filter(Objects::nonNull)
+                    .filter(p -> p.memberId() != null && p.nickname() != null)
+                    .collect(Collectors.toMap(
+                            MemberClientResponse.ProfileDTO::memberId,
+                            MemberClientResponse.ProfileDTO::nickname,
+                            (existing, replacement) -> existing));
+        } catch (RuntimeException ex) {
+            return Collections.emptyMap();
+        }
     }
 
     public String getMemberNickname(Long memberId) {

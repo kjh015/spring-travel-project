@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -64,7 +66,10 @@ public class MemberController {
     @ApiErrorCodeExamples(common = {ErrorCode.INVALID_TYPE_VALUE})
     @GetMapping("/availability/login-id")
     public ApiResponse<MemberResponse.AvailabilityDTO> checkLoginIdAvailability(
-            @Parameter(description = "검사할 로그인 ID") @NotBlank(message = "로그인 ID를 입력해주세요.") @RequestParam
+            @Parameter(description = "검사할 로그인 ID")
+                    @NotBlank(message = "로그인 ID를 입력해주세요.")
+                    @Pattern(regexp = "^[a-zA-Z0-9]{4,20}$", message = "로그인 ID는 영문 및 숫자 조합 4~20자리여야 합니다.")
+                    @RequestParam
                     String loginId) {
         return ApiResponse.onSuccess(SuccessCode.OK, memberFacade.checkLoginIdAvailability(loginId));
     }
@@ -75,6 +80,7 @@ public class MemberController {
     public ApiResponse<MemberResponse.AvailabilityDTO> checkEmailAvailability(
             @Parameter(description = "검사할 이메일")
                     @NotBlank(message = "이메일을 입력해주세요.")
+                    @Size(max = 320, message = "이메일 길이는 320자를 초과할 수 없습니다.")
                     @Email(message = "이메일 형식이 올바르지 않습니다.")
                     @RequestParam
                     String email) {
@@ -85,7 +91,11 @@ public class MemberController {
     @ApiErrorCodeExamples(common = {ErrorCode.INVALID_TYPE_VALUE})
     @GetMapping("/availability/nickname")
     public ApiResponse<MemberResponse.AvailabilityDTO> checkNicknameAvailability(
-            @Parameter(description = "검사할 닉네임") @NotBlank(message = "닉네임을 입력해주세요.") @RequestParam String nickname) {
+            @Parameter(description = "검사할 닉네임")
+                    @NotBlank(message = "닉네임을 입력해주세요.")
+                    @Size(min = 2, max = 30, message = "닉네임은 2자 이상 30자 이하로 입력해주세요.")
+                    @RequestParam
+                    String nickname) {
         return ApiResponse.onSuccess(SuccessCode.OK, memberFacade.checkNicknameAvailability(nickname));
     }
 }

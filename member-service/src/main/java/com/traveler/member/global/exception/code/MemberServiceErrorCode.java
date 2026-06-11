@@ -16,6 +16,7 @@ public enum MemberServiceErrorCode implements BaseErrorCode {
     MEMBER_EXISTS_LOGINID(409, "MEMBER409_1", "이미 존재하는 아이디입니다."),
     MEMBER_EXISTS_EMAIL(409, "MEMBER409_2", "이미 존재하는 이메일입니다."),
     MEMBER_EXISTS_NICKNAME(409, "MEMBER409_3", "이미 존재하는 닉네임입니다."),
+    MEMBER_ALREADY_EXISTS(409, "MEMBER409_4", "이미 존재하는 회원 정보입니다."),
 
     // JWT
     EXPIRED_JWT(401, "AUTH401_1", "만료된 JWT 토큰입니다."),
@@ -27,7 +28,8 @@ public enum MemberServiceErrorCode implements BaseErrorCode {
     MALFORMED_JWT(401, "AUTH401_7", "잘못된 구조의 JWT 토큰입니다."),
     BLACKLISTED_TOKEN(401, "AUTH401_8", "로그아웃된 토큰입니다. 다시 로그인해주세요."),
     TOKEN_REISSUE_FAILED(401, "AUTH401_9", "토큰 재발급에 실패했습니다."),
-    REFRESH_TOKEN_NOT_FOUND(404, "AUTH404_2", "존재하지 않거나 만료된 리프레시 토큰입니다.");
+    REFRESH_TOKEN_NOT_FOUND(404, "AUTH404_2", "존재하지 않거나 만료된 리프레시 토큰입니다."),
+    ;
 
     private final int status;
     private final String code;

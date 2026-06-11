@@ -36,20 +36,21 @@ public class JwtTokenProvider {
     }
 
     public String createAccessToken(Long userId, List<RoleType> roles) {
-        return createToken(userId, roles, accessTokenExpireTime);
+        return createToken(userId, roles, AuthConstants.TOKEN_TYPE_ACCESS, accessTokenExpireTime);
     }
 
     public String createRefreshToken(Long userId, List<RoleType> roles) {
-        return createToken(userId, roles, refreshTokenExpireTime);
+        return createToken(userId, roles, AuthConstants.TOKEN_TYPE_REFRESH, refreshTokenExpireTime);
     }
 
-    private String createToken(Long userId, List<RoleType> roles, long validity) {
+    private String createToken(Long userId, List<RoleType> roles, String tokenType, long validity) {
         Instant now = Instant.now();
         List<String> roleNames = roles.stream().map(RoleType::name).toList();
 
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .claim(AuthConstants.CLAIM_ROLES, roleNames)
+                .claim(AuthConstants.CLAIM_TOKEN_TYPE, tokenType)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusMillis(validity)))
                 .signWith(secretKey)
@@ -69,7 +70,11 @@ public class JwtTokenProvider {
     }
 
     public Long getUserId(Claims claims) {
-        return Long.valueOf(claims.getSubject());
+        try {
+            return Long.valueOf(claims.getSubject());
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new MemberServiceException(MemberServiceErrorCode.INVALID_TOKEN_TYPE);
+        }
     }
 
     public List<RoleType> getRoles(Claims claims) {
@@ -91,14 +96,17 @@ public class JwtTokenProvider {
         return Collections.emptyList();
     }
 
+    public String getTokenType(Claims claims) {
+        return claims.get(AuthConstants.CLAIM_TOKEN_TYPE, String.class);
+    }
+
     public long getRemainingExpirationTime(String token) {
         try {
             Claims claims = jwtParser.parseSignedClaims(token).getPayload();
             long expirationTime = claims.getExpiration().getTime();
             long currentTime = System.currentTimeMillis();
-            return expirationTime - currentTime;
-        } catch (ExpiredJwtException e) {
-            // 이미 만료되었거나 유효하지 않은 토큰은 남은 시간을 0으로 반환
+            return Math.max(0, expirationTime - currentTime);
+        } catch (JwtException | IllegalArgumentException e) {
             return 0;
         }
     }
