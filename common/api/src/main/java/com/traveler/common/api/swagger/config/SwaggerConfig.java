@@ -30,13 +30,15 @@ public class SwaggerConfig {
             openApi.addSecurityItem(new SecurityRequirement()
                     .addList(BEARER_TOKEN_PREFIX)
                     .addList(AuthConstants.X_USER_ID)
-                    .addList(AuthConstants.X_USER_ROLES));
+                    .addList(AuthConstants.X_USER_ROLES)
+                    .addList(AuthConstants.X_ACCESS_TOKEN));
             Components components = Optional.ofNullable(openApi.getComponents()).orElseGet(Components::new);
             openApi.setComponents(components);
             components
                     .addSecuritySchemes(BEARER_TOKEN_PREFIX, createBearerScheme())
                     .addSecuritySchemes(AuthConstants.X_USER_ID, createHeaderScheme(AuthConstants.X_USER_ID))
-                    .addSecuritySchemes(AuthConstants.X_USER_ROLES, createHeaderScheme(AuthConstants.X_USER_ROLES));
+                    .addSecuritySchemes(AuthConstants.X_USER_ROLES, createHeaderScheme(AuthConstants.X_USER_ROLES))
+                    .addSecuritySchemes(AuthConstants.X_ACCESS_TOKEN, createHeaderScheme(AuthConstants.X_ACCESS_TOKEN));
             components.addSchemas(
                     "ApiResponse",
                     new Schema<>()

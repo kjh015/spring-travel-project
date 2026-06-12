@@ -16,7 +16,7 @@ public enum ErrorCode implements BaseErrorCode {
     SWAGGER_ANNOTATION_ERROR(500, "COMMON500_2", "Swagger 오류"),
     INTERNAL_SERVER_ERROR(500, "COMMON500_1", "예기치 않은 서버 에러가 발생했습니다."),
 
-    // JWT
+    // Auth
     UNAUTHORIZED(401, "AUTH401_1", "인증이 필요합니다."),
     FORBIDDEN(403, "AUTH403_1", "해당 리소스에 접근할 권한이 없습니다."),
 

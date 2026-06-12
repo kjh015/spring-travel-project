@@ -67,7 +67,7 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException ex) {
         List<ErrorResponse> errors = exceptionConverter.from(ex);
-        log.info("[Method Argument Type Mismatch] Field: {}", ex.getName());
+        log.info("[Method Argument Type Mismatch] Field: {}, Value: {}", ex.getName(), ex.getValue());
         return createErrorResponse(ErrorCode.INVALID_TYPE_VALUE, errors);
     }
 

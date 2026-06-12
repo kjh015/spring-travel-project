@@ -1,12 +1,15 @@
 package com.traveler.web.domain.search.facade;
 
-import com.traveler.common.core.response.ApiResponse;
 import com.traveler.common.core.response.PageResponse;
+import com.traveler.web.domain.member.adaptor.MemberClientAdaptor;
 import com.traveler.web.domain.search.client.CommentSearchClient;
 import com.traveler.web.domain.search.client.dto.response.CommentSearchClientResponse;
 import com.traveler.web.domain.search.dto.response.CommentSearchResponse;
 import com.traveler.web.domain.search.dto.response.PostSearchResponse;
 import com.traveler.web.domain.search.mapper.CommentSearchMapper;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -16,22 +19,31 @@ import org.springframework.stereotype.Component;
 public class CommentSearchFacade {
     private final CommentSearchClient commentSearchClient;
     private final CommentSearchMapper commentSearchMapper;
+    private final MemberClientAdaptor memberClientAdaptor;
 
     public PageResponse<CommentSearchResponse.ListDTO> getComments(Long postId, Pageable pageable) {
-        ApiResponse<PageResponse<CommentSearchClientResponse.ListDTO>> response =
-                commentSearchClient.getComments(postId, pageable);
+        PageResponse<CommentSearchClientResponse.ListDTO> result =
+                commentSearchClient.getComments(postId, pageable).result();
 
-        String tmpMemberNickname = "임시 닉네임";
+        Set<Long> memberIds = result.content().stream()
+                .map(CommentSearchClientResponse.ListDTO::memberId)
+                .collect(Collectors.toSet());
 
-        return response.result().map(clientDto -> commentSearchMapper.toListResponse(clientDto, tmpMemberNickname));
+        Map<Long, String> nicknameMap = memberClientAdaptor.getNicknameMap(memberIds);
+
+        // 3. 데이터 조합
+        return result.map(clientDto -> {
+            String nickname = nicknameMap.getOrDefault(clientDto.memberId(), "알 수 없음");
+            return commentSearchMapper.toListResponse(clientDto, nickname);
+        });
     }
 
     public PageResponse<PostSearchResponse.ListDTO> getMyComments(Pageable pageable) {
-        ApiResponse<PageResponse<CommentSearchClientResponse.MyDTO>> response =
-                commentSearchClient.getMyComments(pageable);
+        PageResponse<CommentSearchClientResponse.MyDTO> result =
+                commentSearchClient.getMyComments(pageable).result();
 
-        String tmpMemberNickname = "임시 닉네임";
+        String nickname = memberClientAdaptor.getMyNickname();
 
-        return response.result().map(clientDto -> commentSearchMapper.toMyListResponse(clientDto, tmpMemberNickname));
+        return result.map(clientDto -> commentSearchMapper.toMyListResponse(clientDto, nickname));
     }
 }

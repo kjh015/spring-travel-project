@@ -20,7 +20,7 @@ public class JwtTokenProvider {
 
     private final JwtParser jwtParser; // 파서 재사용
 
-    public JwtTokenProvider(@Value("${springboot.jwt.secret}") String secret) {
+    public JwtTokenProvider(@Value("${app.jwt.secret}") String secret) {
         SecretKey secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.jwtParser = Jwts.parser().verifyWith(secretKey).build();
     }

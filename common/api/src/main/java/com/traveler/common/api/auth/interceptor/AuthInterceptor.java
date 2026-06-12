@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 public class AuthInterceptor implements HandlerInterceptor {
@@ -16,16 +17,21 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String userId = request.getHeader(AuthConstants.X_USER_ID);
         String roles = request.getHeader(AuthConstants.X_USER_ROLES);
+        String accessToken = request.getHeader(AuthConstants.X_ACCESS_TOKEN);
 
-        if (userId != null && roles != null) {
+        boolean hasAnyAuthHeader = userId != null || roles != null || accessToken != null;
+        boolean hasAllAuthHeader = userId != null && roles != null && StringUtils.hasText(accessToken);
+        if (hasAllAuthHeader) {
             try {
                 List<String> roleList =
                         Arrays.stream(roles.split(",")).map(String::trim).toList();
-                UserContext context = UserContext.of(Long.valueOf(userId), roleList);
+                UserContext context = UserContext.of(Long.valueOf(userId), roleList, accessToken);
                 UserContextHolder.setContext(context);
             } catch (NumberFormatException e) {
                 throw new GeneralException(ErrorCode.BAD_REQUEST);
             }
+        } else if (hasAnyAuthHeader) {
+            throw new GeneralException(ErrorCode.BAD_REQUEST);
         }
         return true;
     }

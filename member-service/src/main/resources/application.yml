@@ -1,0 +1,61 @@
+server:
+  port: 8082
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: "member-service"
+
+  config:
+    import: optional:file:member-service/.env[.properties]
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+
+swagger:
+  info:
+    paths-to-match:
+      - "/v1/members/**"
+      - "/v1/auth/**"
+      - "/v1/admin/members/**"
+
+springdoc:
+  api-docs:
+    path: /v1/members/v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+  use-fqn: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVERS}/eureka
+
+app:
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    access-expiration: ${JWT_ACCESS_EXPIRATION:3600000}  # 1시간
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:1209600000} # 14일

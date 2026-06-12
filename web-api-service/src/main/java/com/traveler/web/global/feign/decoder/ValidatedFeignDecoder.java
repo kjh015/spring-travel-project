@@ -1,8 +1,8 @@
 package com.traveler.web.global.feign.decoder;
 
 import com.traveler.common.core.response.ApiResponse;
-import com.traveler.web.global.code.WebApiServiceErrorCode;
 import com.traveler.web.global.exception.WebApiServiceException;
+import com.traveler.web.global.exception.code.WebApiServiceErrorCode;
 import feign.FeignException;
 import feign.Response;
 import feign.codec.Decoder;

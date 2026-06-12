@@ -2,7 +2,7 @@ package com.traveler.web.global.swagger;
 
 import com.traveler.common.api.swagger.annotation.SwaggerErrorResponse;
 import com.traveler.common.core.code.ErrorCode;
-import com.traveler.web.global.code.WebApiServiceErrorCode;
+import com.traveler.web.global.exception.code.WebApiServiceErrorCode;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,8 +13,7 @@ import java.lang.annotation.Target;
 @SwaggerErrorResponse
 public @interface ApiErrorCodeExamples {
 
-    // ErrorCode
-    ErrorCode[] value() default {};
+    ErrorCode[] common() default {};
 
-    WebApiServiceErrorCode[] web() default {};
+    WebApiServiceErrorCode[] value() default {};
 }
