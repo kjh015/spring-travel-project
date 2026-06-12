@@ -55,9 +55,16 @@ public class AuthController {
             @Valid @RequestBody AuthRequest.AuthCodeDTO dto, HttpServletResponse response) {
         // 코드 검증 및 소모
         AuthClientRequest.OauthLoginDTO oauthLoginDTO = authCodeService.verifyAndConsumeCode(dto.code());
-        // 토큰 발급
-        AuthResponse.LoginDTO loginResponse = authFacade.oauthLoginByCodeData(oauthLoginDTO, response);
-
-        return ApiResponse.onSuccess(SuccessCode.OK, loginResponse);
+        try {
+            // 2. 하위 서비스(Member-Service) 호출 및 토큰 발급
+            AuthResponse.LoginDTO loginResponse = authFacade.oauthLoginByCodeData(oauthLoginDTO, response);
+            return ApiResponse.onSuccess(SuccessCode.OK, loginResponse);
+        } catch (Exception e) {
+            // 하위 서비스 통신 장애 또는 내부 로직 실패 시,
+            // 프론트엔드가 동일한 코드로 재시도할 수 있도록 Redis에 코드 복구 (보상 트랜잭션)
+            authCodeService.restoreCode(dto.code(), oauthLoginDTO);
+            // 복구 후 원래 터졌던 예외를 다시 던져서 GlobalExceptionHandler가 처리
+            throw e;
+        }
     }
 }

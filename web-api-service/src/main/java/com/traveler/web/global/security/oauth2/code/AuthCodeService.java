@@ -27,4 +27,9 @@ public class AuthCodeService {
                 .findAndDelete(code)
                 .orElseThrow(() -> new WebApiServiceException(WebApiServiceErrorCode.INVALID_AUTH_CODE));
     }
+
+    // 장애 발생 시 지워진 코드 복구 메서드
+    public void restoreCode(String code, AuthClientRequest.OauthLoginDTO dto) {
+        authCodeRepository.save(code, dto);
+    }
 }

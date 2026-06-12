@@ -20,10 +20,10 @@ public enum WebApiServiceErrorCode implements BaseErrorCode {
 
     // Oauth2 (Client Error)
     UNSUPPORTED_OAUTH_PROVIDER(400, "WEB400_1", "지원하지 않는 소셜 로그인 제공자입니다."),
+    INVALID_AUTH_CODE(400, "WEB400_2", "유효하지 않거나 이미 만료된 인증 코드입니다."),
 
-    // Oauth2 (Auth Error)
-    INVALID_AUTH_CODE(401, "WEB401_1", "유효하지 않거나 이미 만료된 인증 코드입니다."),
-    INVALID_OAUTH_USER_INFO(401, "WEB401_2", "소셜 로그인 제공자로부터 필수 사용자 정보(ID)를 받지 못했습니다.");
+    // Oauth2 (Upstream / Server Error)
+    INVALID_OAUTH_USER_INFO(502, "WEB502_1", "소셜 로그인 제공자로부터 필수 사용자 정보(ID)를 받지 못했습니다.");
 
     private final int status;
     private final String code;
