@@ -1,8 +1,8 @@
 package com.traveler.web.global.security.oauth2;
 
+import com.traveler.web.global.security.oauth2.code.AuthCodeService;
 import com.traveler.web.global.security.oauth2.provider.OAuth2UserInfo;
 import com.traveler.web.global.security.oauth2.provider.OAuth2UserInfoFactory;
-import com.traveler.web.global.security.ticket.AuthTicketService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final AuthTicketService authTicketService;
+    private final AuthCodeService authCodeService;
     private final CookieAuthorizationRequestRepository authorizationRequestRepository;
 
     @Value("${app.frontend.redirect-uri}") // application.yml에서 프론트엔드 URL 관리 (예: http://localhost:3000/oauth/redirect)
@@ -42,15 +42,14 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         // Factory를 통해 벤더에 맞는 정규화 객체(OAuth2UserInfo) 생성
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, oAuth2User.getAttributes());
 
-        // AuthFacade를 통해 일회용 인증 티켓(Auth Ticket) 생성 및 Redis 임시 보관
-        String authTicket =
-                authTicketService.createAuthTicket(userInfo.provider(), userInfo.providerId(), userInfo.email());
+        // AuthFacade를 통해 일회용 인증 코드(Auth Code) 생성 및 Redis 임시 보관
+        String authCode = authCodeService.createAuthCode(userInfo.provider(), userInfo.providerId(), userInfo.email());
 
         clearAuthenticationAttributes(request, response);
 
-        // 토큰 대신 임시 티켓만 파라미터에 실어 프론트엔드로 리다이렉트
+        // 토큰 대신 임시 코드만 파라미터에 실어 프론트엔드로 리다이렉트
         String targetUrl = UriComponentsBuilder.fromUriString(frontendRedirectUri)
-                .queryParam("ticket", authTicket)
+                .queryParam("code", authCode)
                 .build()
                 .toUriString();
 

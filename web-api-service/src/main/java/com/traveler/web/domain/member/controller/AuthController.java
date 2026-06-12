@@ -6,7 +6,7 @@ import com.traveler.web.domain.member.client.dto.request.AuthClientRequest;
 import com.traveler.web.domain.member.dto.request.AuthRequest;
 import com.traveler.web.domain.member.dto.response.AuthResponse;
 import com.traveler.web.domain.member.facade.AuthFacade;
-import com.traveler.web.global.security.ticket.AuthTicketService;
+import com.traveler.web.global.security.oauth2.code.AuthCodeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthFacade authFacade;
-    private final AuthTicketService authTicketService;
+    private final AuthCodeService authCodeService;
 
     @Operation(summary = "일반 로그인", description = "ID와 비밀번호를 통해 로그인하고 쿠키와 헤더에 토큰을 세팅합니다.")
     @PostMapping("/login")
@@ -46,14 +46,17 @@ public class AuthController {
         return ApiResponse.onSuccess(SuccessCode.OK, authFacade.reissue(refreshToken, response));
     }
 
-    @Operation(summary = "소셜 로그인 토큰 발급", description = "일회용 티켓을 제출하여 OAuth2 토큰 쌍을 발급(생성)받습니다.")
+    @Operation(
+            summary = "소셜 로그인 토큰 발급",
+            description = "일회용 코드를 제출하여 OAuth2 토큰 쌍을 발급(생성)받습니다."
+                    + "AuthCode 발급 API: http://localhost:8000/api/v1/auth/oauth2/authorize/kakao")
     @PostMapping("/oauth2/tokens")
-    public ApiResponse<AuthResponse.LoginDTO> createTokensByTicket(
-            @Valid @RequestBody AuthRequest.TicketDTO dto, HttpServletResponse response) {
-        // 티켓 검증 및 소모
-        AuthClientRequest.OauthLoginDTO oauthLoginDTO = authTicketService.verifyAndConsumeTicket(dto.ticket());
+    public ApiResponse<AuthResponse.LoginDTO> createTokensByCode(
+            @Valid @RequestBody AuthRequest.AuthCodeDTO dto, HttpServletResponse response) {
+        // 코드 검증 및 소모
+        AuthClientRequest.OauthLoginDTO oauthLoginDTO = authCodeService.verifyAndConsumeCode(dto.code());
         // 토큰 발급
-        AuthResponse.LoginDTO loginResponse = authFacade.oauthLoginByTicketData(oauthLoginDTO, response);
+        AuthResponse.LoginDTO loginResponse = authFacade.oauthLoginByCodeData(oauthLoginDTO, response);
 
         return ApiResponse.onSuccess(SuccessCode.OK, loginResponse);
     }

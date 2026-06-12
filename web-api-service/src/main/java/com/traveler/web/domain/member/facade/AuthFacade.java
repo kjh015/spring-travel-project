@@ -48,7 +48,7 @@ public class AuthFacade {
         return authMapper.toResponseLoginDTO(clientResponse.loginInfo());
     }
 
-    public AuthResponse.LoginDTO oauthLoginByTicketData(
+    public AuthResponse.LoginDTO oauthLoginByCodeData(
             AuthClientRequest.OauthLoginDTO oauthLoginReq, HttpServletResponse response) {
         AuthClientResponse.LoginResult loginResult = authClientAdaptor.oauthLogin(oauthLoginReq);
         authHttpSupport.setAuthResponse(response, loginResult.tokens());

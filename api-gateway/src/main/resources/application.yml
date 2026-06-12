@@ -121,3 +121,5 @@ springdoc:
         url: /v1/posts/v3/api-docs/post-service
       - name: Search Service Docs
         url: /v1/search/v3/api-docs/search-service
+      - name: Member Service Docs
+        url: /v1/members/v3/api-docs/member-service
