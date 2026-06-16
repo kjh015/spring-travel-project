@@ -1,0 +1,79 @@
+server:
+  port: 8083
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: "user-activity-service"
+
+  config:
+    import: optional:file:user-activity-service/.env[.properties]
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      group-id: traveler-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    listener:
+      concurrency: 3
+      ack-mode: manual_immediate
+
+  cloud:
+    aws:
+      s3:
+        bucket: my-bucket-tmp2
+      region:
+        static: ap-northeast-2
+
+
+swagger:
+  info:
+    paths-to-match:
+      - "/v1/posts/**"
+      - "/v1/comments/**"
+      - "/v1/likes/**"
+
+springdoc:
+  api-docs:
+    path: /v1/user-activity/v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVERS}/eureka
+
+app:
+  kafka:
+    topics:
+

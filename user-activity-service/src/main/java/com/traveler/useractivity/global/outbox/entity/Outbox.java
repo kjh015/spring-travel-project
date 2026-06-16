@@ -1,0 +1,58 @@
+package com.traveler.useractivity.global.outbox.entity;
+
+import com.traveler.common.db.entity.BaseEntity;
+import com.traveler.useractivity.global.outbox.enums.OutboxStatus;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import java.time.Instant;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+@SuperBuilder
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Outbox extends BaseEntity {
+
+    @Column(unique = true, nullable = false, length = 36)
+    private String eventId; // UUID
+
+    private String aggregateType; // 예: "POST"
+    private Long aggregateId; // 예: postId
+    private String eventType; // 예: "CREATED"
+    private String topic;
+
+    @Column(columnDefinition = "TEXT")
+    private String payload; // JSON으로 변환된 DTO
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private OutboxStatus status = OutboxStatus.INIT;
+
+    @Builder.Default
+    private int retryCount = 0;
+
+    private Instant sentAt;
+
+    public void sent() {
+        this.status = OutboxStatus.SENT;
+        this.sentAt = Instant.now();
+    }
+
+    public void failed() {
+        this.status = OutboxStatus.FAILED;
+    }
+
+    public void incrementRetryCount() {
+        this.retryCount++;
+    }
+
+    public boolean isRetryable(int maxRetryCount) {
+        return this.retryCount < maxRetryCount;
+    }
+}
