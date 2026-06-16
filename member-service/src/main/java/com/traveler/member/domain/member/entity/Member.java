@@ -69,16 +69,19 @@ public class Member extends BaseEntity {
 
         // Unique 제약 조건 충돌 방지 (loginId, email, providerId)
         // 탈퇴한 회원의 아이디나 이메일로 다른/같은 사용자가 재가입할 수 있도록 처리
-        String deletePrefix = "del_" + Instant.now().toEpochMilli() + "_";
+        String deleteSuffix = "_del_" + this.deletedAt.toEpochMilli();
 
         if (this.loginId != null) {
-            this.loginId = deletePrefix + this.loginId;
+            int maxBaseLength = 50 - deleteSuffix.length();
+            String base =
+                    this.loginId.length() > maxBaseLength ? this.loginId.substring(0, maxBaseLength) : this.loginId;
+            this.loginId = base + deleteSuffix;
         }
         if (this.email != null) {
-            this.email = deletePrefix + this.email;
+            this.email = this.email + deleteSuffix;
         }
         if (this.providerId != null) {
-            this.providerId = deletePrefix + this.providerId;
+            this.providerId = this.providerId + deleteSuffix;
         }
     }
 

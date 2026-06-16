@@ -10,6 +10,7 @@ import com.traveler.member.domain.member.repository.MemberRepository;
 import com.traveler.member.global.exception.MemberServiceException;
 import com.traveler.member.global.exception.code.MemberServiceErrorCode;
 import java.sql.SQLException;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -67,7 +68,7 @@ public class MemberCommandService {
                 .findById(memberId)
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
 
-        if (!member.getNickname().equals(dto.nickname())
+        if (!Objects.equals(member.getNickname(), dto.nickname())
                 && memberRepository.existsByNicknameAndIsDeletedFalse(dto.nickname())) {
             throw new MemberServiceException(MemberServiceErrorCode.MEMBER_EXISTS_NICKNAME);
         }
