@@ -22,7 +22,6 @@ public class AdminMemberQueryService {
     private final MemberMapper memberMapper;
 
     public PageResponse<AdminMemberResponse.ListDTO> getMembers(Pageable pageable) {
-        // BatchSize로 수정필요
         Page<Member> members = memberRepository.findAll(pageable);
         return PageConverter.toPageResponse(members, memberMapper::toListDTO);
     }

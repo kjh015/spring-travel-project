@@ -127,8 +127,7 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleIllegalArgumentException(
             IllegalArgumentException ex) {
         log.warn("[Illegal Argument] Message: {}", ex.getMessage());
-        // 예외 메시지를 그대로 클라이언트에게 전달하거나, 공통 에러 코드로 변환하여 응답
-        return createErrorResponse(ErrorCode.BAD_REQUEST, exceptionConverter.from(ex.getMessage()));
+        return createErrorResponse(ErrorCode.BAD_REQUEST, exceptionConverter.from("요청 값이 올바르지 않습니다."));
     }
 
     /** [500 Internal Server Error] 사전에 정의되지 않은 모든 예외 처리 */

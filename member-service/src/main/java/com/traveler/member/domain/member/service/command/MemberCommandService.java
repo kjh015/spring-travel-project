@@ -99,8 +99,8 @@ public class MemberCommandService {
         Throwable rootCause = e.getRootCause();
 
         if (rootCause instanceof SQLException sqlException) {
-            // MySQL/MariaDB 기준 중복 키 위반 에러 코드 1062
-            return sqlException.getErrorCode() == 1062;
+            // MySQL/MariaDB: 1062, PostgreSQL SQLState: 23505
+            return sqlException.getErrorCode() == 1062 || "23505".equals(sqlException.getSQLState());
         }
         return false;
     }

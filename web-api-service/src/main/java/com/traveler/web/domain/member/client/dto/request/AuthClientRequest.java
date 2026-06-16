@@ -13,10 +13,13 @@ public final class AuthClientRequest {
     public record ReissueDTO(String refreshToken) {}
 
     public record OauthLoginDTO(String provider, String providerId, String email) {
-        public static OauthLoginDTO of(String provider, String providerId, String email) {
-            if (provider == null || providerId == null) {
+        public OauthLoginDTO {
+            if (provider == null || provider.isBlank() || providerId == null || providerId.isBlank()) {
                 throw new WebApiServiceException(WebApiServiceErrorCode.INVALID_OAUTH_REQUEST_PARAM);
             }
+        }
+
+        public static OauthLoginDTO of(String provider, String providerId, String email) {
             return new OauthLoginDTO(provider, providerId, email);
         }
     }

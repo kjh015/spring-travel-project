@@ -52,9 +52,7 @@ public class CookieAuthorizationRequestRepository
             HttpServletRequest request, HttpServletResponse response) {
         OAuth2AuthorizationRequest authorizationRequest = this.loadAuthorizationRequest(request);
 
-        if (authorizationRequest != null) {
-            OAuth2CookieSupport.deleteCookie(request, response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
-        }
+        OAuth2CookieSupport.deleteCookie(request, response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
 
         return authorizationRequest;
     }

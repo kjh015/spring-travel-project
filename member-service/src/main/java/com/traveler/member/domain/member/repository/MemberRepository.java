@@ -5,7 +5,6 @@ import com.traveler.member.domain.member.enums.Provider;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
     // Admin
@@ -25,7 +24,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findActiveByLoginIdWithRoles(String loginId);
 
     @Query("SELECT m FROM Member m LEFT JOIN FETCH m.roles WHERE m.id = :id AND m.isDeleted = false")
-    Optional<Member> findActiveByIdWithRoles(@Param("id") Long id);
+    Optional<Member> findActiveByIdWithRoles(Long id);
 
     Optional<Member> findByProviderAndProviderIdAndIsDeletedFalse(Provider provider, String providerId);
 }
