@@ -1,28 +1,28 @@
-package com.traveler.web.domain.member.dto.response;
+package com.traveler.member.domain.member.dto.response;
 
-import com.traveler.web.domain.member.enums.Gender;
-import com.traveler.web.domain.member.enums.RoleType;
+import com.traveler.member.domain.member.enums.Gender;
+import com.traveler.member.domain.member.enums.RoleType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
-public final class AdminResponse {
-    private AdminResponse() {
+public final class AdminMemberResponse {
+    private AdminMemberResponse() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    @Schema(description = "웹 어드민 권한 부여 응답 DTO")
+    @Schema(description = "관리자 권한 부여 응답 DTO")
     public record GrantAdminDTO(
-            @Schema(description = "권한이 부여된 회원 식별자", example = "1") Long memberId,
-            @Schema(description = "최종 권한 목록", example = "[\"ROLE_USER\", \"ROLE_ADMIN\"]") List<RoleType> roles) {}
+            @Schema(description = "대상 회원 식별자", example = "1") Long memberId,
+            @Schema(description = "부여 후 최종 권한 목록", example = "[\"ROLE_USER\", \"ROLE_ADMIN\"]") List<RoleType> roles) {}
 
-    @Schema(description = "웹 어드민 강제 탈퇴 응답 DTO")
+    @Schema(description = "회원 강제 탈퇴 응답 DTO")
     public record DeleteDTO(
             @Schema(description = "강제 탈퇴된 회원 식별자", example = "1") Long memberId,
-            @Schema(description = "탈퇴(논리적 삭제) 처리 일시", example = "2023-11-01T15:30:00Z") Instant deletedAt) {}
+            @Schema(description = "탈퇴 처리 일시", example = "2023-11-01T10:00:00Z") Instant deletedAt) {}
 
-    @Schema(description = "웹 어드민 회원 목록 조회 응답 DTO")
+    @Schema(description = "관리자용 회원 목록 조회 응답 DTO")
     public record ListDTO(
             @Schema(description = "회원 식별자", example = "1") Long memberId,
             @Schema(description = "로그인 ID", example = "traveler123") String loginId,
@@ -33,7 +33,7 @@ public final class AdminResponse {
             @Schema(description = "보유 권한", example = "[\"ROLE_USER\"]") List<RoleType> roles,
             @Schema(description = "가입 일시", example = "2023-10-01T10:00:00Z") Instant createdAt) {}
 
-    @Schema(description = "웹 어드민 회원 상세 조회 응답 DTO")
+    @Schema(description = "관리자용 회원 상세 조회 응답 DTO")
     public record DetailDTO(
             @Schema(description = "회원 식별자", example = "1") Long memberId,
             @Schema(description = "로그인 ID", example = "traveler123") String loginId,

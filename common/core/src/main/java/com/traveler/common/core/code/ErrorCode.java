@@ -13,8 +13,9 @@ public enum ErrorCode implements BaseErrorCode {
     METHOD_NOT_ALLOWED(405, "COMMON405_1", "허용되지 않은 메서드입니다."),
     CONFLICT(409, "COMMON409_1", "이미 존재하는 리소스이거나 데이터 충돌이 발생했습니다."),
     UNSUPPORTED_MEDIA_TYPE(415, "COMMON415_1", "지원하지 않는 미디어 타입(Content-Type)입니다."),
-    SWAGGER_ANNOTATION_ERROR(500, "COMMON500_2", "Swagger 오류"),
     INTERNAL_SERVER_ERROR(500, "COMMON500_1", "예기치 않은 서버 에러가 발생했습니다."),
+    SWAGGER_ANNOTATION_ERROR(500, "COMMON500_2", "Swagger 오류"),
+    DATABASE_ERROR(500, "COMMON500_3", "데이터베이스 처리 중 오류가 발생했습니다."),
 
     // Auth
     UNAUTHORIZED(401, "AUTH401_1", "인증이 필요합니다."),

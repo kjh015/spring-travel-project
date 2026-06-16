@@ -21,6 +21,8 @@ public class PostSearchFacade {
     private final PostSearchMapper postSearchMapper;
     private final MemberClientAdaptor memberClientAdaptor;
 
+    private static final String DEFAULT_NICKNAME = "알 수 없음";
+
     public PageResponse<PostSearchResponse.ListDTO> search(PostSearchRequest.SearchDTO dto) {
         PageResponse<PostSearchClientResponse.SearchDTO> result = postSearchClient
                 .search(postSearchMapper.toSearchClientRequest(dto))
@@ -35,7 +37,7 @@ public class PostSearchFacade {
         // 게시글 데이터와 닉네임 Map 조합
         return result.map(clientDto -> {
             // 회원이 탈퇴했거나 회원 서비스 장애 시 기본값 제공
-            String nickname = nicknameMap.getOrDefault(clientDto.memberId(), "알 수 없음");
+            String nickname = nicknameMap.getOrDefault(clientDto.memberId(), DEFAULT_NICKNAME);
             return postSearchMapper.toSearchListResponse(clientDto, nickname);
         });
     }

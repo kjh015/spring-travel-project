@@ -1,5 +1,6 @@
 package com.traveler.web.domain.post.controller;
 
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.web.domain.post.dto.request.CommentRequest;
@@ -20,12 +21,14 @@ public class CommentController {
     private final CommentFacade commentFacade;
 
     @Operation(summary = "댓글 작성", description = "게시글에 새로운 댓글과 별점을 남깁니다.")
+    @RequireAuth
     @PostMapping
     public ApiResponse<CommentResponse.CreateDTO> createComment(@Valid @RequestBody CommentRequest.CreateDTO dto) {
         return ApiResponse.onSuccess(SuccessCode.CREATED, commentFacade.createComment(dto));
     }
 
     @Operation(summary = "댓글 수정", description = "본인이 작성한 댓글의 내용 및 별점을 수정합니다.")
+    @RequireAuth
     @PatchMapping("/{commentId}")
     public ApiResponse<CommentResponse.UpdateDTO> updateComment(
             @Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId,
@@ -34,6 +37,7 @@ public class CommentController {
     }
 
     @Operation(summary = "댓글 삭제", description = "댓글을 삭제합니다.")
+    @RequireAuth
     @DeleteMapping("/{commentId}")
     public ApiResponse<CommentResponse.DeleteDTO> deleteComment(
             @Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId) {

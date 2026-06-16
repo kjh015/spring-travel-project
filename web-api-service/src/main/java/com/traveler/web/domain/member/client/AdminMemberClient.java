@@ -2,7 +2,7 @@ package com.traveler.web.domain.member.client;
 
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.common.core.response.PageResponse;
-import com.traveler.web.domain.member.client.dto.response.AdminClientResponse;
+import com.traveler.web.domain.member.client.dto.response.AdminMemberClientResponse;
 import com.traveler.web.global.feign.config.FeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
@@ -17,16 +17,16 @@ import org.springframework.web.bind.annotation.PathVariable;
         contextId = "AdminClient",
         path = "/v1/admin/members",
         configuration = FeignClientConfig.class)
-public interface AdminClient {
+public interface AdminMemberClient {
     @PatchMapping("/{memberId}/role")
-    ApiResponse<AdminClientResponse.GrantAdminDTO> grantAdminRole(@PathVariable Long memberId);
+    ApiResponse<AdminMemberClientResponse.GrantAdminDTO> grantAdminRole(@PathVariable Long memberId);
 
     @DeleteMapping("/{memberId}")
-    ApiResponse<AdminClientResponse.DeleteDTO> deleteMember(@PathVariable Long memberId);
+    ApiResponse<AdminMemberClientResponse.DeleteDTO> deleteMember(@PathVariable Long memberId);
 
     @GetMapping
-    ApiResponse<PageResponse<AdminClientResponse.ListDTO>> getMembers(@SpringQueryMap Pageable pageable);
+    ApiResponse<PageResponse<AdminMemberClientResponse.ListDTO>> getMembers(@SpringQueryMap Pageable pageable);
 
     @GetMapping("/{memberId}")
-    ApiResponse<AdminClientResponse.DetailDTO> getMember(@PathVariable Long memberId);
+    ApiResponse<AdminMemberClientResponse.DetailDTO> getMember(@PathVariable Long memberId);
 }

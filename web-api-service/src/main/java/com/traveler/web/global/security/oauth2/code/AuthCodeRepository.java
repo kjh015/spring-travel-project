@@ -22,7 +22,7 @@ public class AuthCodeRepository {
             + "    redis.call('del', KEYS[1]) "
             + "end "
             + "return value";
-    private final DefaultRedisScript<Object> findAndDeleteScript =
+    private static final DefaultRedisScript<Object> FIND_AND_DELETE_SCRIPT =
             new DefaultRedisScript<>(FIND_AND_DELETE_SCRIPT_TEXT, Object.class);
 
     private static final String CODE_KEY_PREFIX = "auth_code:";
@@ -37,7 +37,7 @@ public class AuthCodeRepository {
         String key = CODE_KEY_PREFIX + code;
 
         // Lua 스크립트 실행
-        Object result = redisTemplate.execute(findAndDeleteScript, Collections.singletonList(key));
+        Object result = redisTemplate.execute(FIND_AND_DELETE_SCRIPT, Collections.singletonList(key));
 
         if (result == null) {
             return Optional.empty();

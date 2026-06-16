@@ -32,12 +32,30 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException {
 
-        // 토큰에서 벤더 ID(kakao, google 등) 추출
-        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-        String registrationId = oauthToken.getAuthorizedClientRegistrationId();
+        // 토큰에서 벤더 ID(kakao, google 등) 추출 && OAuth2User 원본 데이터 추출
+        if (!(authentication instanceof OAuth2AuthenticationToken oauthToken)
+                || !(authentication.getPrincipal() instanceof OAuth2User oAuth2User)) {
 
-        // OAuth2User 원본 데이터 추출
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+            log.error(
+                    "[OAuth2 SuccessHandler] 잘못된 인증 객체 타입. Authentication: {}, Principal: {}",
+                    authentication.getClass().getSimpleName(),
+                    authentication.getPrincipal() != null
+                            ? authentication.getPrincipal().getClass().getSimpleName()
+                            : "null");
+
+            // 실패 시와 동일하게 임시 데이터 파기
+            clearAuthenticationAttributes(request, response);
+
+            // 프론트엔드로 시스템 에러 코드 전달
+            String errorUrl = UriComponentsBuilder.fromUriString(frontendRedirectUri)
+                    .queryParam("error", OAuth2FailureCode.SYSTEM_ERROR.getErrorCode())
+                    .build()
+                    .toUriString();
+
+            getRedirectStrategy().sendRedirect(request, response, errorUrl);
+            return;
+        }
+        String registrationId = oauthToken.getAuthorizedClientRegistrationId();
 
         // Factory를 통해 벤더에 맞는 정규화 객체(OAuth2UserInfo) 생성
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, oAuth2User.getAttributes());

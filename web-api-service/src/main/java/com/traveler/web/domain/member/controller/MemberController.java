@@ -1,5 +1,6 @@
 package com.traveler.web.domain.member.controller;
 
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
@@ -35,6 +36,7 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 탈퇴", description = "현재 로그인된 회원의 탈퇴 처리를 Member 서버에 요청합니다.")
+    @RequireAuth
     @DeleteMapping("/me")
     public ApiResponse<MemberResponse.WithdrawDTO> withdraw() {
         // 인증 정보는 API Gateway나 Interceptor에서 Header로 주입됨을 가정
@@ -43,6 +45,7 @@ public class MemberController {
 
     @Operation(summary = "내 정보 수정", description = "현재 로그인된 회원의 프로필 정보(닉네임 등)를 수정합니다.")
     @ApiErrorCodeExamples(common = {ErrorCode.INVALID_TYPE_VALUE})
+    @RequireAuth
     @PatchMapping("/me")
     public ApiResponse<MemberResponse.UpdateDTO> updateMember(@Valid @RequestBody MemberRequest.UpdateDTO dto) {
         return ApiResponse.onSuccess(SuccessCode.OK, memberFacade.updateMember(dto));
@@ -50,6 +53,7 @@ public class MemberController {
 
     @Operation(summary = "비밀번호 변경", description = "현재 비밀번호를 확인한 후 새로운 비밀번호로 변경합니다.")
     @ApiErrorCodeExamples(common = {ErrorCode.INVALID_TYPE_VALUE})
+    @RequireAuth
     @PatchMapping("/me/password")
     public ApiResponse<MemberResponse.UpdatePasswordDTO> updatePassword(
             @Valid @RequestBody MemberRequest.UpdatePasswordDTO dto) {
@@ -57,6 +61,7 @@ public class MemberController {
     }
 
     @Operation(summary = "내 프로필 조회", description = "현재 로그인된 회원의 상세 프로필을 조회합니다.")
+    @RequireAuth
     @GetMapping("/me")
     public ApiResponse<MemberResponse.MyProfileDTO> getMyProfile() {
         return ApiResponse.onSuccess(SuccessCode.OK, memberFacade.getMyProfile());

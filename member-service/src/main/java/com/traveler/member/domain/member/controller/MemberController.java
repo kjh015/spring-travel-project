@@ -1,6 +1,7 @@
 package com.traveler.member.domain.member.controller;
 
-import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.api.auth.annotation.LoginUser;
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.code.SuccessCode;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +49,7 @@ public class MemberController {
 
     @Operation(summary = "회원 탈퇴", description = "현재 로그인된 회원을 탈퇴 처리(논리적 삭제)합니다.")
     @ApiErrorCodeExamples({MemberServiceErrorCode.MEMBER_NOT_FOUND, MemberServiceErrorCode.MEMBER_ALREADY_DELETED})
+    @RequireAuth
     @DeleteMapping("/me")
     public ApiResponse<MemberResponse.WithdrawDTO> withdraw(@Parameter(hidden = true) @LoginUser UserContext user) {
         return ApiResponse.onSuccess(SuccessCode.OK, memberCommandService.withdraw(user.id()));
@@ -56,6 +59,7 @@ public class MemberController {
     @ApiErrorCodeExamples(
             value = {MemberServiceErrorCode.MEMBER_NOT_FOUND, MemberServiceErrorCode.MEMBER_ALREADY_DELETED},
             common = {ErrorCode.INVALID_TYPE_VALUE})
+    @RequireAuth
     @PatchMapping("/me")
     public ApiResponse<MemberResponse.UpdateDTO> updateMember(
             @Valid @RequestBody MemberRequest.UpdateDTO dto, @Parameter(hidden = true) @LoginUser UserContext user) {
@@ -70,6 +74,7 @@ public class MemberController {
                 MemberServiceErrorCode.PASSWORD_SAME_AS_OLD
             },
             common = {ErrorCode.INVALID_TYPE_VALUE})
+    @RequireAuth
     @PatchMapping("/me/password")
     public ApiResponse<MemberResponse.UpdatePasswordDTO> updatePassword(
             @Valid @RequestBody MemberRequest.UpdatePasswordDTO dto,
@@ -80,7 +85,8 @@ public class MemberController {
     @Operation(summary = "다중 프로필 조회", description = "주어진 회원 ID 목록에 해당하는 프로필 정보들을 조회합니다.")
     @GetMapping
     public ApiResponse<List<MemberResponse.ProfileDTO>> getMemberProfiles(
-            @Parameter(description = "조회할 회원 ID 목록") @RequestParam Set<Long> memberIds) {
+            @Parameter(description = "조회할 회원 ID 목록") @NotEmpty(message = "회원 ID 목록은 비어있을 수 없습니다.") @RequestParam
+                    Set<Long> memberIds) {
         return ApiResponse.onSuccess(SuccessCode.OK, memberQueryService.getMemberProfiles(memberIds));
     }
 
@@ -94,6 +100,7 @@ public class MemberController {
 
     @Operation(summary = "내 프로필 조회", description = "현재 로그인된 회원의 상세 프로필을 조회합니다.")
     @ApiErrorCodeExamples({MemberServiceErrorCode.MEMBER_NOT_FOUND})
+    @RequireAuth
     @GetMapping("/me")
     public ApiResponse<MemberResponse.MyProfileDTO> getMyProfile(
             @Parameter(hidden = true) @LoginUser UserContext user) {

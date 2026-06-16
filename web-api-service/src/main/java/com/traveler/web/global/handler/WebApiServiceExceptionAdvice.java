@@ -19,8 +19,12 @@ public class WebApiServiceExceptionAdvice implements BaseExceptionAdvice {
 
     /** WebApi Service에서 발생하는 커스텀 비즈니스 예외 처리 */
     @ExceptionHandler(WebApiServiceException.class)
-    protected ResponseEntity<ApiResponse<Void>> handleGeneralException(WebApiServiceException ex) {
-        log.warn("[WebApi Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
+    protected ResponseEntity<ApiResponse<Void>> handleWebApiServiceException(WebApiServiceException ex) {
+        if (ex.getCause() != null) {
+            log.error("[WebApi Service System Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage(), ex);
+        } else {
+            log.warn("[WebApi Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
+        }
         return createErrorResponse(ex.getCode(), null);
     }
 }

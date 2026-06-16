@@ -16,12 +16,12 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CookieUtils {
+public class OAuth2CookieSupport {
     private final boolean secureCookie;
     private final ObjectMapper objectMapper;
 
     // ObjectMapper를 주입받아 사용합니다.
-    public CookieUtils(@Value("${app.cookie.secure:true}") boolean secureCookie, ObjectMapper objectMapper) {
+    public OAuth2CookieSupport(@Value("${app.cookie.secure:true}") boolean secureCookie, ObjectMapper objectMapper) {
         this.secureCookie = secureCookie;
         this.objectMapper = objectMapper;
     }
@@ -69,7 +69,7 @@ public class CookieUtils {
             String json = objectMapper.writeValueAsString(object);
             return Base64.getUrlEncoder().encodeToString(json.getBytes(StandardCharsets.UTF_8));
         } catch (JsonProcessingException e) {
-            throw new WebApiServiceException(WebApiServiceErrorCode.COOKIE_SERIALIZE_ERROR);
+            throw new WebApiServiceException(WebApiServiceErrorCode.COOKIE_SERIALIZE_ERROR, e);
         }
     }
 
@@ -80,7 +80,7 @@ public class CookieUtils {
             String json = new String(decodedBytes, StandardCharsets.UTF_8);
             return objectMapper.readValue(json, cls);
         } catch (Exception e) {
-            throw new WebApiServiceException(WebApiServiceErrorCode.COOKIE_DESERIALIZE_ERROR);
+            throw new WebApiServiceException(WebApiServiceErrorCode.COOKIE_DESERIALIZE_ERROR, e);
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.traveler.member.domain.member.mapper;
 
 import com.traveler.member.domain.member.dto.request.MemberRequest;
-import com.traveler.member.domain.member.dto.response.AdminResponse;
+import com.traveler.member.domain.member.dto.response.AdminMemberResponse;
 import com.traveler.member.domain.member.dto.response.MemberResponse;
 import com.traveler.member.domain.member.entity.Member;
 import com.traveler.member.domain.member.enums.AvailabilityType;
@@ -33,21 +33,21 @@ public interface MemberMapper {
     @Mapping(source = "member.roleTypes", target = "roles")
     MemberResponse.MyProfileDTO toMyProfileDTO(Member member, Integer age);
 
-    MemberResponse.AvailabilityDTO AvailabilityDTO(boolean isAvailable, String value, AvailabilityType reason);
+    MemberResponse.AvailabilityDTO toAvailabilityDTO(boolean isAvailable, String value, AvailabilityType reason);
 
     // Admin
     @Mapping(source = "id", target = "memberId")
     @Mapping(source = "member.roleTypes", target = "roles")
-    AdminResponse.GrantAdminDTO toGrantAdminDTO(Member member);
+    AdminMemberResponse.GrantAdminDTO toGrantAdminDTO(Member member);
 
     @Mapping(source = "id", target = "memberId")
-    AdminResponse.DeleteDTO toDeleteDTO(Member member);
-
-    @Mapping(source = "id", target = "memberId")
-    @Mapping(source = "member.roleTypes", target = "roles")
-    AdminResponse.ListDTO toListDTO(Member member);
+    AdminMemberResponse.DeleteDTO toDeleteDTO(Member member);
 
     @Mapping(source = "id", target = "memberId")
     @Mapping(source = "member.roleTypes", target = "roles")
-    AdminResponse.DetailDTO toDetailDTO(Member member);
+    AdminMemberResponse.ListDTO toListDTO(Member member);
+
+    @Mapping(source = "id", target = "memberId")
+    @Mapping(source = "member.roleTypes", target = "roles")
+    AdminMemberResponse.DetailDTO toDetailDTO(Member member);
 }

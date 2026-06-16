@@ -12,7 +12,7 @@ import java.util.List;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-public class AuthInterceptor implements HandlerInterceptor {
+public class UserContextInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String userId = request.getHeader(AuthConstants.X_USER_ID);
@@ -21,6 +21,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         boolean hasAnyAuthHeader = userId != null || roles != null || accessToken != null;
         boolean hasAllAuthHeader = userId != null && roles != null && StringUtils.hasText(accessToken);
+
         if (hasAllAuthHeader) {
             try {
                 List<String> roleList =

@@ -1,11 +1,13 @@
 package com.traveler.web.domain.member.controller;
 
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.web.domain.member.client.dto.request.AuthClientRequest;
 import com.traveler.web.domain.member.dto.request.AuthRequest;
 import com.traveler.web.domain.member.dto.response.AuthResponse;
 import com.traveler.web.domain.member.facade.AuthFacade;
+import com.traveler.web.global.exception.ExceptionUtils;
 import com.traveler.web.global.security.oauth2.code.AuthCodeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,9 +35,11 @@ public class AuthController {
     }
 
     @Operation(summary = "로그아웃", description = "Member 서버의 로그아웃을 호출하고 웹 브라우저의 인증 쿠키를 만료시킵니다.")
+    @RequireAuth
     @PostMapping("/logout")
     public ApiResponse<Void> logout(HttpServletResponse response) {
-        return ApiResponse.onSuccess(SuccessCode.OK, authFacade.logout(response));
+        authFacade.logout(response);
+        return ApiResponse.onSuccess(SuccessCode.OK, null);
     }
 
     @Operation(summary = "토큰 재발급", description = "쿠키에 저장된 Refresh Token을 사용하여 새로운 토큰 쌍을 재발급합니다.")
@@ -62,7 +66,9 @@ public class AuthController {
         } catch (Exception e) {
             // 하위 서비스 통신 장애 또는 내부 로직 실패 시,
             // 프론트엔드가 동일한 코드로 재시도할 수 있도록 Redis에 코드 복구 (보상 트랜잭션)
-            authCodeService.restoreCode(dto.code(), oauthLoginDTO);
+            if (ExceptionUtils.isRetryableException(e)) {
+                authCodeService.restoreCode(dto.code(), oauthLoginDTO);
+            }
             // 복구 후 원래 터졌던 예외를 다시 던져서 GlobalExceptionHandler가 처리
             throw e;
         }

@@ -5,19 +5,27 @@ import com.traveler.member.domain.member.enums.Provider;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
-    boolean existsByLoginId(String loginId);
-
-    boolean existsByEmail(String email);
-
-    boolean existsByNickname(String nickname);
-
+    // Admin
     @Query("SELECT m FROM Member m LEFT JOIN FETCH m.roles WHERE m.id = :id")
     Optional<Member> findByIdWithRoles(Long id);
 
-    @Query("select m from Member m join fetch m.roles where m.loginId = :loginId")
-    Optional<Member> findByLoginIdWithRoles(String loginId);
+    // User
+    boolean existsByLoginIdAndIsDeletedFalse(String loginId);
 
-    Optional<Member> findByProviderAndProviderId(Provider provider, String providerId);
+    boolean existsByEmailAndIsDeletedFalse(String email);
+
+    boolean existsByNicknameAndIsDeletedFalse(String nickname);
+
+    Optional<Member> findByIdAndIsDeletedFalse(Long id);
+
+    @Query("SELECT m FROM Member m LEFT JOIN FETCH m.roles WHERE m.loginId = :loginId AND m.isDeleted = false")
+    Optional<Member> findActiveByLoginIdWithRoles(String loginId);
+
+    @Query("SELECT m FROM Member m LEFT JOIN FETCH m.roles WHERE m.id = :id AND m.isDeleted = false")
+    Optional<Member> findActiveByIdWithRoles(@Param("id") Long id);
+
+    Optional<Member> findByProviderAndProviderIdAndIsDeletedFalse(Provider provider, String providerId);
 }

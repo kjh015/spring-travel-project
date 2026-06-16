@@ -13,6 +13,12 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    name = "uk_member_role_member_id_role_type",
+                    columnNames = {"member_id", "role_type"})
+        })
 public class MemberRole extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -21,5 +27,6 @@ public class MemberRole extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
+    @Column(nullable = false)
     private RoleType roleType = RoleType.ROLE_USER;
 }

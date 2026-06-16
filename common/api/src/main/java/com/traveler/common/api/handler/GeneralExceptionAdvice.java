@@ -36,7 +36,11 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
     /** [Business Exception] 커스텀 비즈니스 로직 예외 처리 */
     @ExceptionHandler(GeneralException.class)
     protected ResponseEntity<ApiResponse<Void>> handleGeneralException(GeneralException ex) {
-        log.warn("[Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
+        if (ex.getCause() != null) {
+            log.error("[System Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage(), ex);
+        } else {
+            log.warn("[Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
+        }
         return createErrorResponse(ex.getCode(), null);
     }
 
@@ -116,6 +120,15 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
             HttpMediaTypeNotSupportedException ex) {
         log.warn("[Unsupported Media Type] Given: {}, Supported: {}", ex.getContentType(), ex.getSupportedMediaTypes());
         return createErrorResponse(ErrorCode.UNSUPPORTED_MEDIA_TYPE, null);
+    }
+
+    /** [Illegal Argument] 메서드에 부적절한 인자가 전달되었을 때 (400) */
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleIllegalArgumentException(
+            IllegalArgumentException ex) {
+        log.warn("[Illegal Argument] Message: {}", ex.getMessage());
+        // 예외 메시지를 그대로 클라이언트에게 전달하거나, 공통 에러 코드로 변환하여 응답
+        return createErrorResponse(ErrorCode.BAD_REQUEST, exceptionConverter.from(ex.getMessage()));
     }
 
     /** [500 Internal Server Error] 사전에 정의되지 않은 모든 예외 처리 */

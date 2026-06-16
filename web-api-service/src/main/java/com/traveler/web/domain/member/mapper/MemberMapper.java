@@ -1,10 +1,10 @@
 package com.traveler.web.domain.member.mapper;
 
 import com.traveler.web.domain.member.client.dto.request.MemberClientRequest;
-import com.traveler.web.domain.member.client.dto.response.AdminClientResponse;
+import com.traveler.web.domain.member.client.dto.response.AdminMemberClientResponse;
 import com.traveler.web.domain.member.client.dto.response.MemberClientResponse;
 import com.traveler.web.domain.member.dto.request.MemberRequest;
-import com.traveler.web.domain.member.dto.response.AdminResponse;
+import com.traveler.web.domain.member.dto.response.AdminMemberResponse;
 import com.traveler.web.domain.member.dto.response.MemberResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -32,11 +32,11 @@ public interface MemberMapper {
     MemberResponse.AvailabilityDTO toResponseAvailabilityDTO(MemberClientResponse.AvailabilityDTO clientResponse);
 
     // Admin
-    AdminResponse.GrantAdminDTO toResponseGrantAdminDTO(AdminClientResponse.GrantAdminDTO clientResponse);
+    AdminMemberResponse.GrantAdminDTO toResponseGrantAdminDTO(AdminMemberClientResponse.GrantAdminDTO clientResponse);
 
-    AdminResponse.DeleteDTO toResponseDeleteDTO(AdminClientResponse.DeleteDTO clientResponse);
+    AdminMemberResponse.DeleteDTO toResponseDeleteDTO(AdminMemberClientResponse.DeleteDTO clientResponse);
 
-    AdminResponse.ListDTO toResponseListDTO(AdminClientResponse.ListDTO listDTO);
+    AdminMemberResponse.ListDTO toResponseListDTO(AdminMemberClientResponse.ListDTO listDTO);
 
-    AdminResponse.DetailDTO toResponseDetailDTO(AdminClientResponse.DetailDTO clientResponse);
+    AdminMemberResponse.DetailDTO toResponseDetailDTO(AdminMemberClientResponse.DetailDTO clientResponse);
 }

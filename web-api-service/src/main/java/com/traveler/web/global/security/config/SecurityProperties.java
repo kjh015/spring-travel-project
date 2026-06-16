@@ -1,15 +1,12 @@
 package com.traveler.web.global.security.config;
 
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
-@Getter
-@Setter
-@Component
 @ConfigurationProperties(prefix = "app.security")
-public class SecurityProperties {
-    private List<String> allowedOrigins;
+public record SecurityProperties(List<String> allowedOrigins) {
+
+    public SecurityProperties {
+        allowedOrigins = allowedOrigins != null ? List.copyOf(allowedOrigins) : List.of();
+    }
 }

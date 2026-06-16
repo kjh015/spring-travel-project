@@ -1,6 +1,7 @@
 package com.traveler.member.domain.auth.controller;
 
-import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.api.auth.annotation.LoginUser;
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.code.SuccessCode;
@@ -38,6 +39,7 @@ public class AuthController {
 
     @Operation(summary = "로그아웃", description = "현재 사용자의 Access Token을 무효화하고 Refresh Token을 삭제합니다.")
     @ApiErrorCodeExamples(value = {MemberServiceErrorCode.INVALID_TOKEN_TYPE, MemberServiceErrorCode.EXPIRED_JWT})
+    @RequireAuth
     @PostMapping("/logout")
     public ApiResponse<Void> logout(@Parameter(hidden = true) @LoginUser UserContext user) {
         authService.logout(user.id(), user.accessToken());

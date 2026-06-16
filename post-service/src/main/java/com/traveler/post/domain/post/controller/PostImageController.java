@@ -1,6 +1,7 @@
 package com.traveler.post.domain.post.controller;
 
-import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.api.auth.annotation.LoginUser;
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
@@ -24,6 +25,7 @@ public class PostImageController {
     private final PostImageService postImageService;
 
     @Operation(summary = "이미지 업로드용 Presigned URL 발급", description = "S3 이미지 업로드를 위한 presigned URL을 생성합니다.")
+    @RequireAuth
     @GetMapping("/presigned-url")
     public ApiResponse<PostImageResponse.PresignedUrlDTO> getPresignedUrl(
             @Parameter(description = "파일명 (확장자 포함)", example = "photo.jpg")

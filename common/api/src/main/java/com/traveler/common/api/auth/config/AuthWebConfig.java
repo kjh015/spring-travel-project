@@ -1,6 +1,7 @@
 package com.traveler.common.api.auth.config;
 
-import com.traveler.common.api.auth.interceptor.AuthInterceptor;
+import com.traveler.common.api.auth.interceptor.AuthorizationInterceptor;
+import com.traveler.common.api.auth.interceptor.UserContextInterceptor;
 import com.traveler.common.api.auth.resolver.LoginUserArgumentResolver;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
@@ -13,8 +14,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class AuthWebConfig implements WebMvcConfigurer {
 
     @Bean
-    public AuthInterceptor authInterceptor() {
-        return new AuthInterceptor();
+    public UserContextInterceptor userContextInterceptor() {
+        return new UserContextInterceptor();
+    }
+
+    @Bean
+    public AuthorizationInterceptor authorizationInterceptor() {
+        return new AuthorizationInterceptor();
     }
 
     @Bean
@@ -24,10 +30,17 @@ public class AuthWebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(authInterceptor())
+        // 데이터 세팅 (Order 1)
+        registry.addInterceptor(userContextInterceptor())
+                .order(1)
                 .addPathPatterns("/**")
-                .excludePathPatterns( // 예외 경로
-                        "/swagger-ui/**", "/v3/api-docs/**", "/favicon.ico", "/error");
+                .excludePathPatterns("/swagger-ui/**", "/v3/api-docs/**", "/favicon.ico", "/error");
+
+        // 권한 검사 (Order 2)
+        registry.addInterceptor(authorizationInterceptor())
+                .order(2)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/swagger-ui/**", "/v3/api-docs/**", "/favicon.ico", "/error");
     }
 
     @Override

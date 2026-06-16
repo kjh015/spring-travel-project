@@ -19,8 +19,12 @@ public class MemberServiceExceptionAdvice implements BaseExceptionAdvice {
 
     /** Member Service에서 발생하는 커스텀 비즈니스 예외 처리 */
     @ExceptionHandler(MemberServiceException.class)
-    protected ResponseEntity<ApiResponse<Void>> handleGeneralException(MemberServiceException ex) {
-        log.warn("[Member Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
+    protected ResponseEntity<ApiResponse<Void>> handleMemberServiceException(MemberServiceException ex) {
+        if (ex.getCause() != null) {
+            log.error("[Member Service System Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage(), ex);
+        } else {
+            log.warn("[Member Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
+        }
         return createErrorResponse(ex.getCode(), null);
     }
 }

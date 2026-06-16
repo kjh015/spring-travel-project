@@ -1,6 +1,7 @@
 package com.traveler.post.domain.post.controller;
 
-import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.api.auth.annotation.LoginUser;
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.code.SuccessCode;
@@ -26,6 +27,7 @@ public class PostController {
 
     @Operation(summary = "게시글 생성", description = "새로운 게시글을 작성합니다. 이미지는 S3 키 리스트로 전달합니다.")
     @ApiErrorCodeExamples(post = {PostServiceErrorCode.POST_IMAGE_DUPLICATE})
+    @RequireAuth
     @PostMapping
     public ApiResponse<PostResponse.CreateDTO> createPost(
             @Valid @RequestBody PostRequest.CreateDTO dto, @Parameter(hidden = true) @LoginUser UserContext user) {
@@ -40,6 +42,7 @@ public class PostController {
                 PostServiceErrorCode.POST_IMAGE_DUPLICATE,
                 PostServiceErrorCode.POST_ALREADY_DELETED
             })
+    @RequireAuth
     @PatchMapping("/{postId}")
     public ApiResponse<PostResponse.UpdateDTO> updatePost(
             @Parameter(description = "게시글 ID", example = "1") @PathVariable Long postId,
@@ -52,6 +55,7 @@ public class PostController {
     @ApiErrorCodeExamples(
             value = {ErrorCode.FORBIDDEN},
             post = {PostServiceErrorCode.POST_NOT_FOUND})
+    @RequireAuth
     @DeleteMapping("/{postId}")
     public ApiResponse<PostResponse.DeleteDTO> deletePost(
             @Parameter(description = "게시글 ID", example = "1") @PathVariable Long postId,

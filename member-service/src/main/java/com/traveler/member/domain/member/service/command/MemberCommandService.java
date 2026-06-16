@@ -1,7 +1,7 @@
 package com.traveler.member.domain.member.service.command;
 
+import com.traveler.common.core.code.ErrorCode;
 import com.traveler.member.domain.member.dto.request.MemberRequest;
-import com.traveler.member.domain.member.dto.response.AdminResponse;
 import com.traveler.member.domain.member.dto.response.MemberResponse;
 import com.traveler.member.domain.member.entity.Member;
 import com.traveler.member.domain.member.enums.RoleType;
@@ -9,6 +9,7 @@ import com.traveler.member.domain.member.mapper.MemberMapper;
 import com.traveler.member.domain.member.repository.MemberRepository;
 import com.traveler.member.global.exception.MemberServiceException;
 import com.traveler.member.global.exception.code.MemberServiceErrorCode;
+import java.sql.SQLException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,15 +25,15 @@ public class MemberCommandService {
     private final PasswordEncoder passwordEncoder;
 
     public MemberResponse.SignUpDTO signUp(MemberRequest.SignUpDTO dto) {
-        if (memberRepository.existsByLoginId(dto.loginId())) {
+        if (memberRepository.existsByLoginIdAndIsDeletedFalse(dto.loginId())) {
             throw new MemberServiceException(MemberServiceErrorCode.MEMBER_EXISTS_LOGINID);
         }
 
-        if (memberRepository.existsByEmail(dto.email())) {
+        if (memberRepository.existsByEmailAndIsDeletedFalse(dto.email())) {
             throw new MemberServiceException(MemberServiceErrorCode.MEMBER_EXISTS_EMAIL);
         }
 
-        if (memberRepository.existsByNickname(dto.nickname())) {
+        if (memberRepository.existsByNicknameAndIsDeletedFalse(dto.nickname())) {
             throw new MemberServiceException(MemberServiceErrorCode.MEMBER_EXISTS_NICKNAME);
         }
 
@@ -44,7 +45,11 @@ public class MemberCommandService {
             // DB 강제 플러시 저장
             memberRepository.saveAndFlush(member);
         } catch (DataIntegrityViolationException e) {
-            throw new MemberServiceException(MemberServiceErrorCode.MEMBER_ALREADY_EXISTS);
+            if (isDuplicateKeyError(e)) {
+                throw new MemberServiceException(MemberServiceErrorCode.MEMBER_ALREADY_EXISTS, e);
+            }
+            // 중복 외의 무결성 위반 (Not Null 제약 위반, 데이터 잘림 등)
+            throw new MemberServiceException(ErrorCode.DATABASE_ERROR, e);
         }
         return memberMapper.toSignUpDTO(member);
     }
@@ -62,7 +67,8 @@ public class MemberCommandService {
                 .findById(memberId)
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
 
-        if (!member.getNickname().equals(dto.nickname()) && memberRepository.existsByNickname(dto.nickname())) {
+        if (!member.getNickname().equals(dto.nickname())
+                && memberRepository.existsByNicknameAndIsDeletedFalse(dto.nickname())) {
             throw new MemberServiceException(MemberServiceErrorCode.MEMBER_EXISTS_NICKNAME);
         }
 
@@ -89,23 +95,13 @@ public class MemberCommandService {
         return memberMapper.toUpdatePasswordDTO(member);
     }
 
-    public AdminResponse.GrantAdminDTO grantAdminRole(Long memberId) {
-        Member member = memberRepository
-                .findByIdWithRoles(memberId)
-                .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
+    private boolean isDuplicateKeyError(DataIntegrityViolationException e) {
+        Throwable rootCause = e.getRootCause();
 
-        member.addRole(RoleType.ROLE_ADMIN);
-
-        return memberMapper.toGrantAdminDTO(member);
-    }
-
-    public AdminResponse.DeleteDTO deleteMember(Long memberId) {
-        Member member = memberRepository
-                .findById(memberId)
-                .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
-
-        member.delete();
-
-        return memberMapper.toDeleteDTO(member);
+        if (rootCause instanceof SQLException sqlException) {
+            // MySQL/MariaDB 기준 중복 키 위반 에러 코드 1062
+            return sqlException.getErrorCode() == 1062;
+        }
+        return false;
     }
 }

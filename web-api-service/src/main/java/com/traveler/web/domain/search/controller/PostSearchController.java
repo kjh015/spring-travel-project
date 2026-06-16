@@ -1,5 +1,6 @@
 package com.traveler.web.domain.search.controller;
 
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.common.core.response.PageResponse;
@@ -48,6 +49,7 @@ public class PostSearchController {
     }
 
     @Operation(summary = "내 게시글 검색", description = "내가 작성한 게시글을 검색 엔진 인덱스에서 조회합니다.")
+    @RequireAuth
     @GetMapping("/me")
     public ApiResponse<PageResponse<PostSearchResponse.ListDTO>> getMyPosts(
             @ParameterObject @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)

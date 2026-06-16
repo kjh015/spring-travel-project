@@ -29,13 +29,12 @@ public class AuthFacade {
         return authMapper.toResponseLoginDTO(clientResponse.loginInfo());
     }
 
-    public Void logout(HttpServletResponse response) {
+    public void logout(HttpServletResponse response) {
         try {
             authClientAdaptor.logout();
         } finally {
             authHttpSupport.clearAuthResponse(response);
         }
-        return null;
     }
 
     public AuthResponse.LoginDTO reissue(String refreshToken, HttpServletResponse response) {

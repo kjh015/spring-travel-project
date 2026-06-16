@@ -1,6 +1,7 @@
 package com.traveler.search.domain.post.controller;
 
-import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.api.auth.annotation.LoginUser;
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
@@ -57,6 +58,7 @@ public class PostSearchController {
     }
 
     @Operation(summary = "내 게시글 검색", description = "내가 작성한 게시글을 검색 엔진 인덱스에서 조회합니다.")
+    @RequireAuth
     @GetMapping("/me")
     public ApiResponse<PageResponse<PostSearchResponse.MyDTO>> getMyPosts(
             @Parameter(hidden = true) @LoginUser UserContext user,

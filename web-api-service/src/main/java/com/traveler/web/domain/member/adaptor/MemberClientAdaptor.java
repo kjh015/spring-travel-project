@@ -6,10 +6,12 @@ import com.traveler.web.domain.member.client.dto.response.MemberClientResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class MemberClientAdaptor {
     private final MemberClient memberClient;
 
@@ -65,15 +67,19 @@ public class MemberClientAdaptor {
                             MemberClientResponse.ProfileDTO::nickname,
                             (existing, replacement) -> existing));
         } catch (RuntimeException ex) {
+            log.warn("Failed to fetch nickname map for memberIds: {}", memberIds, ex);
             return Collections.emptyMap();
         }
     }
 
     public String getMemberNickname(Long memberId) {
-        return memberClient.getMemberProfile(memberId).result().nickname();
+        MemberClientResponse.ProfileDTO profile =
+                memberClient.getMemberProfile(memberId).result();
+        return profile != null ? profile.nickname() : "알 수 없음";
     }
 
     public String getMyNickname() {
-        return memberClient.getMyProfile().result().nickname();
+        MemberClientResponse.MyProfileDTO profile = memberClient.getMyProfile().result();
+        return profile != null ? profile.nickname() : "알 수 없음";
     }
 }

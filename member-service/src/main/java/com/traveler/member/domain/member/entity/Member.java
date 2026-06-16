@@ -17,13 +17,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLRestriction;
 
 @SuperBuilder
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLRestriction("is_deleted = false")
 @Table(
         name = "member",
         indexes = {@Index(name = "idx_member_deleted_at_status", columnList = "is_deleted, deleted_at")})
@@ -66,6 +64,20 @@ public class Member extends BaseEntity {
         }
         this.isDeleted = true;
         this.deletedAt = Instant.now();
+
+        // Unique 제약 조건 충돌 방지 (loginId, email, providerId)
+        // 탈퇴한 회원의 아이디나 이메일로 다른/같은 사용자가 재가입할 수 있도록 처리
+        String deletePrefix = "del_" + Instant.now().toEpochMilli() + "_";
+
+        if (this.loginId != null) {
+            this.loginId = deletePrefix + this.loginId;
+        }
+        if (this.email != null) {
+            this.email = deletePrefix + this.email;
+        }
+        if (this.providerId != null) {
+            this.providerId = deletePrefix + this.providerId;
+        }
     }
 
     public void update(String nickname) {

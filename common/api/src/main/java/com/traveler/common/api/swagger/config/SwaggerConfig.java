@@ -1,6 +1,6 @@
 package com.traveler.common.api.swagger.config;
 
-import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.api.auth.annotation.LoginUser;
 import com.traveler.common.core.auth.AuthConstants;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.info.Info;

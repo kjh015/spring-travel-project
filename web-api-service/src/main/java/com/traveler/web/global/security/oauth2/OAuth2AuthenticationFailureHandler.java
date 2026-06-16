@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -25,17 +26,21 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
     public void onAuthenticationFailure(
             HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
             throws IOException {
-        log.warn("[OAuth2 Authentication Failure] Reason: {}", exception.getMessage());
-
         // 보안 조치: 로그인 실패 시에도 브라우저에 남아있는 임시 상태 쿠키(CSRF 방어용)를 파기합니다.
         clearAuthenticationAttributes(request, response);
 
         // 에러 코드 분류: 예외 유형에 따라 프론트엔드가 인지할 수 있는 가벼운 에러 키워드를 도출합니다.
-        String errorCode = resolveErrorCode(exception);
+        OAuth2FailureCode failureCode = resolveFailureCode(exception);
+
+        log.warn(
+                "[OAuth2 Authentication Failure] Code: {}, Description: {}, Original Reason: {}",
+                failureCode.getErrorCode(),
+                failureCode.getDescription(),
+                exception.getMessage());
 
         // 리다이렉트 URL 생성: 프론트엔드 주소 뒤에 ?error=... 파라미터를 붙입니다.
         String targetUrl = UriComponentsBuilder.fromUriString(frontendRedirectUri)
-                .queryParam("error", errorCode)
+                .queryParam("error", failureCode.getErrorCode())
                 .build()
                 .toUriString();
 
@@ -48,25 +53,13 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
     }
 
     /**
-     * Spring Security 예외 메시지를 프론트엔드용 가벼운 에러 코드로 매핑
+     * Spring Security 예외를 OAuth2FailureCode로 매핑
      */
-    private String resolveErrorCode(AuthenticationException exception) {
-        String message = exception.getMessage();
-        if (message == null) return "unknown_error";
-
-        // 사용자가 카카오 창에서 동의 거부/취소를 누른 경우
-        if (message.contains("access_denied")) {
-            return "access_denied";
+    private OAuth2FailureCode resolveFailureCode(AuthenticationException exception) {
+        if (exception instanceof OAuth2AuthenticationException oauth2Exception) {
+            String springErrorCode = oauth2Exception.getError().getErrorCode();
+            return OAuth2FailureCode.from(springErrorCode);
         }
-        // 인가 코드 교환 중 카카오 서버와 통신 타임아웃 등이 발생한 경우
-        if (message.contains("invalid_token_response") || message.contains("connection")) {
-            return "provider_server_error";
-        }
-        // 의도적인 공격이나 세션 만료로 state(CSRF) 값이 맞지 않는 경우
-        if (message.contains("authorization_request_not_found")) {
-            return "session_expired";
-        }
-
-        return "authentication_failed";
+        return OAuth2FailureCode.AUTHENTICATION_FAILED;
     }
 }

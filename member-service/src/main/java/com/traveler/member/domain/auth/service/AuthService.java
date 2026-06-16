@@ -34,17 +34,14 @@ public class AuthService {
 
     public AuthResponse.LoginResult login(AuthRequest.LoginDTO dto) {
         Member member = memberRepository
-                .findByLoginIdWithRoles(dto.loginId())
+                .findActiveByLoginIdWithRoles(dto.loginId())
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
 
         validatePassword(dto.password(), member.getPassword());
 
         AuthTokens tokens = createAuthTokens(member);
 
-        refreshTokenRepository.save(
-                member.getId(),
-                TokenHashUtil.hash(tokens.refreshToken()),
-                jwtTokenProvider.getRefreshTokenExpireTime());
+        saveRefreshToken(member.getId(), tokens.refreshToken());
 
         return authMapper.toLoginResultDTO(tokens, member);
     }
@@ -81,10 +78,7 @@ public class AuthService {
         AuthTokens tokens = createAuthTokens(member);
 
         // Redis 갱신
-        refreshTokenRepository.save(
-                member.getId(),
-                TokenHashUtil.hash(tokens.refreshToken()),
-                jwtTokenProvider.getRefreshTokenExpireTime());
+        saveRefreshToken(member.getId(), tokens.refreshToken());
 
         return authMapper.toLoginResultDTO(tokens, member);
     }
@@ -92,7 +86,7 @@ public class AuthService {
     public AuthResponse.LoginResult loginOrSignup(AuthRequest.OAuthLoginDTO dto) {
 
         Member member = memberRepository
-                .findByProviderAndProviderId(dto.provider(), dto.providerId())
+                .findByProviderAndProviderIdAndIsDeletedFalse(dto.provider(), dto.providerId())
                 .orElseGet(() -> {
                     // 신규 회원가입
                     Member newMember = authMapper.toCreateEntity(dto);
@@ -100,10 +94,9 @@ public class AuthService {
                     return memberRepository.save(newMember);
                 });
 
-        // 2. 내부 JWT 발급
+        // 내부 JWT 발급
         AuthTokens tokens = createAuthTokens(member);
-        refreshTokenRepository.save(
-                member.getId(), tokens.refreshToken(), jwtTokenProvider.getRefreshTokenExpireTime());
+        saveRefreshToken(member.getId(), tokens.refreshToken());
 
         return authMapper.toLoginResultDTO(tokens, member);
     }
@@ -130,5 +123,10 @@ public class AuthService {
             refreshTokenRepository.deleteByMemberId(memberId);
             throw new MemberServiceException(MemberServiceErrorCode.INVALID_TOKEN_TYPE);
         }
+    }
+
+    private void saveRefreshToken(Long memberId, String refreshToken) {
+        String hashedToken = TokenHashUtil.hash(refreshToken);
+        refreshTokenRepository.save(memberId, hashedToken, jwtTokenProvider.getRefreshTokenExpireTime());
     }
 }

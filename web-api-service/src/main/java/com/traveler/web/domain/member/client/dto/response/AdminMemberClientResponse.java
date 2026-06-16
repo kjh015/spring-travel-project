@@ -6,8 +6,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
-public final class AdminClientResponse {
-    private AdminClientResponse() {
+public final class AdminMemberClientResponse {
+    private AdminMemberClientResponse() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 

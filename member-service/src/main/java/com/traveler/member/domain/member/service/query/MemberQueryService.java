@@ -1,8 +1,5 @@
 package com.traveler.member.domain.member.service.query;
 
-import com.traveler.common.api.converter.PageConverter;
-import com.traveler.common.core.response.PageResponse;
-import com.traveler.member.domain.member.dto.response.AdminResponse;
 import com.traveler.member.domain.member.dto.response.MemberResponse;
 import com.traveler.member.domain.member.entity.Member;
 import com.traveler.member.domain.member.enums.AvailabilityType;
@@ -13,8 +10,6 @@ import com.traveler.member.global.exception.code.MemberServiceErrorCode;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +22,7 @@ public class MemberQueryService {
 
     public MemberResponse.ProfileDTO getMemberProfile(Long memberId) {
         Member member = memberRepository
-                .findById(memberId)
+                .findByIdAndIsDeletedFalse(memberId)
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
 
         return memberMapper.toProfileDTO(member, member.getAge());
@@ -35,42 +30,28 @@ public class MemberQueryService {
 
     public MemberResponse.MyProfileDTO getMyProfile(Long memberId) {
         Member member = memberRepository
-                .findByIdWithRoles(memberId)
+                .findActiveByIdWithRoles(memberId)
                 .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
 
         return memberMapper.toMyProfileDTO(member, member.getAge());
     }
 
     public MemberResponse.AvailabilityDTO checkLoginIdAvailability(String loginId) {
-        boolean isAvailable = !memberRepository.existsByLoginId(loginId);
+        boolean isAvailable = !memberRepository.existsByLoginIdAndIsDeletedFalse(loginId);
         AvailabilityType reason = isAvailable ? AvailabilityType.AVAILABLE : AvailabilityType.DUPLICATED;
-        return memberMapper.AvailabilityDTO(isAvailable, loginId, reason);
+        return memberMapper.toAvailabilityDTO(isAvailable, loginId, reason);
     }
 
     public MemberResponse.AvailabilityDTO checkEmailAvailability(String email) {
-        boolean isAvailable = !memberRepository.existsByEmail(email);
+        boolean isAvailable = !memberRepository.existsByEmailAndIsDeletedFalse(email);
         AvailabilityType reason = isAvailable ? AvailabilityType.AVAILABLE : AvailabilityType.DUPLICATED;
-        return memberMapper.AvailabilityDTO(isAvailable, email, reason);
+        return memberMapper.toAvailabilityDTO(isAvailable, email, reason);
     }
 
     public MemberResponse.AvailabilityDTO checkNicknameAvailability(String nickname) {
-        boolean isAvailable = !memberRepository.existsByNickname(nickname);
+        boolean isAvailable = !memberRepository.existsByNicknameAndIsDeletedFalse(nickname);
         AvailabilityType reason = isAvailable ? AvailabilityType.AVAILABLE : AvailabilityType.DUPLICATED;
-        return memberMapper.AvailabilityDTO(isAvailable, nickname, reason);
-    }
-
-    public PageResponse<AdminResponse.ListDTO> getMembers(Pageable pageable) {
-        // BatchSize로 수정필요
-        Page<Member> members = memberRepository.findAll(pageable);
-        return PageConverter.toPageResponse(members, memberMapper::toListDTO);
-    }
-
-    public AdminResponse.DetailDTO getMember(Long memberId) {
-        Member member = memberRepository
-                .findByIdWithRoles(memberId)
-                .orElseThrow(() -> new MemberServiceException(MemberServiceErrorCode.MEMBER_NOT_FOUND));
-
-        return memberMapper.toDetailDTO(member);
+        return memberMapper.toAvailabilityDTO(isAvailable, nickname, reason);
     }
 
     public List<MemberResponse.ProfileDTO> getMemberProfiles(Set<Long> memberIds) {
