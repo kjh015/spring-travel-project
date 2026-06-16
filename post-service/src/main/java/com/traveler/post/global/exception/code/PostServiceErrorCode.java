@@ -1,4 +1,4 @@
-package com.traveler.post.global.code;
+package com.traveler.post.global.exception.code;
 
 import com.traveler.common.core.code.BaseErrorCode;
 import lombok.AllArgsConstructor;

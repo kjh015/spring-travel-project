@@ -53,9 +53,10 @@ spring:
 swagger:
   info:
     paths-to-match:
-      - "/v1/posts/**"
-      - "/v1/comments/**"
-      - "/v1/likes/**"
+      - "/v1/processes/**"
+      - "/v1/formats/**"
+      - "/v1/filters/**"
+      - "/v1/deduplication/**"
 
 springdoc:
   api-docs:

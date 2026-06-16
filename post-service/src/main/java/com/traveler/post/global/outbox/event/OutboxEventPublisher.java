@@ -1,7 +1,7 @@
 package com.traveler.post.global.outbox.event;
 
-import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
+import com.traveler.post.global.exception.code.PostServiceErrorCode;
 import com.traveler.post.global.kafka.KafkaTopicProperties;
 import org.springframework.context.ApplicationEventPublisher;
 

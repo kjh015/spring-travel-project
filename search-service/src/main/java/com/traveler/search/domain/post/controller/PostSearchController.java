@@ -9,7 +9,7 @@ import com.traveler.common.core.response.PageResponse;
 import com.traveler.search.domain.post.dto.request.PostSearchRequest;
 import com.traveler.search.domain.post.dto.response.PostSearchResponse;
 import com.traveler.search.domain.post.service.PostSearchQueryService;
-import com.traveler.search.global.code.SearchServiceErrorCode;
+import com.traveler.search.global.exception.code.SearchServiceErrorCode;
 import com.traveler.search.global.swagger.ApiErrorCodeExamples;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
