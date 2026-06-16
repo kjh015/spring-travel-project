@@ -1,6 +1,6 @@
 package com.traveler.common.api.swagger.config;
 
-import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.api.auth.annotation.LoginUser;
 import com.traveler.common.core.auth.AuthConstants;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.info.Info;
@@ -30,13 +30,15 @@ public class SwaggerConfig {
             openApi.addSecurityItem(new SecurityRequirement()
                     .addList(BEARER_TOKEN_PREFIX)
                     .addList(AuthConstants.X_USER_ID)
-                    .addList(AuthConstants.X_USER_ROLES));
+                    .addList(AuthConstants.X_USER_ROLES)
+                    .addList(AuthConstants.X_ACCESS_TOKEN));
             Components components = Optional.ofNullable(openApi.getComponents()).orElseGet(Components::new);
             openApi.setComponents(components);
             components
                     .addSecuritySchemes(BEARER_TOKEN_PREFIX, createBearerScheme())
                     .addSecuritySchemes(AuthConstants.X_USER_ID, createHeaderScheme(AuthConstants.X_USER_ID))
-                    .addSecuritySchemes(AuthConstants.X_USER_ROLES, createHeaderScheme(AuthConstants.X_USER_ROLES));
+                    .addSecuritySchemes(AuthConstants.X_USER_ROLES, createHeaderScheme(AuthConstants.X_USER_ROLES))
+                    .addSecuritySchemes(AuthConstants.X_ACCESS_TOKEN, createHeaderScheme(AuthConstants.X_ACCESS_TOKEN));
             components.addSchemas(
                     "ApiResponse",
                     new Schema<>()

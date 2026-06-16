@@ -1,6 +1,7 @@
 package com.traveler.post.domain.comment.controller;
 
-import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.api.auth.annotation.LoginUser;
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.code.SuccessCode;
@@ -26,6 +27,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 작성", description = "게시글에 새로운 댓글과 별점을 남깁니다.")
     @ApiErrorCodeExamples(post = {PostServiceErrorCode.POST_NOT_FOUND})
+    @RequireAuth
     @PostMapping
     public ApiResponse<CommentResponse.CreateDTO> createComment(
             @Valid @RequestBody CommentRequest.CreateDTO dto, @Parameter(hidden = true) @LoginUser UserContext user) {
@@ -40,6 +42,7 @@ public class CommentController {
                 PostServiceErrorCode.POST_NOT_FOUND,
                 PostServiceErrorCode.COMMENT_ALREADY_DELETED
             })
+    @RequireAuth
     @PatchMapping("/{commentId}")
     public ApiResponse<CommentResponse.UpdateDTO> updateComment(
             @Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId,
@@ -52,6 +55,7 @@ public class CommentController {
     @ApiErrorCodeExamples(
             value = {ErrorCode.FORBIDDEN},
             post = {PostServiceErrorCode.COMMENT_NOT_FOUND, PostServiceErrorCode.POST_NOT_FOUND})
+    @RequireAuth
     @DeleteMapping("/{commentId}")
     public ApiResponse<CommentResponse.DeleteDTO> deleteComment(
             @Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId,

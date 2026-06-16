@@ -1,5 +1,6 @@
 package com.traveler.web.global.feign.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.web.global.feign.decoder.FeignErrorDecoder;
 import com.traveler.web.global.feign.decoder.ValidatedFeignDecoder;
 import com.traveler.web.global.feign.interceptor.FeignAuthInterceptor;
@@ -20,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 public class FeignClientConfig {
 
     private final ObjectFactory<HttpMessageConverters> messageConverters;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public Decoder feignDecoder() {
@@ -34,7 +36,7 @@ public class FeignClientConfig {
 
     @Bean
     public ErrorDecoder errorDecoder() {
-        return new FeignErrorDecoder();
+        return new FeignErrorDecoder(objectMapper);
     }
 
     @Bean

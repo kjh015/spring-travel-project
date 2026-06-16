@@ -1,6 +1,7 @@
 package com.traveler.search.domain.like.controller;
 
-import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.api.auth.annotation.LoginUser;
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
@@ -27,6 +28,7 @@ public class LikeSearchController {
     private final LikeSearchQueryService likeSearchQueryService;
 
     @Operation(summary = "내가 좋아요 한 게시글 목록 조회", description = "현재 사용자가 좋아요를 누른 게시글들을 검색 엔진 인덱스 조인을 통해 페이징하여 조회합니다.")
+    @RequireAuth
     @GetMapping("/me")
     public ApiResponse<PageResponse<LikeSearchResponse.MyDTO>> getMyLikePosts(
             @Parameter(hidden = true) @LoginUser UserContext user,

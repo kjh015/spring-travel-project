@@ -1,6 +1,7 @@
 package com.traveler.search.domain.comment.controller;
 
-import com.traveler.common.api.auth.resolver.LoginUser;
+import com.traveler.common.api.auth.annotation.LoginUser;
+import com.traveler.common.api.auth.annotation.RequireAuth;
 import com.traveler.common.core.auth.UserContext;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
@@ -38,6 +39,7 @@ public class CommentSearchController {
     }
 
     @Operation(summary = "내가 쓴 댓글 조회", description = "현재 로그인한 사용자가 작성한 모든 댓글을 검색 엔진에서 조회합니다.")
+    @RequireAuth
     @GetMapping("/me")
     public ApiResponse<PageResponse<CommentSearchResponse.MyDTO>> getMyComments(
             @LoginUser UserContext user,
