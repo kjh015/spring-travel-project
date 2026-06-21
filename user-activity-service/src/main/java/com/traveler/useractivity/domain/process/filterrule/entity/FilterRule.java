@@ -2,37 +2,68 @@ package com.traveler.useractivity.domain.process.filterrule.entity;
 
 import com.traveler.common.db.entity.BaseEntity;
 import com.traveler.useractivity.domain.process.core.entity.LogProcess;
+import com.traveler.useractivity.domain.process.filterrule.vo.FilterRuleNode;
+import com.traveler.useractivity.global.exception.UserActivityServiceException;
+import com.traveler.useractivity.global.exception.code.UserActivityServiceErrorCode;
 import jakarta.persistence.*;
+import java.time.Instant;
+import java.util.List;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.type.SqlTypes;
 
 @SuperBuilder
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("is_deleted = false")
+@Table(
+        name = "filter_rule",
+        indexes = {@Index(name = "idx_filter_rule_deleted_at_status", columnList = "is_deleted, deleted_at")})
 public class FilterRule extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "process_id", nullable = false)
-    private LogProcess process;
+    @JoinColumn(name = "log_process_id", nullable = false)
+    private LogProcess logProcess;
 
     private String name;
 
     @Column(nullable = false, length = 1000)
     private String expression;
 
-    //    @JdbcTypeCode(SqlTypes.JSON)
-    //    private List<TokenDto> tokens;
-    //
-    //    @Column(
-    //            columnDefinition = "TEXT"
-    //    )
-    //    private String tokensJson;
-    //
-    //    @Column(
-    //            columnDefinition = "TEXT"
-    //    )
-    //    private String usedField;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<FilterRuleNode.Element> conditions;
+
     private boolean isActive;
+
+    @Builder.Default
+    private boolean isDeleted = false;
+
+    private Instant deletedAt;
+
+    public void delete() {
+        if (this.isDeleted) {
+            return;
+        }
+        this.isDeleted = true;
+        this.deletedAt = Instant.now();
+    }
+
+    public void update(String name, String expression, List<FilterRuleNode.Element> conditions, boolean isActive) {
+        validateNotDeleted();
+        this.name = name;
+        this.expression = expression;
+        this.conditions = conditions;
+        this.isActive = isActive;
+    }
+
+    private void validateNotDeleted() {
+        if (this.isDeleted) {
+            throw new UserActivityServiceException(UserActivityServiceErrorCode.FORMAT_RULE_ALREADY_DELETED);
+        }
+    }
 }
