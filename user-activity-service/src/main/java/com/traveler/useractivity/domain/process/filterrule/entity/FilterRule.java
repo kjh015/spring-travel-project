@@ -63,7 +63,7 @@ public class FilterRule extends BaseEntity {
 
     private void validateNotDeleted() {
         if (this.isDeleted) {
-            throw new UserActivityServiceException(UserActivityServiceErrorCode.FORMAT_RULE_ALREADY_DELETED);
+            throw new UserActivityServiceException(UserActivityServiceErrorCode.FILTER_RULE_ALREADY_DELETED);
         }
     }
 }
