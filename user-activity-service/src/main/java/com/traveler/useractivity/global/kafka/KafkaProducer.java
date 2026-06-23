@@ -33,4 +33,21 @@ public class KafkaProducer {
             }
         });
     }
+
+    public CompletableFuture<SendResult<String, String>> forward(String topic, String payload) {
+        ProducerRecord<String, String> record = new ProducerRecord<>(topic, payload);
+
+        // Header로 logProcessId 보내기 필요
+
+        return kafkaTemplate.send(record).whenComplete((result, ex) -> {
+            if (ex == null) {
+                log.debug(
+                        "다음 처리 단계로 전송 성공: topic=[{}], offset=[{}]",
+                        topic,
+                        result.getRecordMetadata().offset());
+            } else {
+                log.error("다음 처리 단계로 전송 실패: topic=[{}]", topic, ex);
+            }
+        });
+    }
 }

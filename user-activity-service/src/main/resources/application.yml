@@ -41,7 +41,7 @@ spring:
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      group-id: traveler-group
+      group-id: user-activity-default-group
       auto-offset-reset: earliest
       enable-auto-commit: false
     listener:
@@ -83,8 +83,11 @@ eureka:
 app:
   kafka:
     topics:
-      process-events: "user-activity-service.process.events"
-      format-events: "user-activity-service.format.events"
-      filter-events: "user-activity-service.filter.events"
-      deduplication-events: "user-activity-service.deduplication.events"
+      format-stream: "user-activity-service.process.format.stream"
+      filter-stream: "user-activity-service.process.filter.stream"
+      dedup-stream: "user-activity-service.process.dedup.stream"
+    groups:
+      format: "user-activity-format-group"
+      filter: "user-activity-filter-group"
+      dedup: "user-activity-dedup-group"
 
