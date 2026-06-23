@@ -9,6 +9,7 @@ import lombok.Getter;
 public enum UserActivityServiceErrorCode implements BaseErrorCode {
     // LogProcess
     LOG_PROCESS_NOT_FOUND(404, "PROCESS404_1", "요청한 로그 프로세스를 찾을 수 없습니다."),
+    LOG_PROCESS_ALREADY_DELETED(400, "PROCESS400_1", "이미 삭제된 로그 프로세스입니다."),
 
     // FormatRule
     FORMAT_RULE_ALREADY_DELETED(400, "FORMAT400_3", "이미 삭제된 포맷규칙입니다."),
@@ -24,7 +25,8 @@ public enum UserActivityServiceErrorCode implements BaseErrorCode {
 
     // DeduplicationRule
     DEDUP_RULE_ALREADY_DELETED(400, "DEDUP400_1", "이미 삭제된 중복제거 규칙입니다."),
-    DEDUP_RULE_NOT_FOUND(404, "DEDUP4404_1", "요청한 중복제거 규칙을 찾을 수 없습니다."),
+    DEDUP_UNSUPPORTED_MATCH_TYPE(400, "DEDUP400_2", "지원하지 않는 매치 타입입니다."), // 💡 신규 추가
+    DEDUP_RULE_NOT_FOUND(404, "DEDUP404_1", "요청한 중복제거 규칙을 찾을 수 없습니다."),
 
     // Infra - Kafka
     TOPIC_NOT_CONFIGURED(500, "EVENT500_1", "해당 이벤트 타입에 대한 Kafka 토픽 설정이 누락되었습니다."),
