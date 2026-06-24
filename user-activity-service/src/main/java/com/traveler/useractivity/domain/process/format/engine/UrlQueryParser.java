@@ -22,17 +22,27 @@ public class UrlQueryParser {
         }
 
         try {
-            // "?" 이후의 쿼리 스트링만 추출
-            String queryString = url.substring(url.indexOf("?") + 1);
+            String queryString = url.substring(url.indexOf('?') + 1);
             String[] pairs = queryString.split("&");
 
             for (String pair : pairs) {
-                String[] keyValue = pair.split("=", 2);
-                String key = URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8);
-                // 값이 없는 경우(예: "?action=") 빈 문자열 처리
-                String value = keyValue.length > 1 && keyValue[1] != null
-                        ? URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8)
-                        : "";
+                // "&&" 처럼 비어있는 엣지 케이스 무시
+                if (pair.isEmpty()) continue;
+
+                int idx = pair.indexOf('=');
+
+                String key;
+                String value;
+
+                if (idx != -1) {
+                    // '=' 가 있는 경우
+                    key = URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8);
+                    value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
+                } else {
+                    // '=' 가 없는 경우 (예: ?flag) -> 버리지 않고 빈 문자열로 저장
+                    key = URLDecoder.decode(pair, StandardCharsets.UTF_8);
+                    value = "";
+                }
 
                 queryParams.put(key, value);
             }

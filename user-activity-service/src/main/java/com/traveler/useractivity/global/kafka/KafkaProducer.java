@@ -34,10 +34,13 @@ public class KafkaProducer {
         });
     }
 
-    public CompletableFuture<SendResult<String, String>> forward(String topic, String payload) {
+    public CompletableFuture<SendResult<String, String>> forward(String topic, Long logProcessId, String payload) {
         ProducerRecord<String, String> record = new ProducerRecord<>(topic, payload);
 
-        // Header로 logProcessId 보내기 필요
+        if (logProcessId != null) {
+            record.headers()
+                    .add("X-Log-Process-Id", String.valueOf(logProcessId).getBytes(StandardCharsets.UTF_8));
+        }
 
         return kafkaTemplate.send(record).whenComplete((result, ex) -> {
             if (ex == null) {
