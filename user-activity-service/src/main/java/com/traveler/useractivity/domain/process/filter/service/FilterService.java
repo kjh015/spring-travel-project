@@ -21,7 +21,7 @@ public class FilterService {
      * 로그를 평가하여, 통과하지 못한 첫 번째 필터 규칙(FilterRule)을 반환합니다.
      * 모든 규칙을 무사히 통과했다면 Optional.empty()를 반환합니다.
      */
-    public Optional<FilterRule> findFirstFailedRule(Map<String, String> formattedLog, Long logProcessId) {
+    public Optional<FilterRule> findFirstFailedRule(Map<String, String> logData, Long logProcessId) {
 
         List<FilterRule> activeFilters = filterRuleRepository.findAllByLogProcessIdAndIsActiveTrue(logProcessId);
 
@@ -31,7 +31,7 @@ public class FilterService {
 
         // activeFilters 중 로그와 매치되지 않는(실패한) 첫 번째 룰을 찾아 반환
         return activeFilters.stream()
-                .filter(rule -> !evaluateLog(rule, formattedLog))
+                .filter(rule -> !evaluateLog(rule, logData))
                 .findFirst();
     }
 
@@ -42,11 +42,11 @@ public class FilterService {
     /**
      * 필터 규칙(FilterRule)을 기준으로 로그를 평가합니다.
      */
-    private boolean evaluateLog(FilterRule rule, Map<String, String> formattedLog) {
+    private boolean evaluateLog(FilterRule rule, Map<String, String> logData) {
         String expression = rule.getExpression();
 
         // SpEL 엔진으로 조건식 평가
-        boolean isPassed = SpelExpressionEvaluator.evaluate(expression, formattedLog);
+        boolean isPassed = SpelExpressionEvaluator.evaluate(expression, logData);
 
         if (!isPassed) {
             log.debug("필터 조건 불일치로 로그가 Drop 되었습니다. (필터명: {}, 조건식: {})", rule.getName(), expression);

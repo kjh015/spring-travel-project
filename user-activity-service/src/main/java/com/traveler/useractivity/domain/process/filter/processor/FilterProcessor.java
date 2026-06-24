@@ -29,14 +29,14 @@ public class FilterProcessor {
     @KafkaListener(topics = "${app.kafka.topics.filter-stream}", groupId = "${app.kafka.groups.filter}")
     public void process(@Payload String payload, Acknowledgment ack) throws Exception {
 
-        LogPayload<Map<String, String>> incomingPayload = objectMapper.readValue(payload, new TypeReference<>() {});
+        LogPayload<Map<String, String>> logPayload = objectMapper.readValue(payload, new TypeReference<>() {});
 
-        String traceId = incomingPayload.traceId();
-        Long logProcessId = incomingPayload.logProcessId();
-        Map<String, String> formattedLog = incomingPayload.data();
+        String traceId = logPayload.traceId();
+        Long logProcessId = logPayload.logProcessId();
+        Map<String, String> logData = logPayload.data();
 
         // SpEL 필터 검사
-        Optional<FilterRule> failedRuleOpt = filterService.findFirstFailedRule(formattedLog, logProcessId);
+        Optional<FilterRule> failedRuleOpt = filterService.findFirstFailedRule(logData, logProcessId);
 
         // 실패
         if (failedRuleOpt.isPresent()) {
@@ -50,14 +50,14 @@ public class FilterProcessor {
                     ProcessErrorCode.FILTER_CONDITION_MISMATCH,
                     failedRule.getId(),
                     detail,
-                    formattedLog);
+                    logData);
 
             ack.acknowledge();
             return;
         }
 
         // 성공
-        processDispatcher.dispatchSuccess(topics.dedupStream(), traceId, logProcessId, formattedLog);
+        processDispatcher.dispatchSuccess(topics.dedupStream(), traceId, logProcessId, logData);
         ack.acknowledge();
     }
 }
