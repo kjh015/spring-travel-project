@@ -86,8 +86,10 @@ app:
       format-stream: "user-activity-service.process.format.stream"
       filter-stream: "user-activity-service.process.filter.stream"
       dedup-stream: "user-activity-service.process.dedup.stream"
+      db-stream: "user-activity-service.process.db.stream"
     groups:
       format: "user-activity-format-group"
       filter: "user-activity-filter-group"
       dedup: "user-activity-dedup-group"
+      db: "user-activity-db-group"
 

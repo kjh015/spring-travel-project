@@ -27,7 +27,7 @@ public class FormatService {
         // 매핑의 재료가 될 출처(Source) 데이터 추출
         Map<String, String> source = extractSource(rawLog);
 
-        // 활성화된 포맷 규칙 목록 조회 (⚠️ 추후 로컬 캐싱 적용 필수)
+        // 활성화된 포맷 규칙 목록 조회
         List<FormatRule> activeRules = formatRuleRepository.findAllByLogProcessIdAndIsActiveTrue(logProcessId);
         if (activeRules.isEmpty()) {
             log.warn("활성화된 포맷 규칙(FormatRule)이 없습니다. 로그를 폐기합니다.");

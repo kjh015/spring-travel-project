@@ -1,15 +1,13 @@
 package com.traveler.useractivity.global.kafka;
 
-import java.util.Map;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
-@ConfigurationProperties(prefix = "app.kafka")
-public record KafkaTopicProperties(Map<String, String> topics) {
-    public KafkaTopicProperties {
-        topics = (topics == null) ? Map.of() : Map.copyOf(topics);
-    }
-
-    public String getTopic(String key) {
-        return topics.get(key);
-    }
-}
+@Validated // 💡 기동 시점에 누락된 프로퍼티가 있는지 즉시 검증
+@ConfigurationProperties(prefix = "app.kafka.topics")
+public record KafkaTopicProperties(
+        @NotBlank String formatStream,
+        @NotBlank String filterStream,
+        @NotBlank String dedupStream,
+        @NotBlank String dbStream) {}

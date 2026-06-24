@@ -16,40 +16,33 @@ public class KafkaProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public CompletableFuture<SendResult<String, String>> send(String topic, String eventType, String payload) {
+    // 파이프라인용 (헤더 없이 Payload만 전송)
+    public CompletableFuture<SendResult<String, String>> send(String topic, String payload) {
         ProducerRecord<String, String> record = new ProducerRecord<>(topic, payload);
-
-        // Header 추가 (문자열을 byte[]로 변환하여 삽입)
-        record.headers().add("event-type", eventType.getBytes(StandardCharsets.UTF_8));
-
-        return kafkaTemplate.send(record).whenComplete((result, ex) -> {
-            if (ex == null) {
-                log.info(
-                        "Kafka 메시지 전송 성공: topic=[{}], offset=[{}]",
-                        topic,
-                        result.getRecordMetadata().offset());
-            } else {
-                log.error("Kafka 메시지 전송 실패: topic=[{}]", topic, ex);
-            }
-        });
+        return executeSend(record);
     }
 
-    public CompletableFuture<SendResult<String, String>> forward(String topic, Long logProcessId, String payload) {
+    // 외부 서비스 이벤트용 (헤더에 eventType 포함하여 전송)
+    public CompletableFuture<SendResult<String, String>> send(String topic, String payload, String eventType) {
         ProducerRecord<String, String> record = new ProducerRecord<>(topic, payload);
+        record.headers().add("event-type", eventType.getBytes(StandardCharsets.UTF_8));
+        return executeSend(record);
+    }
 
-        if (logProcessId != null) {
-            record.headers()
-                    .add("X-Log-Process-Id", String.valueOf(logProcessId).getBytes(StandardCharsets.UTF_8));
-        }
-
+    private CompletableFuture<SendResult<String, String>> executeSend(ProducerRecord<String, String> record) {
         return kafkaTemplate.send(record).whenComplete((result, ex) -> {
+            String topic = record.topic();
+
             if (ex == null) {
+                // 성공 시: 어디에(topic, partition) 몇 번째(offset)로 저장되었는지 디버그 로깅
                 log.debug(
-                        "다음 처리 단계로 전송 성공: topic=[{}], offset=[{}]",
+                        "Kafka 메시지 전송 성공: topic=[{}], partition=[{}], offset=[{}]",
                         topic,
+                        result.getRecordMetadata().partition(),
                         result.getRecordMetadata().offset());
             } else {
-                log.error("다음 처리 단계로 전송 실패: topic=[{}]", topic, ex);
+                // 실패 시: 에러 스택트레이스와 함께 명확하게 로깅
+                log.error("Kafka 메시지 전송 실패: topic=[{}]", topic, ex);
             }
         });
     }

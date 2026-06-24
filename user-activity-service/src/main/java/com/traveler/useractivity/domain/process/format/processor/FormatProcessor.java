@@ -1,14 +1,15 @@
 package com.traveler.useractivity.domain.process.format.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.traveler.useractivity.domain.process.core.code.ProcessErrorCode;
+import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
 import com.traveler.useractivity.domain.process.format.message.RawLog;
 import com.traveler.useractivity.domain.process.format.service.FormatService;
-import com.traveler.useractivity.global.kafka.KafkaProducer;
+import com.traveler.useractivity.global.kafka.KafkaTopicProperties;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Header;
@@ -21,33 +22,46 @@ import org.springframework.stereotype.Component;
 public class FormatProcessor {
     private final ObjectMapper objectMapper;
     private final FormatService formatService;
-    private final KafkaProducer kafkaProducer;
-
-    @Value("${app.kafka.topics.filter-stream}")
-    private String nextTopic;
+    private final ProcessDispatcher processDispatcher;
+    private final KafkaTopicProperties topics;
 
     @KafkaListener(topics = "${app.kafka.topics.format-stream}", groupId = "${app.kafka.groups.format}")
     public void process(@Payload String payload, @Header("X-Log-Process-Id") Long logProcessId, Acknowledgment ack)
             throws Exception {
+        if (logProcessId == null) {
+            log.warn("Kafka Header에 logProcessId가 없습니다. 로그를 폐기합니다. Payload: {}", payload);
+            ack.acknowledge();
+            return;
+        }
+
+        // 고유 추적 ID(traceId) 발급
+        String traceId = UUID.randomUUID().toString();
+
         // 역직렬화
         RawLog rawLog = objectMapper.readValue(payload, RawLog.class);
 
         Map<String, String> formattedLog = formatService.formatLog(rawLog, logProcessId);
 
-        // Drop 처리
+        // 실패
         if (formattedLog == null || formattedLog.isEmpty()) {
-            log.debug("포맷팅 규칙 불일치. 로그를 폐기합니다.");
+            Map<String, String> failData = Map.of("path", rawLog.path() != null ? rawLog.path() : "");
+
+            processDispatcher.dispatchFailure(
+                    topics.dbStream(),
+                    traceId,
+                    logProcessId,
+                    ProcessErrorCode.FORMAT_RULE_NOT_FOUND,
+                    null,
+                    "활성화된 포맷 규칙이 없거나 조건 불일치",
+                    failData);
+            log.debug("포맷팅 실패 로그를 DB 토픽으로 전송했습니다. traceId: {}", traceId);
+
             ack.acknowledge();
             return;
         }
 
-        // 직렬화
-        String resultPayload = objectMapper.writeValueAsString(formattedLog);
-
-        // 다음 토픽으로 직행 (3초 대기하여 동기적 성공 보장)
-        kafkaProducer.forward(nextTopic, logProcessId, resultPayload).get(3, TimeUnit.SECONDS);
-
-        // 정상 처리 완료 시 수동 커밋
+        // 성공
+        processDispatcher.dispatchSuccess(topics.filterStream(), traceId, logProcessId, formattedLog);
         ack.acknowledge();
     }
 }
