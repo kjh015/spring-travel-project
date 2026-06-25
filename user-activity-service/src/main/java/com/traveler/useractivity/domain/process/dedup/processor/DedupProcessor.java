@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,7 @@ public class DedupProcessor {
     private final ProcessDispatcher processDispatcher;
     private final KafkaTopicProperties topics;
 
+    @KafkaListener(topics = "${app.kafka.topics.dedup-stream}", groupId = "${app.kafka.groups.dedup}")
     public void process(@Payload String payload, Acknowledgment ack) throws Exception {
         LogPayload<Map<String, String>> logPayload = objectMapper.readValue(payload, new TypeReference<>() {});
 
@@ -41,7 +43,7 @@ public class DedupProcessor {
             String detail = String.format("중복 제거 규칙명: [%s]", duplicatedRule.getName());
 
             processDispatcher.dispatchFailure(
-                    topics.dbStream(),
+                    topics.sinkStream(),
                     traceId,
                     logProcessId,
                     ProcessErrorCode.DEDUP_DUPLICATED_LOG,
@@ -54,7 +56,7 @@ public class DedupProcessor {
         }
 
         // 모든 중복 검사 통과 (최종 DB 적재 토픽으로 성공 전송)
-        processDispatcher.dispatchSuccess(topics.dbStream(), traceId, logProcessId, logData);
+        processDispatcher.dispatchSuccess(topics.sinkStream(), traceId, logProcessId, logData);
         ack.acknowledge();
     }
 }

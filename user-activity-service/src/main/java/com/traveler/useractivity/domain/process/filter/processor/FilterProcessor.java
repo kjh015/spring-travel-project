@@ -44,7 +44,7 @@ public class FilterProcessor {
             String detail = String.format("규칙명: [%s]", failedRule.getName());
 
             processDispatcher.dispatchFailure(
-                    topics.dbStream(),
+                    topics.sinkStream(),
                     traceId,
                     logProcessId,
                     ProcessErrorCode.FILTER_CONDITION_MISMATCH,

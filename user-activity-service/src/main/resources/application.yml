@@ -86,10 +86,11 @@ app:
       format-stream: "user-activity-service.process.format.stream"
       filter-stream: "user-activity-service.process.filter.stream"
       dedup-stream: "user-activity-service.process.dedup.stream"
-      db-stream: "user-activity-service.process.db.stream"
+      sink-stream: "user-activity-service.process.sink.stream"
+      view-events: "user-activity-service.post.events.viewed"
     groups:
       format: "user-activity-format-group"
       filter: "user-activity-filter-group"
       dedup: "user-activity-dedup-group"
-      db: "user-activity-db-group"
+      sink: "user-activity-sink-group"
 

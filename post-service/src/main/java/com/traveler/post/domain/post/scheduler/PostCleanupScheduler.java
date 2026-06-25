@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PostScheduler {
+public class PostCleanupScheduler {
 
     private final PostRepository postRepository;
     private final PostService postService;

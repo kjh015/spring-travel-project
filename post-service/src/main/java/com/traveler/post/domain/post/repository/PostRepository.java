@@ -34,4 +34,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
     @Query("select p from Post p where p.id = :id")
     Optional<Post> findByIdWithLock(@Param("id") Long id);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Post p SET p.viewCount = p.viewCount + :increment WHERE p.id = :postId")
+    void incrementViewCount(@Param("postId") Long postId, @Param("increment") Long increment);
 }

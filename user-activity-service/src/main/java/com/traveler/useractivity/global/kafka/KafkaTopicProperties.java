@@ -10,4 +10,5 @@ public record KafkaTopicProperties(
         @NotBlank String formatStream,
         @NotBlank String filterStream,
         @NotBlank String dedupStream,
-        @NotBlank String dbStream) {}
+        @NotBlank String sinkStream,
+        @NotBlank String viewEvents) {}

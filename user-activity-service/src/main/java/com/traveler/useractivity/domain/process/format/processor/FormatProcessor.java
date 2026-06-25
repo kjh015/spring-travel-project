@@ -47,7 +47,7 @@ public class FormatProcessor {
             Map<String, String> failData = Map.of("path", rawLog.path() != null ? rawLog.path() : "");
 
             processDispatcher.dispatchFailure(
-                    topics.dbStream(),
+                    topics.sinkStream(),
                     traceId,
                     logProcessId,
                     ProcessErrorCode.FORMAT_RULE_NOT_FOUND,

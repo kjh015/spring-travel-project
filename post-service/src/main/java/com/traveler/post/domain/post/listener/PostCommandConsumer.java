@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class PostMessageConsumer {
+public class PostCommandConsumer {
 
     private final S3Service s3Service;
     private final ObjectMapper objectMapper;
