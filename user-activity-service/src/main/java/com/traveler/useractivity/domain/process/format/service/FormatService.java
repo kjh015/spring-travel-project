@@ -3,7 +3,7 @@ package com.traveler.useractivity.domain.process.format.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.traveler.useractivity.domain.process.format.engine.UrlQueryParser;
 import com.traveler.useractivity.domain.process.format.message.RawLog;
-import com.traveler.useractivity.domain.rule.format.entity.FormatRule;
+import com.traveler.useractivity.domain.process.format.model.ActiveFormatRule;
 import com.traveler.useractivity.domain.rule.format.repository.FormatRuleRepository;
 import java.util.HashMap;
 import java.util.List;
@@ -23,22 +23,20 @@ public class FormatService {
      * 원본 로그에서 매핑의 재료가 될 데이터를 추출하고,
      * JSON 형태의 포맷 규칙(FormatRule)에 맞게 표준화된 로그 맵을 생성합니다.
      */
-    public Map<String, String> formatLog(RawLog rawLog, Long logProcessId) {
+    public Map<String, String> formatLog(RawLog rawLog, List<ActiveFormatRule> activeFormatRules) {
         // 매핑의 재료가 될 출처(Source) 데이터 추출
         Map<String, String> source = extractSource(rawLog);
 
-        // 활성화된 포맷 규칙 목록 조회
-        List<FormatRule> activeRules = formatRuleRepository.findAllByLogProcessIdAndIsActiveTrue(logProcessId);
-        if (activeRules.isEmpty()) {
+        if (activeFormatRules == null || activeFormatRules.isEmpty()) {
             log.warn("활성화된 포맷 규칙(FormatRule)이 없습니다. 로그를 폐기합니다.");
             return Map.of();
         }
 
         // 조회된 규칙들을 순차적으로 적용하여 최종 포맷팅된 로그 생성
         Map<String, String> formattedLog = new HashMap<>();
-        for (FormatRule rule : activeRules) {
-            putDefaultValues(rule.getDefaultValues(), formattedLog);
-            putFieldMappings(rule.getFieldMappings(), source, formattedLog);
+        for (ActiveFormatRule rule : activeFormatRules) {
+            putDefaultValues(rule.defaultValues(), formattedLog);
+            putFieldMappings(rule.fieldMappings(), source, formattedLog);
         }
 
         return formattedLog;

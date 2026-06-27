@@ -3,9 +3,13 @@ package com.traveler.useractivity.domain.process.format.processor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.useractivity.domain.process.core.code.ProcessErrorCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
+import com.traveler.useractivity.domain.process.core.provider.LogProcessProvider;
 import com.traveler.useractivity.domain.process.format.message.RawLog;
+import com.traveler.useractivity.domain.process.format.model.ActiveFormatRule;
+import com.traveler.useractivity.domain.process.format.provider.FormatRuleProvider;
 import com.traveler.useractivity.domain.process.format.service.FormatService;
 import com.traveler.useractivity.global.kafka.KafkaTopicProperties;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,8 @@ import org.springframework.stereotype.Component;
 public class FormatProcessor {
     private final ObjectMapper objectMapper;
     private final FormatService formatService;
+    private final LogProcessProvider logProcessProvider;
+    private final FormatRuleProvider formatRuleProvider;
     private final ProcessDispatcher processDispatcher;
     private final KafkaTopicProperties topics;
 
@@ -40,7 +46,10 @@ public class FormatProcessor {
         // 역직렬화
         RawLog rawLog = objectMapper.readValue(payload, RawLog.class);
 
-        Map<String, String> formattedLog = formatService.formatLog(rawLog, logProcessId);
+        String logProcessName = logProcessProvider.getLogProcessName(logProcessId);
+        List<ActiveFormatRule> activeFormatRules = formatRuleProvider.getActiveFormatRules(logProcessId);
+
+        Map<String, String> formattedLog = formatService.formatLog(rawLog, activeFormatRules);
 
         // 실패
         if (formattedLog == null || formattedLog.isEmpty()) {
@@ -50,7 +59,9 @@ public class FormatProcessor {
                     topics.sinkStream(),
                     traceId,
                     logProcessId,
+                    logProcessName,
                     ProcessErrorCode.FORMAT_RULE_NOT_FOUND,
+                    null,
                     null,
                     "활성화된 포맷 규칙이 없거나 조건 불일치",
                     failData);
@@ -61,7 +72,7 @@ public class FormatProcessor {
         }
 
         // 성공
-        processDispatcher.dispatchSuccess(topics.filterStream(), traceId, logProcessId, formattedLog);
+        processDispatcher.dispatchSuccess(topics.filterStream(), traceId, logProcessId, logProcessName, formattedLog);
         ack.acknowledge();
     }
 }

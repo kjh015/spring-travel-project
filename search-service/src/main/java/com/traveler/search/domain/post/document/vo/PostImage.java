@@ -1,4 +1,4 @@
-package com.traveler.search.domain.post.document;
+package com.traveler.search.domain.post.document.vo;
 
 import lombok.*;
 import org.springframework.data.elasticsearch.annotations.Field;

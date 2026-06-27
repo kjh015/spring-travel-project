@@ -1,7 +1,7 @@
 package com.traveler.useractivity.domain.process.dedup.service;
 
+import com.traveler.useractivity.domain.process.dedup.model.ActiveDedupRule;
 import com.traveler.useractivity.domain.process.dedup.repository.DedupHistoryRepository;
-import com.traveler.useractivity.domain.rule.dedup.entity.DedupRule;
 import com.traveler.useractivity.domain.rule.dedup.enums.MatchType;
 import com.traveler.useractivity.domain.rule.dedup.repository.DedupRuleRepository;
 import com.traveler.useractivity.domain.rule.dedup.vo.DedupSpec;
@@ -24,15 +24,14 @@ public class DedupService {
     /**
      * 로그를 평가하여, 중복으로 판정된 첫 번째 DedupRule을 반환합니다.
      */
-    public Optional<DedupRule> findFirstDuplicatedRule(Map<String, String> logData, Long logProcessId) {
-        List<DedupRule> activeRules = dedupRuleRepository.findAllByLogProcessIdAndIsActiveTrue(logProcessId);
+    public Optional<ActiveDedupRule> findFirstDuplicatedRule(
+            Map<String, String> logData, List<ActiveDedupRule> activeDedupRules) {
 
-        if (activeRules.isEmpty()) {
+        if (activeDedupRules == null || activeDedupRules.isEmpty()) {
             return Optional.empty();
         }
 
-        // 💡 1. 2중 for문 제거: "활성화된 룰 중에서, 이 로그를 중복으로 판정한 첫 번째 룰을 찾아라"
-        return activeRules.stream()
+        return activeDedupRules.stream()
                 .filter(rule -> matchesDuplicateRule(rule, logData))
                 .findFirst();
     }
@@ -44,11 +43,11 @@ public class DedupService {
     /**
      * 단일 DedupRule 내의 여러 스펙(Spec) 중 하나라도 중복 조건에 걸리는지 확인합니다.
      */
-    private boolean matchesDuplicateRule(DedupRule rule, Map<String, String> logData) {
+    private boolean matchesDuplicateRule(ActiveDedupRule activeDedupRule, Map<String, String> logData) {
         // "검사 대상(Subject)인 스펙들 중에서, 하나라도 Redis 캐시에 걸리는(anyMatch) 녀석이 있는가?"
-        return rule.getRules().stream()
+        return activeDedupRule.specRules().stream()
                 .filter(specRule -> matchesConditions(specRule.conditions(), logData))
-                .anyMatch(specRule -> isDuplicateEntry(rule, specRule, logData));
+                .anyMatch(specRule -> isDuplicateEntry(activeDedupRule, specRule, logData));
     }
 
     /**
@@ -77,14 +76,14 @@ public class DedupService {
     /**
      * Redis에 원자적 저장을 시도하고 실제 중복 여부를 반환합니다.
      */
-    private boolean isDuplicateEntry(DedupRule rule, DedupSpec.Rule specRule, Map<String, String> logData) {
+    private boolean isDuplicateEntry(ActiveDedupRule rule, DedupSpec.Rule specRule, Map<String, String> logData) {
         String dedupKey = generateDedupKey(specRule.conditions(), logData);
         long ttlSeconds = specRule.expirationTime().toTotalSeconds();
 
-        boolean isSaved = dedupHistoryRepository.saveIfAbsent(rule.getId(), dedupKey, ttlSeconds);
+        boolean isSaved = dedupHistoryRepository.saveIfAbsent(rule.dedupRuleId(), dedupKey, ttlSeconds);
 
         if (!isSaved) {
-            log.debug("중복 로그 발견 (규칙명: {}, 키: {})", rule.getName(), dedupKey);
+            log.debug("중복 로그 발견 (규칙명: {}, 키: {})", rule.name(), dedupKey);
             return true; // 중복됨
         }
         return false; // 중복 아님 (최초 진입으로 저장 성공)

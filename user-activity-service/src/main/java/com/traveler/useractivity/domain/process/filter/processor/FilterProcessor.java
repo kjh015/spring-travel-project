@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.useractivity.domain.process.core.code.ProcessErrorCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
 import com.traveler.useractivity.domain.process.core.message.LogPayload;
+import com.traveler.useractivity.domain.process.filter.model.ActiveFilterRule;
+import com.traveler.useractivity.domain.process.filter.provider.FilterRuleProvider;
 import com.traveler.useractivity.domain.process.filter.service.FilterService;
-import com.traveler.useractivity.domain.rule.filter.entity.FilterRule;
 import com.traveler.useractivity.global.kafka.KafkaTopicProperties;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class FilterProcessor {
     private final ObjectMapper objectMapper;
+    private final FilterRuleProvider filterRuleProvider;
     private final FilterService filterService;
     private final ProcessDispatcher processDispatcher;
     private final KafkaTopicProperties topics;
@@ -33,31 +36,34 @@ public class FilterProcessor {
 
         String traceId = logPayload.traceId();
         Long logProcessId = logPayload.logProcessId();
+        String logProcessName = logPayload.logProcessName();
         Map<String, String> logData = logPayload.data();
 
+        List<ActiveFilterRule> activeFilterRules = filterRuleProvider.getActiveFilterRules(logProcessId);
         // SpEL 필터 검사
-        Optional<FilterRule> failedRuleOpt = filterService.findFirstFailedRule(logData, logProcessId);
+        Optional<ActiveFilterRule> failedRuleOpt = filterService.findFirstFailedRule(logData, activeFilterRules);
 
         // 실패
         if (failedRuleOpt.isPresent()) {
-            FilterRule failedRule = failedRuleOpt.get();
-            String detail = String.format("규칙명: [%s]", failedRule.getName());
+            ActiveFilterRule failedRule = failedRuleOpt.get();
+            String detail = String.format("규칙명: [%s]", failedRule.name());
 
             processDispatcher.dispatchFailure(
                     topics.sinkStream(),
                     traceId,
                     logProcessId,
+                    logProcessName,
                     ProcessErrorCode.FILTER_CONDITION_MISMATCH,
-                    failedRule.getId(),
+                    failedRule.filterRuleId(),
+                    failedRule.name(),
                     detail,
                     logData);
-
             ack.acknowledge();
             return;
         }
 
         // 성공
-        processDispatcher.dispatchSuccess(topics.dedupStream(), traceId, logProcessId, logData);
+        processDispatcher.dispatchSuccess(topics.dedupStream(), traceId, logProcessId, logProcessName, logData);
         ack.acknowledge();
     }
 }

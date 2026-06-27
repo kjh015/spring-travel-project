@@ -28,9 +28,11 @@ public enum UserActivityServiceErrorCode implements BaseErrorCode {
     DEDUP_UNSUPPORTED_MATCH_TYPE(400, "DEDUP400_2", "지원하지 않는 매치 타입입니다."), // 💡 신규 추가
     DEDUP_RULE_NOT_FOUND(404, "DEDUP404_1", "요청한 중복제거 규칙을 찾을 수 없습니다."),
 
+    // History
+    HISTORY_NOT_FOUND(404, "HISTORY404_1", "요청한 기록을 찾을 수 없습니다."),
+
     // Infra - Kafka
-    TOPIC_NOT_CONFIGURED(500, "EVENT500_1", "해당 이벤트 타입에 대한 Kafka 토픽 설정이 누락되었습니다."),
-    ;
+    TOPIC_NOT_CONFIGURED(500, "EVENT500_1", "해당 이벤트 타입에 대한 Kafka 토픽 설정이 누락되었습니다.");
 
     private final int status;
     private final String code;

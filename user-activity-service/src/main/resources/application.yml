@@ -9,6 +9,9 @@ spring:
   config:
     import: optional:file:user-activity-service/.env[.properties]
 
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS}
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
@@ -93,4 +96,8 @@ app:
       filter: "user-activity-filter-group"
       dedup: "user-activity-dedup-group"
       sink: "user-activity-sink-group"
+  elasticsearch:
+    indices:
+      history: "histories"
+
 

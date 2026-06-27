@@ -17,8 +17,9 @@ public class ProcessDispatcher {
     private final ObjectMapper objectMapper;
     private final KafkaProducer kafkaProducer;
 
-    public <T> void dispatchSuccess(String topic, String traceId, Long logProcessId, T data) throws Exception {
-        LogPayload<T> payload = LogPayload.success(traceId, logProcessId, data);
+    public <T> void dispatchSuccess(String topic, String traceId, Long logProcessId, String logProcessName, T data)
+            throws Exception {
+        LogPayload<T> payload = LogPayload.success(traceId, logProcessId, logProcessName, data);
         send(topic, payload);
     }
 
@@ -26,12 +27,15 @@ public class ProcessDispatcher {
             String topic,
             String traceId,
             Long logProcessId,
+            String logProcessName,
             ProcessErrorCode code,
             Long failRuleId,
+            String failRuleName,
             String detail,
             T data)
             throws Exception {
-        LogPayload<T> payload = LogPayload.failure(traceId, logProcessId, code, failRuleId, detail, data);
+        LogPayload<T> payload =
+                LogPayload.failure(traceId, logProcessId, logProcessName, code, failRuleId, failRuleName, detail, data);
         send(topic, payload);
     }
 

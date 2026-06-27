@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.useractivity.domain.process.core.code.ProcessErrorCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
 import com.traveler.useractivity.domain.process.core.message.LogPayload;
+import com.traveler.useractivity.domain.process.dedup.model.ActiveDedupRule;
+import com.traveler.useractivity.domain.process.dedup.provider.DedupRuleProvider;
 import com.traveler.useractivity.domain.process.dedup.service.DedupService;
-import com.traveler.useractivity.domain.rule.dedup.entity.DedupRule;
 import com.traveler.useractivity.global.kafka.KafkaTopicProperties;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DedupProcessor {
     private final ObjectMapper objectMapper;
+    private final DedupRuleProvider dedupRuleProvider;
     private final DedupService dedupService;
     private final ProcessDispatcher processDispatcher;
     private final KafkaTopicProperties topics;
@@ -32,22 +35,25 @@ public class DedupProcessor {
 
         String traceId = logPayload.traceId();
         Long logProcessId = logPayload.logProcessId();
+        String logProcessName = logPayload.logProcessName();
         Map<String, String> logData = logPayload.data();
 
-        // 중복된 룰이 있는지 찾는다
-        Optional<DedupRule> duplicatedRuleOpt = dedupService.findFirstDuplicatedRule(logData, logProcessId);
+        List<ActiveDedupRule> activeDedupRules = dedupRuleProvider.getActiveDedupRules(logProcessId);
+        Optional<ActiveDedupRule> duplicatedRuleOpt = dedupService.findFirstDuplicatedRule(logData, activeDedupRules);
 
         // 중복 탈락
         if (duplicatedRuleOpt.isPresent()) {
-            DedupRule duplicatedRule = duplicatedRuleOpt.get();
-            String detail = String.format("중복 제거 규칙명: [%s]", duplicatedRule.getName());
+            ActiveDedupRule duplicatedRule = duplicatedRuleOpt.get();
+            String detail = String.format("중복 제거 규칙명: [%s]", duplicatedRule.name());
 
             processDispatcher.dispatchFailure(
                     topics.sinkStream(),
                     traceId,
                     logProcessId,
+                    logProcessName,
                     ProcessErrorCode.DEDUP_DUPLICATED_LOG,
-                    duplicatedRule.getId(),
+                    duplicatedRule.dedupRuleId(),
+                    duplicatedRule.name(),
                     detail,
                     logData);
 
@@ -56,7 +62,7 @@ public class DedupProcessor {
         }
 
         // 모든 중복 검사 통과 (최종 DB 적재 토픽으로 성공 전송)
-        processDispatcher.dispatchSuccess(topics.sinkStream(), traceId, logProcessId, logData);
+        processDispatcher.dispatchSuccess(topics.sinkStream(), traceId, logProcessId, logProcessName, logData);
         ack.acknowledge();
     }
 }
