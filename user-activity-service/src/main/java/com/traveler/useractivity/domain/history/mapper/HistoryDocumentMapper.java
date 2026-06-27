@@ -15,18 +15,15 @@ public interface HistoryDocumentMapper {
     @Mapping(target = "id", ignore = true) // ES가 자동 생성하도록
     HistoryDocument toDocument(LogPayload<?> payload);
 
-    // Core의 ErrorInfo -> ES의 HistoryErrorInfo 변환
+    // Core의 FailInfo -> ES의 HistoryFailInfo 변환
     @Mapping(target = "code", source = "code.name") // Enum -> String 변환
     @Mapping(target = "stage", source = "code.stage") // Enum 내부 값 추출
-    HistoryFailInfo toHistoryErrorInfo(FailInfo failInfo);
-
-    @Mapping(target = "historyId", source = "id")
-    HistoryResponse.SuccessDTO toSuccessDTO(HistoryDocument document);
+    HistoryFailInfo toHistoryFailInfo(FailInfo failInfo);
 
     @Mapping(target = "historyId", source = "id")
     @Mapping(target = "failStage", source = "failInfo.stage")
     @Mapping(target = "failRuleName", source = "failInfo.failRuleName")
-    HistoryResponse.FailDTO toFailDTO(HistoryDocument document);
+    HistoryResponse.ListDTO toListDTO(HistoryDocument historyDocument);
 
     HistoryResponse.DetailDTO toDetailDTO(HistoryDocument historyDocument);
 }

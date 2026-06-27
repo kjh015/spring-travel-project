@@ -4,14 +4,20 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.useractivity.domain.process.core.code.ProcessFailCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
+import com.traveler.useractivity.domain.process.core.handler.KafkaAckHandler;
+import com.traveler.useractivity.domain.process.core.message.FailInfo;
+import com.traveler.useractivity.domain.process.core.message.LogMetadata;
 import com.traveler.useractivity.domain.process.core.message.LogPayload;
 import com.traveler.useractivity.domain.process.dedup.model.ActiveDedupRule;
+import com.traveler.useractivity.domain.process.dedup.model.DedupResult;
 import com.traveler.useractivity.domain.process.dedup.provider.DedupRuleProvider;
 import com.traveler.useractivity.domain.process.dedup.service.DedupService;
+import com.traveler.useractivity.domain.rule.dedup.vo.DedupSpec;
 import com.traveler.useractivity.global.kafka.KafkaTopicProperties;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -27,42 +33,55 @@ public class DedupProcessor {
     private final DedupRuleProvider dedupRuleProvider;
     private final DedupService dedupService;
     private final ProcessDispatcher processDispatcher;
+    private final KafkaAckHandler ackHandler;
     private final KafkaTopicProperties topics;
 
     @KafkaListener(topics = "${app.kafka.topics.dedup-stream}", groupId = "${app.kafka.groups.dedup}")
     public void process(@Payload String payload, Acknowledgment ack) throws Exception {
+
+        // JSON 페이로드를 LogPayload 객체로 역직렬화
         LogPayload<Map<String, String>> logPayload = objectMapper.readValue(payload, new TypeReference<>() {});
 
-        String traceId = logPayload.traceId();
-        Long logProcessId = logPayload.logProcessId();
-        String logProcessName = logPayload.logProcessName();
+        // LogPayload에서 메타데이터 및 원본 로그 데이터 추출
+        LogMetadata metadata = logPayload.metadata();
         Map<String, String> logData = logPayload.data();
 
-        List<ActiveDedupRule> activeDedupRules = dedupRuleProvider.getActiveDedupRules(logProcessId);
-        Optional<ActiveDedupRule> duplicatedRuleOpt = dedupService.findFirstDuplicatedRule(logData, activeDedupRules);
+        // 활성화된 중복 제거 규칙 조회 및 중복 여부 판별
+        List<ActiveDedupRule> activeDedupRules = dedupRuleProvider.getActiveDedupRules(metadata.logProcessId());
+        Optional<DedupResult> dedupResultOpt = dedupService.findFirstDuplicatedRule(logData, activeDedupRules);
 
-        // 중복 탈락
-        if (duplicatedRuleOpt.isPresent()) {
-            ActiveDedupRule duplicatedRule = duplicatedRuleOpt.get();
-            String detail = String.format("중복 제거 규칙명: [%s]", duplicatedRule.name());
+        // 중복 로그 탐지 시
+        if (dedupResultOpt.isPresent()) {
+            FailInfo failInfo = createFailInfo(dedupResultOpt.get(), logData);
 
-            processDispatcher.dispatchFailure(
-                    topics.sinkStream(),
-                    traceId,
-                    logProcessId,
-                    logProcessName,
-                    ProcessFailCode.DEDUP_DUPLICATED_LOG,
-                    duplicatedRule.dedupRuleId(),
-                    duplicatedRule.name(),
-                    detail,
-                    logData);
-
-            ack.acknowledge();
+            // 중복 판정된 로그를 결과 스트림(Sink)으로 발행
+            processDispatcher
+                    .dispatchFailure(topics.sinkStream(), metadata, failInfo, logData)
+                    .whenComplete(
+                            (result, ex) -> ackHandler.handle(ack, metadata.traceId(), "Dedup 중복 로그 Sink 전송", ex));
             return;
         }
 
-        // 모든 중복 검사 통과 (최종 DB 적재 토픽으로 성공 전송)
-        processDispatcher.dispatchSuccess(topics.sinkStream(), traceId, logProcessId, logProcessName, logData);
-        ack.acknowledge();
+        // 중복 검증을 통과한 최종 성공 로그를 Sink 스트림으로 발행
+        processDispatcher
+                .dispatchSuccess(topics.sinkStream(), metadata, logData)
+                .whenComplete(
+                        (result, ex) -> ackHandler.handle(ack, metadata.traceId(), "Dedup 성공 로그(최종) Sink 전송", ex));
+    }
+
+    // 중복 탐지 조건 및 만료 시간을 포함한 실패 상세 객체 조립
+    private FailInfo createFailInfo(DedupResult dedupResult, Map<String, String> logData) {
+        ActiveDedupRule rule = dedupResult.rule();
+        DedupSpec.Rule spec = dedupResult.matchedSpec();
+
+        String conditionsDetail = spec.conditions().stream()
+                .map(c -> c.field() + "=" + logData.get(c.field()))
+                .collect(Collectors.joining(", "));
+
+        String detail = String.format(
+                "중복 제거됨 - 규칙명: [%s], 위반 조건: [%s], 만료시간: [%d초]",
+                rule.name(), conditionsDetail, spec.expirationTime().toTotalSeconds());
+
+        return new FailInfo(ProcessFailCode.DEDUP_DUPLICATED_LOG, rule.dedupRuleId(), rule.name(), detail);
     }
 }

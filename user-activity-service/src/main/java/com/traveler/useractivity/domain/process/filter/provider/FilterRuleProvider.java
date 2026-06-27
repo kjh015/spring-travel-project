@@ -15,7 +15,7 @@ public class FilterRuleProvider {
     @Cacheable(cacheNames = "activeFilterRulesCache", key = "#logProcessId")
     public List<ActiveFilterRule> getActiveFilterRules(Long logProcessId) {
         return filterRuleRepository.findAllByLogProcessIdAndIsActiveTrue(logProcessId).stream()
-                .map(rule -> ActiveFilterRule.of(rule.getId(), rule.getName(), rule.getExpression()))
+                .map(rule -> new ActiveFilterRule(rule.getId(), rule.getName(), rule.getExpression()))
                 .toList();
     }
 }

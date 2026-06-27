@@ -1,6 +1,5 @@
 package com.traveler.useractivity.domain.process.format.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.traveler.useractivity.domain.process.format.engine.UrlQueryParser;
 import com.traveler.useractivity.domain.process.format.message.RawLog;
 import com.traveler.useractivity.domain.process.format.model.ActiveFormatRule;
@@ -58,14 +57,12 @@ public class FormatService {
     /**
      * 설정된 기본값(defaultValues)을 포맷팅된 로그에 추가합니다.
      */
-    private void putDefaultValues(JsonNode defaultValues, Map<String, String> formattedLog) {
-        if (defaultValues == null || !defaultValues.isObject()) {
+    private void putDefaultValues(Map<String, String> defaultValues, Map<String, String> formattedLog) {
+        if (defaultValues == null || defaultValues.isEmpty()) {
             return;
         }
-        defaultValues
-                .fields()
-                .forEachRemaining(entry ->
-                        formattedLog.put(entry.getKey(), entry.getValue().asText()));
+        // JsonNode 루프를 돌 필요 없이 putAll 한 줄로 끝납니다.
+        formattedLog.putAll(defaultValues);
     }
 
     /**
@@ -73,21 +70,18 @@ public class FormatService {
      * 유효한 값이 존재할 경우 포맷팅된 로그에 추가(덮어쓰기)합니다.
      */
     private void putFieldMappings(
-            JsonNode fieldMappings, Map<String, String> source, Map<String, String> formattedLog) {
-        if (fieldMappings == null || !fieldMappings.isObject()) {
+            Map<String, String> fieldMappings, Map<String, String> source, Map<String, String> formattedLog) {
+
+        if (fieldMappings == null || fieldMappings.isEmpty()) {
             return;
         }
-        fieldMappings.fields().forEachRemaining(entry -> {
-            String targetKey = entry.getKey();
-            String sourceKey = entry.getValue().asText();
 
+        // 순수 Java Map 루프 처리
+        fieldMappings.forEach((targetKey, sourceKey) -> {
             String value = source.get(sourceKey);
-
-            if (value == null || value.isBlank()) {
-                return;
+            if (value != null && !value.isBlank()) {
+                formattedLog.put(targetKey, value);
             }
-
-            formattedLog.put(targetKey, value);
         });
     }
 }

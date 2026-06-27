@@ -29,7 +29,8 @@ public class SinkService {
 
         if (ACTION_VIEW.equalsIgnoreCase(eventAction) && postIdStr != null && !"null".equalsIgnoreCase(postIdStr)) {
             Long postId = Long.valueOf(postIdStr);
-            SinkMessage.PostViewedDTO message = new SinkMessage.PostViewedDTO(postId, logPayload.traceId());
+            SinkMessage.PostViewedDTO message =
+                    new SinkMessage.PostViewedDTO(postId, logPayload.metadata().traceId());
 
             eventPublisher.publishEvent(new SinkEvent.PostViewed(message));
         }

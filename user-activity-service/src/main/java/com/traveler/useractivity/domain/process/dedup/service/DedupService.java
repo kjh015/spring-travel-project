@@ -1,9 +1,9 @@
 package com.traveler.useractivity.domain.process.dedup.service;
 
 import com.traveler.useractivity.domain.process.dedup.model.ActiveDedupRule;
+import com.traveler.useractivity.domain.process.dedup.model.DedupResult;
 import com.traveler.useractivity.domain.process.dedup.repository.DedupHistoryRepository;
 import com.traveler.useractivity.domain.rule.dedup.enums.MatchType;
-import com.traveler.useractivity.domain.rule.dedup.repository.DedupRuleRepository;
 import com.traveler.useractivity.domain.rule.dedup.vo.DedupSpec;
 import java.util.List;
 import java.util.Map;
@@ -17,39 +17,39 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class DedupService {
-
-    private final DedupRuleRepository dedupRuleRepository;
     private final DedupHistoryRepository dedupHistoryRepository;
 
     /**
      * 로그를 평가하여, 중복으로 판정된 첫 번째 DedupRule을 반환합니다.
      */
-    public Optional<ActiveDedupRule> findFirstDuplicatedRule(
+    public Optional<DedupResult> findFirstDuplicatedRule(
             Map<String, String> logData, List<ActiveDedupRule> activeDedupRules) {
 
         if (activeDedupRules == null || activeDedupRules.isEmpty()) {
             return Optional.empty();
         }
 
-        return activeDedupRules.stream()
-                .filter(rule -> matchesDuplicateRule(rule, logData))
-                .findFirst();
+        for (ActiveDedupRule rule : activeDedupRules) {
+            for (DedupSpec.Rule specRule : rule.specRules()) {
+                // 1. 현재 로그가 해당 스펙의 조건 대상인지 확인
+                if (!matchesConditions(specRule.conditions(), logData)) {
+                    continue; // 대상이 아니면 다음 스펙 검사
+                }
+
+                // 2. 대상인 경우 Redis 원자적 저장(중복 검사) 수행
+                if (isDuplicateEntry(rule, specRule, logData)) {
+                    // 중복 발견 시 런타임 컨텍스트를 즉시 반환
+                    return Optional.of(new DedupResult(rule, specRule));
+                }
+            }
+        }
+
+        return Optional.empty();
     }
 
     // =========================================================================
     // 💡 Private Helper Methods
     // =========================================================================
-
-    /**
-     * 단일 DedupRule 내의 여러 스펙(Spec) 중 하나라도 중복 조건에 걸리는지 확인합니다.
-     */
-    private boolean matchesDuplicateRule(ActiveDedupRule activeDedupRule, Map<String, String> logData) {
-        // "검사 대상(Subject)인 스펙들 중에서, 하나라도 Redis 캐시에 걸리는(anyMatch) 녀석이 있는가?"
-        return activeDedupRule.specRules().stream()
-                .filter(specRule -> matchesConditions(specRule.conditions(), logData))
-                .anyMatch(specRule -> isDuplicateEntry(activeDedupRule, specRule, logData));
-    }
-
     /**
      * 현재 로그가 해당 조건식들을 모두 만족하여 '중복 검사 대상'이 되는지 확인합니다.
      */

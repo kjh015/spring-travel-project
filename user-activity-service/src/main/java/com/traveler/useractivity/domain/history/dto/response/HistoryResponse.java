@@ -1,5 +1,6 @@
 package com.traveler.useractivity.domain.history.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 import java.util.Map;
 
@@ -8,10 +9,14 @@ public final class HistoryResponse {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public record SuccessDTO(String historyId, String logProcessName, Instant createdAt) {}
-
-    public record FailDTO(
-            String historyId, String logProcessName, String failStage, String failRuleName, Instant createdAt) {}
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record ListDTO(
+            String historyId,
+            String logProcessName,
+            boolean success,
+            String failStage,
+            String failRuleName,
+            Instant createdAt) {}
 
     public record DetailDTO(String historyId, Map<String, Object> logData) {}
 }

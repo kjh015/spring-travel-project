@@ -4,6 +4,8 @@ import com.traveler.common.api.converter.PageConverter;
 import com.traveler.common.core.response.PageResponse;
 import com.traveler.useractivity.domain.history.document.HistoryDocument;
 import com.traveler.useractivity.domain.history.dto.response.HistoryResponse;
+import com.traveler.useractivity.domain.history.enums.FailStage;
+import com.traveler.useractivity.domain.history.enums.HistoryStatus;
 import com.traveler.useractivity.domain.history.mapper.HistoryDocumentMapper;
 import com.traveler.useractivity.domain.history.repository.HistoryDocumentRepository;
 import com.traveler.useractivity.global.exception.UserActivityServiceException;
@@ -19,19 +21,11 @@ public class HistoryQueryService {
     private final HistoryDocumentRepository historyDocumentRepository;
     private final HistoryDocumentMapper historyDocumentMapper;
 
-    public PageResponse<HistoryResponse.SuccessDTO> getSuccessHistories(Pageable pageable) {
-        Page<HistoryDocument> pageData = historyDocumentRepository.findHistories(true, null, pageable);
-        return PageConverter.toPageResponse(pageData, historyDocumentMapper::toSuccessDTO);
-    }
+    public PageResponse<HistoryResponse.ListDTO> getHistories(
+            HistoryStatus status, FailStage stage, Pageable pageable) {
+        Page<HistoryDocument> pageData = historyDocumentRepository.findHistories(status, stage, pageable);
 
-    public PageResponse<HistoryResponse.FailDTO> getFailByFilterHistories(Pageable pageable) {
-        Page<HistoryDocument> pageData = historyDocumentRepository.findHistories(false, "FILTER", pageable);
-        return PageConverter.toPageResponse(pageData, historyDocumentMapper::toFailDTO);
-    }
-
-    public PageResponse<HistoryResponse.FailDTO> getFailByDedupHistories(Pageable pageable) {
-        Page<HistoryDocument> pageData = historyDocumentRepository.findHistories(false, "DEDUP", pageable);
-        return PageConverter.toPageResponse(pageData, historyDocumentMapper::toFailDTO);
+        return PageConverter.toPageResponse(pageData, historyDocumentMapper::toListDTO);
     }
 
     public HistoryResponse.DetailDTO getHistory(String historyId) {

@@ -6,8 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.core.exception.SdkClientException;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Component
 @Slf4j
@@ -24,8 +22,7 @@ public class KafkaExceptionHandler {
                 }
             }
             case JsonProcessingException jsonEx -> handleConversionError(jsonEx, record);
-            case S3Exception s3Ex -> handleInfraError(s3Ex, record);
-            case SdkClientException sdkEx -> handleInfraError(sdkEx, record);
+            case IllegalArgumentException iae -> handleIllegalArgument(iae, record);
             default -> handleUnknownError(cause, record);
         }
     }
@@ -55,8 +52,8 @@ public class KafkaExceptionHandler {
                 ex.getMessage());
     }
 
-    private void handleInfraError(Exception ex, ConsumerRecord<?, ?> record) {
-        log.error("[Final Fail - Infra Error] Target: AWS S3, Topic: {}, Error: {}", record.topic(), ex.getMessage());
+    private void handleIllegalArgument(IllegalArgumentException ex, ConsumerRecord<?, ?> record) {
+        log.error("[Final Fail - Invalid Message Contract] 토픽: {}, 원인: {}", record.topic(), ex.getMessage());
     }
 
     // 알 수 없는 예외

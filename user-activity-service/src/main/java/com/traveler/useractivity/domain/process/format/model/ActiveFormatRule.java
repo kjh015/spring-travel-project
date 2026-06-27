@@ -1,9 +1,6 @@
 package com.traveler.useractivity.domain.process.format.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Map;
 
-public record ActiveFormatRule(Long formatRuleId, JsonNode defaultValues, JsonNode fieldMappings) {
-    public static ActiveFormatRule of(Long formatRuleId, JsonNode defaultValues, JsonNode fieldMappings) {
-        return new ActiveFormatRule(formatRuleId, defaultValues, fieldMappings);
-    }
-}
+public record ActiveFormatRule(
+        Long formatRuleId, Map<String, String> defaultValues, Map<String, String> fieldMappings) {}

@@ -3,6 +3,9 @@ package com.traveler.useractivity.domain.process.format.processor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.useractivity.domain.process.core.code.ProcessFailCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
+import com.traveler.useractivity.domain.process.core.handler.KafkaAckHandler;
+import com.traveler.useractivity.domain.process.core.message.FailInfo;
+import com.traveler.useractivity.domain.process.core.message.LogMetadata;
 import com.traveler.useractivity.domain.process.core.provider.LogProcessProvider;
 import com.traveler.useractivity.domain.process.format.message.RawLog;
 import com.traveler.useractivity.domain.process.format.model.ActiveFormatRule;
@@ -29,50 +32,57 @@ public class FormatProcessor {
     private final LogProcessProvider logProcessProvider;
     private final FormatRuleProvider formatRuleProvider;
     private final ProcessDispatcher processDispatcher;
+    private final KafkaAckHandler ackHandler;
     private final KafkaTopicProperties topics;
 
     @KafkaListener(topics = "${app.kafka.topics.format-stream}", groupId = "${app.kafka.groups.format}")
-    public void process(@Payload String payload, @Header("X-Log-Process-Id") Long logProcessId, Acknowledgment ack)
+    public void process(
+            @Payload String payload,
+            @Header(value = "X-Log-Process-Id", required = false) Long logProcessId,
+            Acknowledgment ack)
             throws Exception {
+
+        // 필수 헤더 값 검증 및 누락 시 DLT 처리를 위한 예외 발생
         if (logProcessId == null) {
-            log.warn("Kafka Header에 logProcessId가 없습니다. 로그를 폐기합니다. Payload: {}", payload);
-            ack.acknowledge();
-            return;
+            throw new IllegalArgumentException("Kafka Header 누락: X-Log-Process-Id. Payload: " + payload);
         }
 
-        // 고유 추적 ID(traceId) 발급
-        String traceId = UUID.randomUUID().toString();
-
-        // 역직렬화
+        // JSON 페이로드를 RawLog 객체로 역직렬화
         RawLog rawLog = objectMapper.readValue(payload, RawLog.class);
 
-        String logProcessName = logProcessProvider.getLogProcessName(logProcessId);
-        List<ActiveFormatRule> activeFormatRules = formatRuleProvider.getActiveFormatRules(logProcessId);
+        // 추적 및 식별을 위한 공통 메타데이터 생성
+        LogMetadata metadata = createMetadata(logProcessId);
 
+        // 활성화된 포맷 규칙 조회 및 로그 포맷팅 적용
+        List<ActiveFormatRule> activeFormatRules = formatRuleProvider.getActiveFormatRules(logProcessId);
         Map<String, String> formattedLog = formatService.formatLog(rawLog, activeFormatRules);
 
-        // 실패
+        // 포맷팅 실패 시
         if (formattedLog == null || formattedLog.isEmpty()) {
+            FailInfo failInfo = createFailInfo();
             Map<String, String> failData = Map.of("path", rawLog.path() != null ? rawLog.path() : "");
 
-            processDispatcher.dispatchFailure(
-                    topics.sinkStream(),
-                    traceId,
-                    logProcessId,
-                    logProcessName,
-                    ProcessFailCode.FORMAT_RULE_NOT_FOUND,
-                    null,
-                    null,
-                    "활성화된 포맷 규칙이 없거나 조건 불일치",
-                    failData);
-            log.debug("포맷팅 실패 로그를 DB 토픽으로 전송했습니다. traceId: {}", traceId);
-
-            ack.acknowledge();
+            // 결과 스트림(Sink)으로 메시지 발행 후 콜백 기반 Ack 처리
+            processDispatcher
+                    .dispatchFailure(topics.sinkStream(), metadata, failInfo, failData)
+                    .whenComplete((result, ex) -> ackHandler.handle(ack, metadata.traceId(), "Failure Sink 전송", ex));
             return;
         }
 
-        // 성공
-        processDispatcher.dispatchSuccess(topics.filterStream(), traceId, logProcessId, logProcessName, formattedLog);
-        ack.acknowledge();
+        // 성공 시 다음 프로세스(Filter) 스트림으로 메시지 발행
+        processDispatcher
+                .dispatchSuccess(topics.filterStream(), metadata, formattedLog)
+                .whenComplete((result, ex) -> ackHandler.handle(ack, metadata.traceId(), "Success Stream 전송", ex));
+    }
+
+    // 식별용 메타데이터 조립
+    private LogMetadata createMetadata(Long logProcessId) {
+        return new LogMetadata(
+                UUID.randomUUID().toString(), logProcessId, logProcessProvider.getLogProcessName(logProcessId));
+    }
+
+    // 포맷팅 실패 원인 객체 조립
+    private FailInfo createFailInfo() {
+        return new FailInfo(ProcessFailCode.FORMAT_RULE_NOT_FOUND, null, null, "활성화된 포맷 규칙이 없거나 조건 불일치");
     }
 }

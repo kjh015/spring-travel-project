@@ -19,26 +19,26 @@ import org.springframework.data.elasticsearch.annotations.*;
 @Mapping(mappingPath = "/elasticsearch/history-mappings.json")
 public class HistoryDocument extends BaseDocument {
 
-    // 1. 추적 ID
+    // 추적 ID
     @Field(type = FieldType.Keyword)
     private String traceId;
 
-    // 2. 파이프라인 식별자 (RDB/로그 추적용)
+    // 프로세스 식별자
     @Field(name = "log_process_id", type = FieldType.Keyword)
     private Long logProcessId;
 
     @Field(name = "log_process_name", type = FieldType.Keyword)
-    private Long logProcessName;
+    private String logProcessName;
 
-    // 3. 성공 여부 (빠른 필터링용)
+    // 성공 여부
     @Field(type = FieldType.Boolean)
     private boolean success;
 
-    // 4. 에러 상세 정보 (VO 사용, 성공 시 null)
+    // 에러 상세 정보
     @Field(name = "fail_info", type = FieldType.Object)
     private HistoryFailInfo failInfo;
 
-    // 5. 상세 로그 데이터 (Map 전체를 JSON Object로 저장하여 유연성 확보)
+    // 상세 로그 데이터
     @Field(name = "log_data", type = FieldType.Object)
     private Map<String, Object> logData;
 
@@ -49,9 +49,8 @@ public class HistoryDocument extends BaseDocument {
         public static final String FAIL_INFO = "fail_info";
         public static final String LOG_DATA = "log_data";
 
-        // VO 내부 필드 접근용
         public static final String FAIL_INFO_CODE = "fail_info.code";
-        public static final String ERROR_INFO_STAGE = "fail_info.stage";
+        public static final String FAIL_INFO_STAGE = "fail_info.stage";
         public static final String FAIL_INFO_RULE_ID = "fail_info.fail_rule_id";
         public static final String FAIL_INFO_DETAIL = "fail_info.detail";
 
