@@ -8,7 +8,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class HistoryErrorInfo {
+public class HistoryFailInfo {
 
     @Field(type = FieldType.Keyword)
     private String code;

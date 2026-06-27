@@ -23,7 +23,7 @@ public class HistoryDocumentRepositoryImpl implements HistoryDocumentRepositoryC
 
         // 2. 실패일 경우 스테이지 조건 동적 추가 (동적 쿼리 패턴)
         if (stage != null && !stage.isBlank()) {
-            criteria.and(new Criteria(HistoryDocument.Fields.ERROR_STAGE).is(stage));
+            criteria.and(new Criteria(HistoryDocument.Fields.ERROR_INFO_STAGE).is(stage));
         }
 
         // 3. 쿼리 생성 및 페이징 세팅

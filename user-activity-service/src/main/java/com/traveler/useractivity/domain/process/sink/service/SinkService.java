@@ -19,7 +19,7 @@ public class SinkService {
     private static final String ACTION_VIEW = "view";
 
     public void sinkLog(LogPayload<Map<String, String>> logPayload) {
-        if (logPayload.errorInfo() != null) {
+        if (logPayload.failInfo() != null) {
             return;
         }
 

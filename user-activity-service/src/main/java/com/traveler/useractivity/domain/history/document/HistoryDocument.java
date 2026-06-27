@@ -1,6 +1,6 @@
 package com.traveler.useractivity.domain.history.document;
 
-import com.traveler.useractivity.domain.history.document.vo.HistoryErrorInfo;
+import com.traveler.useractivity.domain.history.document.vo.HistoryFailInfo;
 import com.traveler.useractivity.global.document.BaseDocument;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -35,8 +35,8 @@ public class HistoryDocument extends BaseDocument {
     private boolean success;
 
     // 4. 에러 상세 정보 (VO 사용, 성공 시 null)
-    @Field(name = "error_info", type = FieldType.Object)
-    private HistoryErrorInfo errorInfo;
+    @Field(name = "fail_info", type = FieldType.Object)
+    private HistoryFailInfo failInfo;
 
     // 5. 상세 로그 데이터 (Map 전체를 JSON Object로 저장하여 유연성 확보)
     @Field(name = "log_data", type = FieldType.Object)
@@ -46,14 +46,14 @@ public class HistoryDocument extends BaseDocument {
         public static final String TRACE_ID = "traceId";
         public static final String LOG_PROCESS_ID = "log_process_id";
         public static final String SUCCESS = "success";
-        public static final String ERROR_INFO = "error_info";
+        public static final String FAIL_INFO = "fail_info";
         public static final String LOG_DATA = "log_data";
 
         // VO 내부 필드 접근용
-        public static final String ERROR_CODE = "error_info.code";
-        public static final String ERROR_STAGE = "error_info.stage";
-        public static final String ERROR_FAIL_RULE_ID = "error_info.fail_rule_id";
-        public static final String ERROR_DETAIL = "error_info.detail";
+        public static final String FAIL_INFO_CODE = "fail_info.code";
+        public static final String ERROR_INFO_STAGE = "fail_info.stage";
+        public static final String FAIL_INFO_RULE_ID = "fail_info.fail_rule_id";
+        public static final String FAIL_INFO_DETAIL = "fail_info.detail";
 
         public static final String ID = "id";
         public static final String CREATED_AT = "createdAt";

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ProcessErrorCode {
+public enum ProcessFailCode {
 
     // FORMAT 단계 (포맷팅 실패)
     FORMAT_RULE_NOT_FOUND("FORMAT", "활성화된 포맷 규칙이 없거나 조건에 매칭되지 않습니다."),
@@ -19,5 +19,5 @@ public enum ProcessErrorCode {
     DEDUP_DUPLICATED_LOG("DEDUP", "기존에 적재된 로그와 중복된 로그로 판별되었습니다.");
 
     private final String stage; // 실패한 파이프라인 단계
-    private final String description; // 에러의 상세/기본 사유
+    private final String description; // 실패의 상세/기본 사유
 }

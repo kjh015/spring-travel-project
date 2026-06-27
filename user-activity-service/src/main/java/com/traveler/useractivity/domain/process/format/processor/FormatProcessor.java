@@ -1,7 +1,7 @@
 package com.traveler.useractivity.domain.process.format.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.traveler.useractivity.domain.process.core.code.ProcessErrorCode;
+import com.traveler.useractivity.domain.process.core.code.ProcessFailCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
 import com.traveler.useractivity.domain.process.core.provider.LogProcessProvider;
 import com.traveler.useractivity.domain.process.format.message.RawLog;
@@ -60,7 +60,7 @@ public class FormatProcessor {
                     traceId,
                     logProcessId,
                     logProcessName,
-                    ProcessErrorCode.FORMAT_RULE_NOT_FOUND,
+                    ProcessFailCode.FORMAT_RULE_NOT_FOUND,
                     null,
                     null,
                     "활성화된 포맷 규칙이 없거나 조건 불일치",

@@ -2,7 +2,7 @@ package com.traveler.useractivity.domain.process.filter.processor;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.traveler.useractivity.domain.process.core.code.ProcessErrorCode;
+import com.traveler.useractivity.domain.process.core.code.ProcessFailCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
 import com.traveler.useractivity.domain.process.core.message.LogPayload;
 import com.traveler.useractivity.domain.process.filter.model.ActiveFilterRule;
@@ -53,7 +53,7 @@ public class FilterProcessor {
                     traceId,
                     logProcessId,
                     logProcessName,
-                    ProcessErrorCode.FILTER_CONDITION_MISMATCH,
+                    ProcessFailCode.FILTER_CONDITION_MISMATCH,
                     failedRule.filterRuleId(),
                     failedRule.name(),
                     detail,

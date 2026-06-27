@@ -1,9 +1,9 @@
 package com.traveler.useractivity.domain.history.mapper;
 
 import com.traveler.useractivity.domain.history.document.HistoryDocument;
-import com.traveler.useractivity.domain.history.document.vo.HistoryErrorInfo;
+import com.traveler.useractivity.domain.history.document.vo.HistoryFailInfo;
 import com.traveler.useractivity.domain.history.dto.response.HistoryResponse;
-import com.traveler.useractivity.domain.process.core.message.ErrorInfo;
+import com.traveler.useractivity.domain.process.core.message.FailInfo;
 import com.traveler.useractivity.domain.process.core.message.LogPayload;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,14 +18,14 @@ public interface HistoryDocumentMapper {
     // Core의 ErrorInfo -> ES의 HistoryErrorInfo 변환
     @Mapping(target = "code", source = "code.name") // Enum -> String 변환
     @Mapping(target = "stage", source = "code.stage") // Enum 내부 값 추출
-    HistoryErrorInfo toHistoryErrorInfo(ErrorInfo errorInfo);
+    HistoryFailInfo toHistoryErrorInfo(FailInfo failInfo);
 
     @Mapping(target = "historyId", source = "id")
     HistoryResponse.SuccessDTO toSuccessDTO(HistoryDocument document);
 
     @Mapping(target = "historyId", source = "id")
-    @Mapping(target = "failStage", source = "errorInfo.stage")
-    @Mapping(target = "failRuleName", source = "errorInfo.failRuleName")
+    @Mapping(target = "failStage", source = "failInfo.stage")
+    @Mapping(target = "failRuleName", source = "failInfo.failRuleName")
     HistoryResponse.FailDTO toFailDTO(HistoryDocument document);
 
     HistoryResponse.DetailDTO toDetailDTO(HistoryDocument historyDocument);

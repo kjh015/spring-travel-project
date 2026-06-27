@@ -16,7 +16,7 @@
     "success": {
       "type": "boolean"
     },
-    "error_info": {
+    "fail_info": {
       "properties": {
         "code": { "type": "keyword" },
         "stage": { "type": "keyword" },

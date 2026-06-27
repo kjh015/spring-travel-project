@@ -1,7 +1,7 @@
 package com.traveler.useractivity.domain.process.core.dispatcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.traveler.useractivity.domain.process.core.code.ProcessErrorCode;
+import com.traveler.useractivity.domain.process.core.code.ProcessFailCode;
 import com.traveler.useractivity.domain.process.core.message.LogPayload;
 import com.traveler.useractivity.global.kafka.KafkaProducer;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +28,7 @@ public class ProcessDispatcher {
             String traceId,
             Long logProcessId,
             String logProcessName,
-            ProcessErrorCode code,
+            ProcessFailCode code,
             Long failRuleId,
             String failRuleName,
             String detail,

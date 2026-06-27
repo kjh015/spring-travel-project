@@ -2,7 +2,7 @@ package com.traveler.useractivity.domain.process.dedup.processor;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.traveler.useractivity.domain.process.core.code.ProcessErrorCode;
+import com.traveler.useractivity.domain.process.core.code.ProcessFailCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
 import com.traveler.useractivity.domain.process.core.message.LogPayload;
 import com.traveler.useractivity.domain.process.dedup.model.ActiveDedupRule;
@@ -51,7 +51,7 @@ public class DedupProcessor {
                     traceId,
                     logProcessId,
                     logProcessName,
-                    ProcessErrorCode.DEDUP_DUPLICATED_LOG,
+                    ProcessFailCode.DEDUP_DUPLICATED_LOG,
                     duplicatedRule.dedupRuleId(),
                     duplicatedRule.name(),
                     detail,
