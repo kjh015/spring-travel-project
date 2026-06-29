@@ -1,4 +1,4 @@
-package com.traveler.useractivity.domain.rule.format.dto.response;
+package com.traveler.web.domain.useractivity.dto.response;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Instant;

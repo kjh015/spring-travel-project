@@ -1,5 +1,6 @@
 package com.traveler.useractivity.domain.rule.format.service.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.traveler.common.api.converter.PageConverter;
 import com.traveler.common.core.response.PageResponse;
 import com.traveler.useractivity.domain.rule.format.dto.response.FormatRuleResponse;
@@ -9,6 +10,9 @@ import com.traveler.useractivity.domain.rule.format.repository.FormatRuleReposit
 import com.traveler.useractivity.domain.rule.process.repository.LogProcessRepository;
 import com.traveler.useractivity.global.exception.UserActivityServiceException;
 import com.traveler.useractivity.global.exception.code.UserActivityServiceErrorCode;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,5 +44,29 @@ public class FormatRuleQueryService {
                         () -> new UserActivityServiceException(UserActivityServiceErrorCode.FORMAT_RULE_NOT_FOUND));
 
         return formatRuleMapper.toDetailDTO(formatRule);
+    }
+
+    public FormatRuleResponse.FieldDTO getActiveFormatRuleFields(Long logProcessId) {
+        if (!logProcessRepository.existsById(logProcessId)) {
+            throw new UserActivityServiceException(UserActivityServiceErrorCode.LOG_PROCESS_NOT_FOUND);
+        }
+
+        List<FormatRule> activeRules = formatRuleRepository.findAllByLogProcessIdAndIsActiveTrue(logProcessId);
+
+        Set<String> uniqueFields = new HashSet<>();
+
+        // JsonNode에서 Key 추출 및 Set에 병합
+        for (FormatRule rule : activeRules) {
+            extractKeys(rule.getDefaultValues(), uniqueFields);
+            extractKeys(rule.getFieldMappings(), uniqueFields);
+        }
+
+        return new FormatRuleResponse.FieldDTO(uniqueFields);
+    }
+
+    private void extractKeys(JsonNode jsonNode, Set<String> fields) {
+        if (jsonNode != null && jsonNode.isObject()) {
+            jsonNode.fieldNames().forEachRemaining(fields::add);
+        }
     }
 }

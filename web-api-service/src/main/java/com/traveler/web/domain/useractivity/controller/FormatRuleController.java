@@ -1,13 +1,12 @@
-package com.traveler.useractivity.domain.rule.format.controller;
+package com.traveler.web.domain.useractivity.controller;
 
 import com.traveler.common.api.auth.annotation.RequireRole;
 import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.common.core.response.PageResponse;
-import com.traveler.useractivity.domain.rule.format.dto.request.FormatRuleRequest;
-import com.traveler.useractivity.domain.rule.format.dto.response.FormatRuleResponse;
-import com.traveler.useractivity.domain.rule.format.service.command.FormatRuleCommandService;
-import com.traveler.useractivity.domain.rule.format.service.query.FormatRuleQueryService;
+import com.traveler.web.domain.useractivity.dto.request.FormatRuleRequest;
+import com.traveler.web.domain.useractivity.dto.response.FormatRuleResponse;
+import com.traveler.web.domain.useractivity.facade.FormatRuleFacade;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -16,30 +15,29 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Format Rule", description = "Format Rule API")
+@Tag(name = "FormatRule", description = "FormatRule API")
 @RestController
 @RequiredArgsConstructor
 @RequireRole("ROLE_ADMIN")
-@RequestMapping("/v1/admin")
+@RequestMapping("/api/v1/admin")
 public class FormatRuleController {
-    private final FormatRuleCommandService formatRuleCommandService;
-    private final FormatRuleQueryService formatRuleQueryService;
+    private final FormatRuleFacade formatRuleFacade;
 
     @PostMapping("/log-processes/{logProcessId}/format-rules")
     public ApiResponse<FormatRuleResponse.CreateDTO> createFormatRule(
             @PathVariable Long logProcessId, @RequestBody FormatRuleRequest.CreateDTO dto) {
-        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleCommandService.createFormatRule(logProcessId, dto));
+        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleFacade.createFormatRule(logProcessId, dto));
     }
 
     @PatchMapping("/format-rules/{formatRuleId}")
     public ApiResponse<FormatRuleResponse.UpdateDTO> updateFormatRule(
             @PathVariable Long formatRuleId, @RequestBody FormatRuleRequest.UpdateDTO dto) {
-        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleCommandService.updateFormatRule(formatRuleId, dto));
+        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleFacade.updateFormatRule(formatRuleId, dto));
     }
 
     @DeleteMapping("/format-rules/{formatRuleId}")
     public ApiResponse<FormatRuleResponse.DeleteDTO> deleteFormatRule(@PathVariable Long formatRuleId) {
-        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleCommandService.deleteFormatRule(formatRuleId));
+        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleFacade.deleteFormatRule(formatRuleId));
     }
 
     @GetMapping("/log-processes/{logProcessId}/format-rules")
@@ -47,16 +45,16 @@ public class FormatRuleController {
             @PathVariable Long logProcessId,
             @ParameterObject @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
                     Pageable pageable) {
-        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleQueryService.getFormatRules(logProcessId, pageable));
+        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleFacade.getFormatRules(logProcessId, pageable));
     }
 
     @GetMapping("/format-rules/{formatRuleId}")
     public ApiResponse<FormatRuleResponse.DetailDTO> getFormatRule(@PathVariable Long formatRuleId) {
-        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleQueryService.getFormatRule(formatRuleId));
+        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleFacade.getFormatRule(formatRuleId));
     }
 
     @GetMapping("/log-processes/{logProcessId}/format-rules/fields")
     public ApiResponse<FormatRuleResponse.FieldDTO> getActiveFormatRuleFields(@PathVariable Long logProcessId) {
-        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleQueryService.getActiveFormatRuleFields(logProcessId));
+        return ApiResponse.onSuccess(SuccessCode.OK, formatRuleFacade.getActiveFormatRuleFields(logProcessId));
     }
 }

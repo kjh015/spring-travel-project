@@ -1,6 +1,6 @@
-package com.traveler.useractivity.domain.rule.dedup.vo;
+package com.traveler.web.domain.useractivity.vo;
 
-import com.traveler.useractivity.domain.rule.dedup.enums.MatchType;
+import com.traveler.web.domain.useractivity.enums.MatchType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -23,7 +23,7 @@ public final class DedupSpec {
      * 개별 조건식
      */
     public record Condition(
-            @NotBlank String field, // (예: "user_id")
+            @NotBlank String field, //  (예: "user_id")
             String value, // matchType이 ANY_VALUE일 때는 null 허용
             @NotNull MatchType matchType // (EXACT_MATCH / ANY_VALUE)
             ) {}

@@ -1,11 +1,11 @@
-package com.traveler.useractivity.domain.rule.format.dto.response;
+package com.traveler.web.domain.useractivity.client.dto.response;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Instant;
 import java.util.Set;
 
-public final class FormatRuleResponse {
-    private FormatRuleResponse() {
+public final class FormatRuleClientResponse {
+    private FormatRuleClientResponse() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 

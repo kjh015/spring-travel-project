@@ -62,10 +62,11 @@ spring:
 swagger:
   info:
     paths-to-match:
-      - "/v1/processes/**"
-      - "/v1/formats/**"
-      - "/v1/filters/**"
-      - "/v1/deduplication/**"
+      - "/v1/admin/log-processes/**"
+      - "/v1/admin/format-rules/**"
+      - "/v1/admin/filter-rules/**"
+      - "/v1/admin/dedup-rules/**"
+      - "/v1/admin/histories/**"
 
 springdoc:
   api-docs:

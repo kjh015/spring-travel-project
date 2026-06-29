@@ -66,6 +66,11 @@ spring:
           predicates:
             - Path=/v1/members/v3/api-docs/**
 
+        - id: user-activity-service-docs
+          uri: lb://user-activity-service
+          predicates:
+            - Path=/v1/user-activity/v3/api-docs/**
+
 
       httpclient:
         connect-timeout: 5000
@@ -123,3 +128,5 @@ springdoc:
         url: /v1/search/v3/api-docs/search-service
       - name: Member Service Docs
         url: /v1/members/v3/api-docs/member-service
+      - name: UserActivity Service Docs
+        url: /v1/user-activity/v3/api-docs/user-activity-service
