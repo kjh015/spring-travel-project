@@ -2,8 +2,8 @@ package com.traveler.post.global.handler;
 
 import com.traveler.common.api.handler.BaseExceptionAdvice;
 import com.traveler.common.core.response.ApiResponse;
-import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
+import com.traveler.post.global.exception.code.PostServiceErrorCode;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,11 @@ public class PostServiceExceptionAdvice implements BaseExceptionAdvice {
     /** Post Service에서 발생하는 커스텀 비즈니스 예외 처리 */
     @ExceptionHandler(PostServiceException.class)
     protected ResponseEntity<ApiResponse<Void>> handleGeneralException(PostServiceException ex) {
-        log.warn("[Post Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
+        if (ex.getCause() != null) {
+            log.error("[Post Service System Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage(), ex);
+        } else {
+            log.warn("[Post Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
+        }
         return createErrorResponse(ex.getCode(), null);
     }
 }

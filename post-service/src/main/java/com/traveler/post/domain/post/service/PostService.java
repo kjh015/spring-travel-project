@@ -8,9 +8,10 @@ import com.traveler.post.domain.post.entity.TravelPlace;
 import com.traveler.post.domain.post.mapper.PostMapper;
 import com.traveler.post.domain.post.mapper.TravelPlaceMapper;
 import com.traveler.post.domain.post.repository.PostRepository;
-import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
+import com.traveler.post.global.exception.code.PostServiceErrorCode;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -93,6 +94,23 @@ public class PostService {
         // S3 이미지 삭제 이벤트 발행
         if (!imageUrls.isEmpty()) {
             eventPublisher.publishEvent(postMapper.toImageDeleteBatchEvent(ids.getFirst(), imageUrls));
+        }
+    }
+
+    public void flushViewCountsToDB(Map<Object, Object> viewCountMap) {
+        if (viewCountMap == null || viewCountMap.isEmpty()) return;
+
+        for (Map.Entry<Object, Object> entry : viewCountMap.entrySet()) {
+            Long postId = Long.valueOf((String) entry.getKey());
+            Long increment = Long.valueOf((String) entry.getValue());
+
+            // DB 벌크 업데이트
+            postRepository.incrementViewCount(postId, increment);
+
+            // 검색 서버(Search-Service)에 최신 상태를 동기화하기 위해 다시 조회
+            postRepository
+                    .findById(postId)
+                    .ifPresent(post -> eventPublisher.publishEvent(postMapper.toStatUpdatedEvent(post)));
         }
     }
 }
