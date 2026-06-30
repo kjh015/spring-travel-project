@@ -29,6 +29,7 @@ public enum WebApiServiceErrorCode implements BaseErrorCode {
     FILTER_UNSUPPORTED_NODE_TYPE(400, "FILTER400_1", "지원하지 않는 필터 노드 타입입니다."),
     FILTER_UNSUPPORTED_COMPARISON_OPERATOR(400, "FILTER400_2", "지원하지 않는 비교 연산자입니다."),
     FILTER_UNSUPPORTED_LOGICAL_OPERATOR(400, "FILTER400_3", "지원하지 않는 논리 연산자입니다."),
+    FILTER_UNSUPPORTED_VALUE_TYPE(400, "FILTER400_4", "지원하지 않는 데이터 타입입니다."),
     DEDUP_UNSUPPORTED_MATCH_TYPE(400, "DEDUP400_2", "지원하지 않는 매치 타입입니다."), // 💡 신규 추가
     ;
 

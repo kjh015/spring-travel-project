@@ -51,25 +51,25 @@ spring:
                 requiredRole: ROLE_ADMIN
 
 
-        - id: post-service-docs
-          uri: lb://post-service
-          predicates:
-            - Path=/v1/posts/v3/api-docs/**
-
-        - id: search-service-docs
-          uri: lb://search-service
-          predicates:
-            - Path=/v1/search/v3/api-docs/**
-
-        - id: member-service-docs
-          uri: lb://member-service
-          predicates:
-            - Path=/v1/members/v3/api-docs/**
-
-        - id: user-activity-service-docs
-          uri: lb://user-activity-service
-          predicates:
-            - Path=/v1/user-activity/v3/api-docs/**
+#        - id: post-service-docs
+#          uri: lb://post-service
+#          predicates:
+#            - Path=/v1/posts/v3/api-docs/**
+#
+#        - id: search-service-docs
+#          uri: lb://search-service
+#          predicates:
+#            - Path=/v1/search/v3/api-docs/**
+#
+#        - id: member-service-docs
+#          uri: lb://member-service
+#          predicates:
+#            - Path=/v1/members/v3/api-docs/**
+#
+#        - id: user-activity-service-docs
+#          uri: lb://user-activity-service
+#          predicates:
+#            - Path=/v1/user-activity/v3/api-docs/**
 
 
       httpclient:
@@ -122,11 +122,11 @@ springdoc:
     urls:
       - name: Web Api Service
         url: /api/v1/web-api/v3/api-docs/web-api-service
-      - name: Post Service Docs
-        url: /v1/posts/v3/api-docs/post-service
-      - name: Search Service Docs
-        url: /v1/search/v3/api-docs/search-service
-      - name: Member Service Docs
-        url: /v1/members/v3/api-docs/member-service
-      - name: UserActivity Service Docs
-        url: /v1/user-activity/v3/api-docs/user-activity-service
+#      - name: Post Service Docs
+#        url: /v1/posts/v3/api-docs/post-service
+#      - name: Search Service Docs
+#        url: /v1/search/v3/api-docs/search-service
+#      - name: Member Service Docs
+#        url: /v1/members/v3/api-docs/member-service
+#      - name: UserActivity Service Docs
+#        url: /v1/user-activity/v3/api-docs/user-activity-service

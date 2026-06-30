@@ -10,8 +10,10 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface FormatRuleMapper {
-    @Mapping(source = "process", target = "process")
-    FormatRule toCreateEntity(FormatRuleRequest.CreateDTO dto, LogProcess process);
+    @Mapping(source = "dto.name", target = "name")
+    @Mapping(source = "dto.isActive", target = "isActive")
+    @Mapping(source = "logProcess", target = "logProcess")
+    FormatRule toCreateEntity(FormatRuleRequest.CreateDTO dto, LogProcess logProcess);
 
     @Mapping(source = "id", target = "formatRuleId")
     FormatRuleResponse.CreateDTO toCreateDTO(FormatRule formatRule);
