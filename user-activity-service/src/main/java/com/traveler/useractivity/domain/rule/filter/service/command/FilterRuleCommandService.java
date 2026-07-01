@@ -1,6 +1,7 @@
 package com.traveler.useractivity.domain.rule.filter.service.command;
 
 import com.traveler.useractivity.domain.rule.filter.converter.SpelExpressionConverter;
+import com.traveler.useractivity.domain.rule.filter.dto.event.FilterRuleEvent;
 import com.traveler.useractivity.domain.rule.filter.dto.request.FilterRuleRequest;
 import com.traveler.useractivity.domain.rule.filter.dto.response.FilterRuleResponse;
 import com.traveler.useractivity.domain.rule.filter.entity.FilterRule;
@@ -11,6 +12,7 @@ import com.traveler.useractivity.domain.rule.process.repository.LogProcessReposi
 import com.traveler.useractivity.global.exception.UserActivityServiceException;
 import com.traveler.useractivity.global.exception.code.UserActivityServiceErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ public class FilterRuleCommandService {
     private final LogProcessRepository logProcessRepository;
     private final FilterRuleRepository filterRuleRepository;
     private final FilterRuleMapper filterRuleMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public FilterRuleResponse.CreateDTO createFilterRule(Long logProcessId, FilterRuleRequest.CreateDTO dto) {
         LogProcess logProcess = logProcessRepository
@@ -35,6 +38,10 @@ public class FilterRuleCommandService {
 
         FilterRule savedRule = filterRuleRepository.save(filterRule);
 
+        if (savedRule.isActive()) {
+            eventPublisher.publishEvent(new FilterRuleEvent.Evict(logProcessId));
+        }
+
         return filterRuleMapper.toCreateDTO(savedRule);
     }
 
@@ -44,9 +51,12 @@ public class FilterRuleCommandService {
                 .orElseThrow(
                         () -> new UserActivityServiceException(UserActivityServiceErrorCode.FILTER_RULE_NOT_FOUND));
 
+        Long logProcessId = filterRule.getLogProcess().getId();
         String expression = SpelExpressionConverter.convert(dto.conditions());
 
         filterRule.update(dto.name(), expression, dto.conditions(), dto.isActive());
+
+        eventPublisher.publishEvent(new FilterRuleEvent.Evict(logProcessId));
 
         return filterRuleMapper.toUpdateDTO(filterRule);
     }
@@ -56,8 +66,11 @@ public class FilterRuleCommandService {
                 .findById(filterRuleId)
                 .orElseThrow(
                         () -> new UserActivityServiceException(UserActivityServiceErrorCode.FILTER_RULE_NOT_FOUND));
+        Long logProcessId = filterRule.getLogProcess().getId();
 
         filterRule.delete();
+
+        eventPublisher.publishEvent(new FilterRuleEvent.Evict(logProcessId));
 
         return filterRuleMapper.toDeleteDTO(filterRule);
     }

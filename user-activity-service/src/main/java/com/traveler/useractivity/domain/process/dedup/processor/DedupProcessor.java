@@ -17,9 +17,11 @@ import com.traveler.useractivity.global.kafka.KafkaTopicProperties;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -50,23 +52,21 @@ public class DedupProcessor {
         List<ActiveDedupRule> activeDedupRules = dedupRuleProvider.getActiveDedupRules(metadata.logProcessId());
         Optional<DedupResult> dedupResultOpt = dedupService.findFirstDuplicatedRule(logData, activeDedupRules);
 
-        // 중복 로그 탐지 시
+        CompletableFuture<?> dispatchFuture;
+
         if (dedupResultOpt.isPresent()) {
             FailInfo failInfo = createFailInfo(dedupResultOpt.get(), logData);
-
-            // 중복 판정된 로그를 결과 스트림(Sink)으로 발행
-            processDispatcher
-                    .dispatchFailure(topics.sinkStream(), metadata, failInfo, logData)
-                    .whenComplete(
-                            (result, ex) -> ackHandler.handle(ack, metadata.traceId(), "Dedup 중복 로그 Sink 전송", ex));
-            return;
+            dispatchFuture = processDispatcher.dispatchFailure(topics.sinkStream(), metadata, failInfo, logData);
+        } else {
+            dispatchFuture = processDispatcher.dispatchSuccess(topics.sinkStream(), metadata, logData);
         }
 
-        // 중복 검증을 통과한 최종 성공 로그를 Sink 스트림으로 발행
-        processDispatcher
-                .dispatchSuccess(topics.sinkStream(), metadata, logData)
-                .whenComplete(
-                        (result, ex) -> ackHandler.handle(ack, metadata.traceId(), "Dedup 성공 로그(최종) Sink 전송", ex));
+        try {
+            dispatchFuture.join();
+            ack.acknowledge();
+        } catch (Exception e) {
+            throw (Exception) NestedExceptionUtils.getMostSpecificCause(e);
+        }
     }
 
     // 중복 탐지 조건 및 만료 시간을 포함한 실패 상세 객체 조립

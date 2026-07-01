@@ -15,8 +15,10 @@ import com.traveler.useractivity.global.kafka.KafkaTopicProperties;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Header;
@@ -57,22 +59,22 @@ public class FormatProcessor {
         List<ActiveFormatRule> activeFormatRules = formatRuleProvider.getActiveFormatRules(logProcessId);
         Map<String, String> formattedLog = formatService.formatLog(rawLog, activeFormatRules);
 
-        // 포맷팅 실패 시
+        CompletableFuture<?> dispatchFuture;
+
         if (formattedLog == null || formattedLog.isEmpty()) {
             FailInfo failInfo = createFailInfo();
             Map<String, String> failData = Map.of("path", rawLog.path() != null ? rawLog.path() : "");
-
-            // 결과 스트림(Sink)으로 메시지 발행 후 콜백 기반 Ack 처리
-            processDispatcher
-                    .dispatchFailure(topics.sinkStream(), metadata, failInfo, failData)
-                    .whenComplete((result, ex) -> ackHandler.handle(ack, metadata.traceId(), "Failure Sink 전송", ex));
-            return;
+            dispatchFuture = processDispatcher.dispatchFailure(topics.sinkStream(), metadata, failInfo, failData);
+        } else {
+            dispatchFuture = processDispatcher.dispatchSuccess(topics.filterStream(), metadata, formattedLog);
         }
 
-        // 성공 시 다음 프로세스(Filter) 스트림으로 메시지 발행
-        processDispatcher
-                .dispatchSuccess(topics.filterStream(), metadata, formattedLog)
-                .whenComplete((result, ex) -> ackHandler.handle(ack, metadata.traceId(), "Success Stream 전송", ex));
+        try {
+            dispatchFuture.join();
+            ack.acknowledge();
+        } catch (Exception e) {
+            throw (Exception) NestedExceptionUtils.getMostSpecificCause(e);
+        }
     }
 
     // 식별용 메타데이터 조립

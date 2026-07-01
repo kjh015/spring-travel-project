@@ -1,5 +1,6 @@
 package com.traveler.useractivity.domain.rule.process.service.command;
 
+import com.traveler.useractivity.domain.rule.process.dto.event.LogProcessEvent;
 import com.traveler.useractivity.domain.rule.process.dto.request.LogProcessRequest;
 import com.traveler.useractivity.domain.rule.process.dto.response.LogProcessResponse;
 import com.traveler.useractivity.domain.rule.process.entity.LogProcess;
@@ -8,6 +9,7 @@ import com.traveler.useractivity.domain.rule.process.repository.LogProcessReposi
 import com.traveler.useractivity.global.exception.UserActivityServiceException;
 import com.traveler.useractivity.global.exception.code.UserActivityServiceErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LogProcessCommandService {
     private final LogProcessRepository logProcessRepository;
     private final LogProcessMapper logProcessMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public LogProcessResponse.CreateDTO createLogProcess(LogProcessRequest.CreateDTO dto) {
         LogProcess logProcess = logProcessMapper.toCreateEntity(dto);
@@ -34,6 +37,8 @@ public class LogProcessCommandService {
 
         logProcess.update(dto.name(), dto.description());
 
+        eventPublisher.publishEvent(new LogProcessEvent.Evict(logProcessId));
+
         return logProcessMapper.toUpdateDTO(logProcess);
     }
 
@@ -44,6 +49,8 @@ public class LogProcessCommandService {
                         () -> new UserActivityServiceException(UserActivityServiceErrorCode.LOG_PROCESS_NOT_FOUND));
 
         logProcess.delete();
+
+        eventPublisher.publishEvent(new LogProcessEvent.Evict(logProcessId));
 
         return logProcessMapper.toDeleteDTO(logProcess);
     }

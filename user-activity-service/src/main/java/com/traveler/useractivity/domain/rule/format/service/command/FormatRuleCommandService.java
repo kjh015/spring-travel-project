@@ -1,5 +1,6 @@
 package com.traveler.useractivity.domain.rule.format.service.command;
 
+import com.traveler.useractivity.domain.rule.format.dto.event.FormatRuleEvent;
 import com.traveler.useractivity.domain.rule.format.dto.request.FormatRuleRequest;
 import com.traveler.useractivity.domain.rule.format.dto.response.FormatRuleResponse;
 import com.traveler.useractivity.domain.rule.format.entity.FormatRule;
@@ -10,6 +11,7 @@ import com.traveler.useractivity.domain.rule.process.repository.LogProcessReposi
 import com.traveler.useractivity.global.exception.UserActivityServiceException;
 import com.traveler.useractivity.global.exception.code.UserActivityServiceErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class FormatRuleCommandService {
     private final LogProcessRepository logProcessRepository;
     private final FormatRuleRepository formatRuleRepository;
     private final FormatRuleMapper formatRuleMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public FormatRuleResponse.CreateDTO createFormatRule(Long logProcessId, FormatRuleRequest.CreateDTO dto) {
         LogProcess logProcess = logProcessRepository
@@ -31,6 +34,10 @@ public class FormatRuleCommandService {
 
         FormatRule savedFormatRule = formatRuleRepository.save(formatRule);
 
+        if (savedFormatRule.isActive()) {
+            eventPublisher.publishEvent(new FormatRuleEvent.Evict(logProcessId));
+        }
+
         return formatRuleMapper.toCreateDTO(savedFormatRule);
     }
 
@@ -40,7 +47,10 @@ public class FormatRuleCommandService {
                 .orElseThrow(
                         () -> new UserActivityServiceException(UserActivityServiceErrorCode.FORMAT_RULE_NOT_FOUND));
 
+        Long logProcessId = formatRule.getLogProcess().getId();
         formatRule.update(dto.name(), dto.defaultValues(), dto.fieldMappings(), dto.isActive());
+
+        eventPublisher.publishEvent(new FormatRuleEvent.Evict(logProcessId));
 
         return formatRuleMapper.toUpdateDTO(formatRule);
     }
@@ -50,7 +60,10 @@ public class FormatRuleCommandService {
                 .findById(formatRuleId)
                 .orElseThrow(
                         () -> new UserActivityServiceException(UserActivityServiceErrorCode.FORMAT_RULE_NOT_FOUND));
+        Long logProcessId = formatRule.getLogProcess().getId();
         formatRule.delete();
+
+        eventPublisher.publishEvent(new FormatRuleEvent.Evict(logProcessId));
         return formatRuleMapper.toDeleteDTO(formatRule);
     }
 }

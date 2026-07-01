@@ -58,6 +58,10 @@ dependencies {
 
     // ElasticSearch:8.12
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
+    // Cache
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
 }
 
 dependencyManagement {

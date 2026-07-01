@@ -22,5 +22,6 @@ public interface HistoryDocumentMapper {
     @Mapping(target = "failRuleName", source = "failInfo.failRuleName")
     HistoryResponse.ListDTO toListDTO(HistoryDocument historyDocument);
 
+    @Mapping(target = "historyId", source = "id")
     HistoryResponse.DetailDTO toDetailDTO(HistoryDocument historyDocument);
 }

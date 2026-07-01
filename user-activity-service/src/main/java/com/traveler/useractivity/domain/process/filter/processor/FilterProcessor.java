@@ -15,8 +15,10 @@ import com.traveler.useractivity.global.kafka.KafkaTopicProperties;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -47,22 +49,21 @@ public class FilterProcessor {
         List<ActiveFilterRule> activeFilterRules = filterRuleProvider.getActiveFilterRules(metadata.logProcessId());
         Optional<ActiveFilterRule> failedRuleOpt = filterService.findFirstFailedRule(logData, activeFilterRules);
 
-        // 필터 조건 위반 시
+        CompletableFuture<?> dispatchFuture;
+
         if (failedRuleOpt.isPresent()) {
             FailInfo failInfo = createFailInfo(failedRuleOpt.get());
-
-            // 결과 스트림(Sink)으로 메시지 발행 후 콜백 기반 Ack 처리
-            processDispatcher
-                    .dispatchFailure(topics.sinkStream(), metadata, failInfo, logData)
-                    .whenComplete(
-                            (result, ex) -> ackHandler.handle(ack, metadata.traceId(), "Filter 실패 로그 Sink 전송", ex));
-            return;
+            dispatchFuture = processDispatcher.dispatchFailure(topics.sinkStream(), metadata, failInfo, logData);
+        } else {
+            dispatchFuture = processDispatcher.dispatchSuccess(topics.dedupStream(), metadata, logData);
         }
 
-        // 조건 통과 시 다음 프로세스(Dedup) 스트림으로 메시지 발행
-        processDispatcher
-                .dispatchSuccess(topics.dedupStream(), metadata, logData)
-                .whenComplete((result, ex) -> ackHandler.handle(ack, metadata.traceId(), "Filter 성공 로그 Dedup 전송", ex));
+        try {
+            dispatchFuture.join();
+            ack.acknowledge();
+        } catch (Exception e) {
+            throw (Exception) NestedExceptionUtils.getMostSpecificCause(e);
+        }
     }
 
     // 필터 위반 상세 정보를 담은 실패 원인 객체 조립

@@ -1,5 +1,6 @@
 package com.traveler.useractivity.domain.rule.dedup.service.command;
 
+import com.traveler.useractivity.domain.rule.dedup.dto.event.DedupRuleEvent;
 import com.traveler.useractivity.domain.rule.dedup.dto.request.DedupRuleRequest;
 import com.traveler.useractivity.domain.rule.dedup.dto.response.DedupRuleResponse;
 import com.traveler.useractivity.domain.rule.dedup.entity.DedupRule;
@@ -10,6 +11,7 @@ import com.traveler.useractivity.domain.rule.process.repository.LogProcessReposi
 import com.traveler.useractivity.global.exception.UserActivityServiceException;
 import com.traveler.useractivity.global.exception.code.UserActivityServiceErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class DedupRuleCommandService {
     private final LogProcessRepository logProcessRepository;
     private final DedupRuleRepository dedupRuleRepository;
     private final DedupRuleMapper dedupRuleMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public DedupRuleResponse.CreateDTO createDedupRule(Long logProcessId, DedupRuleRequest.CreateDTO dto) {
         LogProcess logProcess = logProcessRepository
@@ -31,6 +34,10 @@ public class DedupRuleCommandService {
 
         DedupRule savedDedupRule = dedupRuleRepository.save(dedupRule);
 
+        if (savedDedupRule.isActive()) {
+            eventPublisher.publishEvent(new DedupRuleEvent.Evict(logProcessId));
+        }
+
         return dedupRuleMapper.toCreateDTO(savedDedupRule);
     }
 
@@ -41,6 +48,9 @@ public class DedupRuleCommandService {
 
         dedupRule.update(dto.name(), dto.rules(), dto.isActive());
 
+        Long logProcessId = dedupRule.getLogProcess().getId();
+        eventPublisher.publishEvent(new DedupRuleEvent.Evict(logProcessId));
+
         return dedupRuleMapper.toUpdateDTO(dedupRule);
     }
 
@@ -50,6 +60,10 @@ public class DedupRuleCommandService {
                 .orElseThrow(() -> new UserActivityServiceException(UserActivityServiceErrorCode.DEDUP_RULE_NOT_FOUND));
 
         dedupRule.delete();
+
+        Long logProcessId = dedupRule.getLogProcess().getId();
+        eventPublisher.publishEvent(new DedupRuleEvent.Evict(logProcessId));
+
         return dedupRuleMapper.toDeleteDTO(dedupRule);
     }
 }
