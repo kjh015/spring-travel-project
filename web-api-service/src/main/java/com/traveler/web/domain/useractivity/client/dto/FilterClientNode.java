@@ -23,7 +23,7 @@ public final class FilterClientNode {
         @JsonSubTypes.Type(value = Paren.class, name = "left-paren"),
         @JsonSubTypes.Type(value = Paren.class, name = "right-paren")
     })
-    public interface Element {
+    public sealed interface Element permits Condition, Operator, Paren {
         String type();
 
         Long groupId();
