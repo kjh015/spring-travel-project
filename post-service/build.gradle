@@ -56,6 +56,9 @@ dependencies {
 
     // AWS SDK v2 S3
     implementation 'software.amazon.awssdk:s3:2.25.15'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 dependencyManagement {

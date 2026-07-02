@@ -2,8 +2,8 @@ package com.traveler.post.domain.comment.entity;
 
 import com.traveler.common.db.entity.BaseEntity;
 import com.traveler.post.domain.post.entity.Post;
-import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
+import com.traveler.post.global.exception.code.PostServiceErrorCode;
 import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.AccessLevel;

@@ -14,9 +14,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Post", description = "게시글 관련 API (작성, 수정, 삭제)")
+@Validated
 @RestController
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor

@@ -24,7 +24,14 @@ public enum WebApiServiceErrorCode implements BaseErrorCode {
     INVALID_OAUTH_REQUEST_PARAM(400, "WEB400_3", "소셜 로그인 제공자 및 제공자 ID는 필수입니다."),
 
     // Oauth2 (Upstream / Server Error)
-    INVALID_OAUTH_USER_INFO(502, "WEB502_1", "소셜 로그인 제공자로부터 필수 사용자 정보(ID)를 받지 못했습니다.");
+    INVALID_OAUTH_USER_INFO(502, "WEB502_1", "소셜 로그인 제공자로부터 필수 사용자 정보(ID)를 받지 못했습니다."),
+
+    FILTER_UNSUPPORTED_NODE_TYPE(400, "FILTER400_1", "지원하지 않는 필터 노드 타입입니다."),
+    FILTER_UNSUPPORTED_COMPARISON_OPERATOR(400, "FILTER400_2", "지원하지 않는 비교 연산자입니다."),
+    FILTER_UNSUPPORTED_LOGICAL_OPERATOR(400, "FILTER400_3", "지원하지 않는 논리 연산자입니다."),
+    FILTER_UNSUPPORTED_VALUE_TYPE(400, "FILTER400_4", "지원하지 않는 데이터 타입입니다."),
+    DEDUP_UNSUPPORTED_MATCH_TYPE(400, "DEDUP400_2", "지원하지 않는 매치 타입입니다."), // 💡 신규 추가
+    DEDUP_EXPIRATION_TIME_NON_POSITIVE(400, "DEDUP400_4", "중복제거 만료 시간은 0보다 커야 합니다.");
 
     private final int status;
     private final String code;

@@ -9,7 +9,7 @@ import com.traveler.common.core.response.ApiResponse;
 import com.traveler.post.domain.post.dto.request.PostRequest;
 import com.traveler.post.domain.post.dto.response.PostResponse;
 import com.traveler.post.domain.post.service.PostService;
-import com.traveler.post.global.code.PostServiceErrorCode;
+import com.traveler.post.global.exception.code.PostServiceErrorCode;
 import com.traveler.post.global.swagger.ApiErrorCodeExamples;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

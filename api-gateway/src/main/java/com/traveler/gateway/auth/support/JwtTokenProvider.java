@@ -1,8 +1,8 @@
 package com.traveler.gateway.auth.support;
 
 import com.traveler.common.core.auth.AuthConstants;
-import com.traveler.gateway.exception.ApiGatewayErrorCode;
 import com.traveler.gateway.exception.ApiGatewayNoStackException;
+import com.traveler.gateway.exception.code.ApiGatewayErrorCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

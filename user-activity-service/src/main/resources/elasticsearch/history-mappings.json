@@ -1,0 +1,49 @@
+{
+  "dynamic": "strict",
+  "properties": {
+    "id": {
+      "type": "keyword"
+    },
+    "traceId": {
+      "type": "keyword"
+    },
+    "log_process_id": {
+      "type": "keyword"
+    },
+    "log_process_name": {
+      "type": "keyword"
+    },
+    "success": {
+      "type": "boolean"
+    },
+    "fail_info": {
+      "properties": {
+        "code": { "type": "keyword" },
+        "stage": { "type": "keyword" },
+        "fail_rule_id": { "type": "keyword" },
+        "fail_rule_name": { "type": "keyword" },
+        "detail": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        }
+      }
+    },
+    "log_data": {
+      "type": "object",
+      "enabled": false
+    },
+    "createdAt": {
+      "type": "date",
+      "format": "strict_date_optional_time_nanos||strict_date_optional_time||epoch_millis"
+    },
+    "updatedAt": {
+      "type": "date",
+      "format": "strict_date_optional_time_nanos||strict_date_optional_time||epoch_millis"
+    }
+  }
+}

@@ -7,4 +7,8 @@ public class SearchServiceException extends GeneralException {
     public SearchServiceException(BaseErrorCode code) {
         super(code);
     }
+
+    public SearchServiceException(BaseErrorCode code, Throwable cause) {
+        super(code, cause);
+    }
 }
