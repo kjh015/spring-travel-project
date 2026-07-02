@@ -1,6 +1,6 @@
 package com.traveler.web.domain.useractivity.client.dto.response;
 
-import com.traveler.web.domain.useractivity.vo.DedupSpec;
+import com.traveler.web.domain.useractivity.client.dto.DedupClientSpec;
 import java.time.Instant;
 import java.util.List;
 
@@ -17,5 +17,5 @@ public final class DedupRuleClientResponse {
 
     public record ListDTO(Long dedupRuleId, String name, Instant createdAt, Instant updatedAt, boolean isActive) {}
 
-    public record DetailDTO(Long dedupRuleId, String name, List<DedupSpec.Rule> rules, boolean isActive) {}
+    public record DetailDTO(Long dedupRuleId, String name, List<DedupClientSpec.Rule> rules, boolean isActive) {}
 }

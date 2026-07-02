@@ -16,22 +16,20 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class PostViewConsumer {
-
     private final PostViewRepository postViewRepository;
     private final ObjectMapper objectMapper;
+
+    private static final Duration IDEMPOTENCY_TTL = Duration.ofMinutes(10);
 
     @SneakyThrows
     @KafkaListener(topics = "${app.kafka.topics.view-events}", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeViewCount(@Payload String payload, Acknowledgment ack) {
         PostMessage.PostViewedDTO dto = objectMapper.readValue(payload, PostMessage.PostViewedDTO.class);
 
-        // 멱등성 검증
-        boolean isFirst = postViewRepository.saveIdempotencyKeyIfAbsent(dto.traceId(), Duration.ofMinutes(10));
+        // 멱등성 체크와 조회수 증가
+        boolean isFirst = postViewRepository.incrementViewCountIfFirst(dto.traceId(), dto.postId(), IDEMPOTENCY_TTL);
 
-        if (isFirst) {
-            // 조회수 버퍼링
-            postViewRepository.incrementViewCount(dto.postId());
-        } else {
+        if (!isFirst) {
             log.debug("중복된 조회수 이벤트로 무시되었습니다. traceId: {}", dto.traceId());
         }
 

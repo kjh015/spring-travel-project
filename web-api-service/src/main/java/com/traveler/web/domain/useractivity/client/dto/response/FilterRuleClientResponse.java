@@ -1,6 +1,6 @@
 package com.traveler.web.domain.useractivity.client.dto.response;
 
-import com.traveler.web.domain.useractivity.vo.FilterNode;
+import com.traveler.web.domain.useractivity.client.dto.FilterClientNode;
 import java.time.Instant;
 import java.util.List;
 
@@ -18,5 +18,9 @@ public final class FilterRuleClientResponse {
     public record ListDTO(Long filterRuleId, String name, Instant createdAt, Instant updatedAt, boolean isActive) {}
 
     public record DetailDTO(
-            Long filterRuleId, String name, String expression, List<FilterNode.Element> conditions, boolean isActive) {}
+            Long filterRuleId,
+            String name,
+            String expression,
+            List<FilterClientNode.Element> conditions,
+            boolean isActive) {}
 }

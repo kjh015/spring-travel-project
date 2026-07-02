@@ -7,7 +7,7 @@ public final class FormatRuleRequest {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public record CreateDTO(String name, boolean isActive, JsonNode defaultValues, JsonNode fieldMappings) {}
+    public record CreateDTO(String name, Boolean isActive, JsonNode defaultValues, JsonNode fieldMappings) {}
 
-    public record UpdateDTO(String name, boolean isActive, JsonNode defaultValues, JsonNode fieldMappings) {}
+    public record UpdateDTO(String name, Boolean isActive, JsonNode defaultValues, JsonNode fieldMappings) {}
 }

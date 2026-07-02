@@ -1,9 +1,11 @@
 package com.traveler.post.domain.post.repository;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -17,18 +19,39 @@ public class PostViewRepository {
     private static final String PROCESSING_KEY = "post:view_count:processing";
 
     /**
-     * 멱등성 키를 저장합니다. (이미 존재하면 false 반환)
+     * 멱등성 키 선점(SET NX PX)과 조회수 증가(HINCRBY)를 하나의 Lua 스크립트로 원자 처리합니다.
+     *
+     * <p>SET NX 가 성공한 경우(=최초 처리)에만 HINCRBY 를 수행하고 1을 반환합니다.
+     * 이미 키가 존재하면(=중복) 아무것도 하지 않고 0을 반환합니다.
+     *
+     * <p>두 연산이 서버 측에서 한 번에 실행되므로, 기존처럼 "키 선점 성공 후 증가 실패"로
+     * 조회수가 영구 누락되는 구간이 존재하지 않습니다. 증가에 성공했을 때만 키가 남기 때문에,
+     * Kafka 재시도/재전달이 일어나도 유실도 중복 카운트도 발생하지 않습니다.
      */
-    public boolean saveIdempotencyKeyIfAbsent(String traceId, Duration ttl) {
-        String key = IDEMPOTENCY_PREFIX + traceId;
-        return Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(key, "1", ttl));
-    }
+    private static final DefaultRedisScript<Long> INCREMENT_IF_FIRST_SCRIPT = new DefaultRedisScript<>(
+            """
+            if redis.call('SET', KEYS[1], '1', 'NX', 'PX', ARGV[1]) then
+                redis.call('HINCRBY', KEYS[2], ARGV[2], 1)
+                return 1
+            end
+            return 0
+            """,
+            Long.class);
 
     /**
-     * 특정 게시글의 조회수를 1 증가시킵니다. (Redis Hash 사용)
+     * 최초 이벤트일 때만 조회수를 1 증가시키고 true 를 반환합니다. (중복이면 false)
+     *
+     * @param traceId 멱등성 판별용 traceId
+     * @param postId  조회수를 증가시킬 게시글 ID
+     * @param ttl     멱등성 키 TTL
      */
-    public void incrementViewCount(Long postId) {
-        redisTemplate.opsForHash().increment(VIEW_COUNT_BUFFER_KEY, String.valueOf(postId), 1);
+    public boolean incrementViewCountIfFirst(String traceId, Long postId, Duration ttl) {
+        Long result = redisTemplate.execute(
+                INCREMENT_IF_FIRST_SCRIPT,
+                List.of(IDEMPOTENCY_PREFIX + traceId, VIEW_COUNT_BUFFER_KEY),
+                String.valueOf(ttl.toMillis()),
+                String.valueOf(postId));
+        return Long.valueOf(1L).equals(result);
     }
 
     /**

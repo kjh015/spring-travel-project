@@ -10,6 +10,7 @@ import com.traveler.post.domain.post.mapper.TravelPlaceMapper;
 import com.traveler.post.domain.post.repository.PostRepository;
 import com.traveler.post.global.exception.PostServiceException;
 import com.traveler.post.global.exception.code.PostServiceErrorCode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -100,17 +101,21 @@ public class PostService {
     public void flushViewCountsToDB(Map<Object, Object> viewCountMap) {
         if (viewCountMap == null || viewCountMap.isEmpty()) return;
 
+        List<Long> postIds = new ArrayList<>(viewCountMap.size());
+
+        // 게시글별 조회수 벌크 증가
         for (Map.Entry<Object, Object> entry : viewCountMap.entrySet()) {
-            Long postId = Long.valueOf((String) entry.getKey());
-            Long increment = Long.valueOf((String) entry.getValue());
+            Long postId = Long.valueOf(String.valueOf(entry.getKey()));
+            Long increment = Long.valueOf(String.valueOf(entry.getValue()));
 
-            // DB 벌크 업데이트
             postRepository.incrementViewCount(postId, increment);
+            postIds.add(postId);
+        }
 
-            // 검색 서버(Search-Service)에 최신 상태를 동기화하기 위해 다시 조회
-            postRepository
-                    .findById(postId)
-                    .ifPresent(post -> eventPublisher.publishEvent(postMapper.toStatUpdatedEvent(post)));
+        // 증가가 반영된 최신 상태를 한 번에 조회하여 검색 서버 동기화 이벤트 발행
+        List<Post> updatedPosts = postRepository.findAllById(postIds);
+        for (Post post : updatedPosts) {
+            eventPublisher.publishEvent(postMapper.toStatUpdatedEvent(post));
         }
     }
 }

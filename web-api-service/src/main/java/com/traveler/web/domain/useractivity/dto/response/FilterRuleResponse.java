@@ -1,6 +1,6 @@
 package com.traveler.web.domain.useractivity.dto.response;
 
-import com.traveler.web.domain.useractivity.vo.FilterNode;
+import com.traveler.web.domain.useractivity.dto.FilterNode;
 import java.time.Instant;
 import java.util.List;
 

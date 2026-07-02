@@ -36,11 +36,11 @@ public class PostViewSyncScheduler {
 
             log.info("[ViewCount] {}개의 게시글 조회수가 DB에 동기화되었습니다.", viewCountMap.size());
 
-        } catch (Exception e) {
-            log.error("[ViewCount] 조회수 동기화 배치 실패", e);
-        } finally {
-            // 처리 완료 후 버퍼 정리
+            // 버퍼 정리
             postViewRepository.deleteProcessingBuffer();
+        } catch (Exception e) {
+            // 실패 시 PROCESSING_KEY를 보존하여 다음 주기에 재시도
+            log.error("[ViewCount] 조회수 동기화 배치 실패. 버퍼를 보존하고 다음 주기에 재시도합니다.", e);
         }
     }
 }

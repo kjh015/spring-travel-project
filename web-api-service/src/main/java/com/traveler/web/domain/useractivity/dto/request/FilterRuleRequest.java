@@ -1,6 +1,6 @@
 package com.traveler.web.domain.useractivity.dto.request;
 
-import com.traveler.web.domain.useractivity.vo.FilterNode;
+import com.traveler.web.domain.useractivity.dto.FilterNode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -15,10 +15,10 @@ public final class FilterRuleRequest {
     public record CreateDTO(
             @NotBlank(message = "필터 규칙 이름은 필수입니다.") String name,
             @NotEmpty(message = "최소 하나 이상의 조건 노드가 필요합니다.") @Valid List<FilterNode.Element> conditions,
-            @NotNull boolean isActive) {}
+            @NotNull Boolean isActive) {}
 
     public record UpdateDTO(
             @NotBlank(message = "필터 규칙 이름은 필수입니다.") String name,
             @NotEmpty(message = "최소 하나 이상의 조건 노드가 필요합니다.") @Valid List<FilterNode.Element> conditions,
-            @NotNull boolean isActive) {}
+            @NotNull Boolean isActive) {}
 }

@@ -1,6 +1,6 @@
 package com.traveler.web.domain.useractivity.dto.response;
 
-import com.traveler.web.domain.useractivity.vo.DedupSpec;
+import com.traveler.web.domain.useractivity.dto.DedupSpec;
 import java.time.Instant;
 import java.util.List;
 
