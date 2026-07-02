@@ -36,8 +36,7 @@ public class DedupRuleQueryService {
     public DedupRuleResponse.DetailDTO getDedupRule(Long dedupRuleId) {
         DedupRule dedupRule = dedupRuleRepository
                 .findById(dedupRuleId)
-                .orElseThrow(
-                        () -> new UserActivityServiceException(UserActivityServiceErrorCode.FILTER_RULE_NOT_FOUND));
+                .orElseThrow(() -> new UserActivityServiceException(UserActivityServiceErrorCode.DEDUP_RULE_NOT_FOUND));
 
         return dedupRuleMapper.toDetailDTO(dedupRule);
     }

@@ -13,6 +13,7 @@ public interface FilterRuleMapper {
 
     @Mapping(source = "dto.name", target = "name")
     @Mapping(source = "dto.isActive", target = "isActive")
+    @Mapping(source = "dto.conditions", target = "conditions")
     @Mapping(source = "logProcess", target = "logProcess")
     @Mapping(source = "expression", target = "expression")
     FilterRule toCreateEntity(FilterRuleRequest.CreateDTO dto, LogProcess logProcess, String expression);

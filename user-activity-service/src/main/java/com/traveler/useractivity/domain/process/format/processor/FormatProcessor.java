@@ -3,7 +3,7 @@ package com.traveler.useractivity.domain.process.format.processor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.useractivity.domain.process.core.code.ProcessFailCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
-import com.traveler.useractivity.domain.process.core.handler.KafkaAckHandler;
+import com.traveler.useractivity.domain.process.core.executor.KafkaPipelineExecutor;
 import com.traveler.useractivity.domain.process.core.message.FailInfo;
 import com.traveler.useractivity.domain.process.core.message.LogMetadata;
 import com.traveler.useractivity.domain.process.core.provider.LogProcessProvider;
@@ -18,7 +18,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.NestedExceptionUtils;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Header;
@@ -34,47 +33,35 @@ public class FormatProcessor {
     private final LogProcessProvider logProcessProvider;
     private final FormatRuleProvider formatRuleProvider;
     private final ProcessDispatcher processDispatcher;
-    private final KafkaAckHandler ackHandler;
+    private final KafkaPipelineExecutor kafkaPipelineExecutor;
     private final KafkaTopicProperties topics;
 
     @KafkaListener(topics = "${app.kafka.topics.format-stream}", groupId = "${app.kafka.groups.format}")
-    public void process(
+    public CompletableFuture<Void> process(
             @Payload String payload,
             @Header(value = "X-Log-Process-Id", required = false) Long logProcessId,
-            Acknowledgment ack)
-            throws Exception {
+            Acknowledgment ack) {
 
-        // 필수 헤더 값 검증 및 누락 시 DLT 처리를 위한 예외 발생
-        if (logProcessId == null) {
-            throw new IllegalArgumentException("Kafka Header 누락: X-Log-Process-Id. Payload: " + payload);
-        }
+        return kafkaPipelineExecutor.execute(ack, () -> {
+            if (logProcessId == null) {
+                throw new IllegalArgumentException(String.format(
+                        "Kafka Header 누락: X-Log-Process-Id (Payload Size: %d bytes)",
+                        payload != null ? payload.length() : 0));
+            }
 
-        // JSON 페이로드를 RawLog 객체로 역직렬화
-        RawLog rawLog = objectMapper.readValue(payload, RawLog.class);
+            RawLog rawLog = objectMapper.readValue(payload, RawLog.class);
+            LogMetadata metadata = createMetadata(logProcessId);
 
-        // 추적 및 식별을 위한 공통 메타데이터 생성
-        LogMetadata metadata = createMetadata(logProcessId);
+            List<ActiveFormatRule> activeFormatRules = formatRuleProvider.getActiveFormatRules(logProcessId);
+            Map<String, String> formattedLog = formatService.formatLog(rawLog, activeFormatRules);
 
-        // 활성화된 포맷 규칙 조회 및 로그 포맷팅 적용
-        List<ActiveFormatRule> activeFormatRules = formatRuleProvider.getActiveFormatRules(logProcessId);
-        Map<String, String> formattedLog = formatService.formatLog(rawLog, activeFormatRules);
-
-        CompletableFuture<?> dispatchFuture;
-
-        if (formattedLog == null || formattedLog.isEmpty()) {
-            FailInfo failInfo = createFailInfo();
-            Map<String, String> failData = Map.of("path", rawLog.path() != null ? rawLog.path() : "");
-            dispatchFuture = processDispatcher.dispatchFailure(topics.sinkStream(), metadata, failInfo, failData);
-        } else {
-            dispatchFuture = processDispatcher.dispatchSuccess(topics.filterStream(), metadata, formattedLog);
-        }
-
-        try {
-            dispatchFuture.join();
-            ack.acknowledge();
-        } catch (Exception e) {
-            throw (Exception) NestedExceptionUtils.getMostSpecificCause(e);
-        }
+            if (formattedLog == null || formattedLog.isEmpty()) {
+                FailInfo failInfo = createFailInfo();
+                Map<String, String> failData = Map.of("path", rawLog.path() != null ? rawLog.path() : "");
+                return processDispatcher.dispatchFailure(topics.sinkStream(), metadata, failInfo, failData);
+            }
+            return processDispatcher.dispatchSuccess(topics.filterStream(), metadata, formattedLog);
+        });
     }
 
     // 식별용 메타데이터 조립

@@ -59,6 +59,7 @@ public class KafkaConfig {
         if (ackMode != null) {
             factory.getContainerProperties().setAckMode(ackMode);
         }
+        factory.getContainerProperties().setAsyncAcks(true);
         return factory;
     }
 
@@ -70,7 +71,8 @@ public class KafkaConfig {
         // ListenerExecutionFailedException 제거
         handler.addNotRetryableExceptions(
                 com.fasterxml.jackson.core.JsonProcessingException.class,
-                org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException.class);
+                org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException.class,
+                IllegalArgumentException.class);
 
         handler.setRetryListeners(kafkaExceptionHandler::logRetry);
 

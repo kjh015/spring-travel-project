@@ -18,30 +18,17 @@ public class ProcessDispatcher {
     private final ObjectMapper objectMapper;
     private final KafkaProducer kafkaProducer;
 
-    public <T> CompletableFuture<Void> dispatchSuccess(String topic, LogMetadata metadata, T data) {
-        LogPayload<T> payload = LogPayload.success(metadata, data);
-        return send(topic, payload);
+    public <T> CompletableFuture<Void> dispatchSuccess(String topic, LogMetadata metadata, T data) throws Exception {
+        return send(topic, LogPayload.success(metadata, data));
     }
 
-    public <T> CompletableFuture<Void> dispatchFailure(String topic, LogMetadata metadata, FailInfo failInfo, T data) {
-
-        LogPayload<T> payload = LogPayload.failure(metadata, failInfo, data);
-        return send(topic, payload);
+    public <T> CompletableFuture<Void> dispatchFailure(String topic, LogMetadata metadata, FailInfo failInfo, T data)
+            throws Exception {
+        return send(topic, LogPayload.failure(metadata, failInfo, data));
     }
 
-    private CompletableFuture<Void> send(String topic, LogPayload<?> payload) {
-        try {
-            String jsonString = objectMapper.writeValueAsString(payload);
-            // KafkaProducer의 CompletableFuture를 반환받아 Void 타입으로 변환 후 전달
-            return kafkaProducer.send(topic, jsonString).thenApply(result -> null);
-        } catch (Exception e) {
-            log.error(
-                    "메시지 직렬화 실패: topic=[{}], traceId=[{}]",
-                    topic,
-                    payload.metadata().traceId(),
-                    e);
-            // 동기적 예외(JSON 직렬화 등) 발생 시 실패한 Future 반환
-            return CompletableFuture.failedFuture(e);
-        }
+    private CompletableFuture<Void> send(String topic, LogPayload<?> payload) throws Exception {
+        String jsonString = objectMapper.writeValueAsString(payload);
+        return kafkaProducer.send(topic, jsonString).thenAccept(result -> {});
     }
 }

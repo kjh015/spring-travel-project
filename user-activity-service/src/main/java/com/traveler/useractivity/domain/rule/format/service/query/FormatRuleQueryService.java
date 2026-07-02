@@ -51,7 +51,8 @@ public class FormatRuleQueryService {
             throw new UserActivityServiceException(UserActivityServiceErrorCode.LOG_PROCESS_NOT_FOUND);
         }
 
-        List<FormatRule> activeRules = formatRuleRepository.findAllByLogProcessIdAndIsActiveTrue(logProcessId);
+        List<FormatRule> activeRules =
+                formatRuleRepository.findAllByLogProcessIdAndIsActiveTrueOrderByIdAsc(logProcessId);
 
         Set<String> uniqueFields = new HashSet<>();
 

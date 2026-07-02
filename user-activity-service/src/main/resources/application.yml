@@ -54,7 +54,7 @@ spring:
   cloud:
     aws:
       s3:
-        bucket: my-bucket-tmp2
+        bucket: ${S3_BUCKET}
       region:
         static: ap-northeast-2
 

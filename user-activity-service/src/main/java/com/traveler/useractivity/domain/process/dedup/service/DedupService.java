@@ -5,9 +5,10 @@ import com.traveler.useractivity.domain.process.dedup.model.DedupResult;
 import com.traveler.useractivity.domain.process.dedup.repository.DedupHistoryRepository;
 import com.traveler.useractivity.domain.rule.dedup.enums.MatchType;
 import com.traveler.useractivity.domain.rule.dedup.vo.DedupSpec;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +84,7 @@ public class DedupService {
         boolean isSaved = dedupHistoryRepository.saveIfAbsent(rule.dedupRuleId(), dedupKey, ttlSeconds);
 
         if (!isSaved) {
-            log.debug("중복 로그 발견 (규칙명: {}, 키: {})", rule.name(), dedupKey);
+            log.debug("중복 로그 발견 (규칙명: {}, 키해시: {})", rule.name(), dedupKey);
             return true; // 중복됨
         }
         return false; // 중복 아님 (최초 진입으로 저장 성공)
@@ -94,8 +95,25 @@ public class DedupService {
      * 예: "action:click|user_id:user123"
      */
     private String generateDedupKey(List<DedupSpec.Condition> conditions, Map<String, String> logData) {
-        return conditions.stream()
-                .map(cond -> cond.field() + ":" + logData.get(cond.field()))
+        String canonical = conditions.stream()
+                .collect(Collectors.toMap(
+                        DedupSpec.Condition::field,
+                        cond -> logData.getOrDefault(cond.field(), ""),
+                        (left, right) -> left,
+                        TreeMap::new))
+                .entrySet()
+                .stream()
+                .map(entry -> entry.getKey() + ":" + entry.getValue())
                 .collect(Collectors.joining("|"));
+        return sha256(canonical);
+    }
+
+    private String sha256(String value) {
+        try {
+            return HexFormat.of()
+                    .formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 not available", e);
+        }
     }
 }

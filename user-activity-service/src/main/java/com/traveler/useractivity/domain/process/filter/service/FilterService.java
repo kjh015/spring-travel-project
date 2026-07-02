@@ -3,11 +3,15 @@ package com.traveler.useractivity.domain.process.filter.service;
 import com.traveler.useractivity.domain.process.filter.engine.SpelExpressionEvaluator;
 import com.traveler.useractivity.domain.process.filter.model.ActiveFilterRule;
 import com.traveler.useractivity.domain.rule.filter.repository.FilterRuleRepository;
+import com.traveler.useractivity.global.exception.UserActivityServiceException;
+import com.traveler.useractivity.global.exception.code.UserActivityServiceErrorCode;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.expression.EvaluationException;
+import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,12 +49,29 @@ public class FilterService {
         String expression = rule.expression();
 
         // SpEL 엔진으로 조건식 평가
-        boolean isPassed = SpelExpressionEvaluator.evaluate(expression, logData);
+        boolean isPassed = executeEvaluation(rule, logData);
 
         if (!isPassed) {
             log.debug("필터 조건 불일치로 로그가 Drop 되었습니다. (필터명: {}, 조건식: {})", rule.name(), expression);
         }
 
         return isPassed;
+    }
+
+    private boolean executeEvaluation(ActiveFilterRule rule, Map<String, String> logData) {
+        try {
+            return SpelExpressionEvaluator.evaluate(rule.expression(), logData);
+        } catch (ParseException e) {
+            log.error("[SpEL Syntax Error] 필터 규칙 문법 오류 발생. 규칙명: [{}], 조건식: [{}]", rule.name(), rule.expression(), e);
+            throw new UserActivityServiceException(UserActivityServiceErrorCode.INVALID_FILTER_RULE_SYNTAX, e);
+
+        } catch (EvaluationException e) {
+            log.warn(
+                    "[SpEL Evaluation Error] 로그 데이터 필드 불일치 발생. 규칙명: [{}], 조건식: [{}]",
+                    rule.name(),
+                    rule.expression(),
+                    e);
+            throw new UserActivityServiceException(UserActivityServiceErrorCode.LOG_DATA_MISMATCH, e);
+        }
     }
 }

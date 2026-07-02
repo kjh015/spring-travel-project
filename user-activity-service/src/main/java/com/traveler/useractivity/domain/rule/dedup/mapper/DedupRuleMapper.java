@@ -11,6 +11,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface DedupRuleMapper {
     @Mapping(source = "dto.name", target = "name")
+    @Mapping(source = "dto.rules", target = "rules")
     @Mapping(source = "dto.isActive", target = "isActive")
     @Mapping(source = "logProcess", target = "logProcess")
     DedupRule toCreateEntity(DedupRuleRequest.CreateDTO dto, LogProcess logProcess);

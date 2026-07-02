@@ -13,6 +13,8 @@ public final class SpelExpressionConverter {
     private static final String SPEL_PREFIX = "#";
     private static final String SPEL_EQUALS_FORMAT = "(%1$s%2$s != null && %1$s%2$s matches '(?i)%3$s')";
     private static final String SPEL_DEFAULT_FORMAT = "(%1$s%2$s != null && %1$s%2$s %3$s %4$s)";
+    // 필드명 스크립트 주입 방지를 위한 정규식 (영문 대소문자, 숫자, 언더바만 허용. 점(.)은 중첩 객체 접근 필요 시 허용)
+    private static final Pattern STRICT_FIELD_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
 
     private SpelExpressionConverter() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
@@ -29,7 +31,8 @@ public final class SpelExpressionConverter {
                 case FilterNode.Operator op -> spel.append(" ")
                         .append(op.value().getValue())
                         .append(" ");
-                case FilterNode.Paren paren -> spel.append("left-paren".equals(paren.type()) ? "(" : ")");
+                case FilterNode.LeftParen lp -> spel.append("(");
+                case FilterNode.RightParen rp -> spel.append(")");
                 default -> throw new UserActivityServiceException(
                         UserActivityServiceErrorCode.FILTER_UNSUPPORTED_NODE_TYPE);
             }
@@ -38,6 +41,10 @@ public final class SpelExpressionConverter {
     }
 
     private static void appendCondition(StringBuilder spel, FilterNode.Condition cond) {
+        if (!STRICT_FIELD_PATTERN.matcher(cond.field()).matches()) {
+            throw new UserActivityServiceException(UserActivityServiceErrorCode.FILTER_UNSUPPORTED_NODE_TYPE);
+        }
+
         String safeValue = escapeSpelString(cond.value());
 
         if (cond.operator() == ComparisonOperator.EQUALS) {
@@ -51,10 +58,21 @@ public final class SpelExpressionConverter {
     }
 
     private static String formatValue(ValueType valueType, String safeValue) {
-        if (valueType == ValueType.STRING) {
-            return "'%s'".formatted(safeValue);
-        }
-        return safeValue;
+        return switch (valueType) {
+            case STRING -> "'%s'".formatted(safeValue);
+            case INT -> {
+                yield String.valueOf(Integer.parseInt(safeValue));
+            }
+            case DOUBLE -> {
+                yield String.valueOf(Double.parseDouble(safeValue));
+            }
+            case BOOLEAN -> {
+                if (!"true".equalsIgnoreCase(safeValue) && !"false".equalsIgnoreCase(safeValue)) {
+                    throw new UserActivityServiceException(UserActivityServiceErrorCode.FILTER_UNSUPPORTED_NODE_TYPE);
+                }
+                yield safeValue.toLowerCase();
+            }
+        };
     }
 
     private static String escapeSpelString(String value) {

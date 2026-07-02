@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FormatRuleRepository extends JpaRepository<FormatRule, Long> {
     Page<FormatRule> findByLogProcessId(Long logProcessId, Pageable pageable);
 
-    List<FormatRule> findAllByLogProcessIdAndIsActiveTrue(Long logProcessId);
+    List<FormatRule> findAllByLogProcessIdAndIsActiveTrueOrderByIdAsc(Long logProcessId);
 }

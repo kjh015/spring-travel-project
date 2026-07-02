@@ -92,7 +92,7 @@ public class OutboxService {
         try {
             return objectMapper.writeValueAsString(payload);
         } catch (JsonProcessingException e) {
-            log.error("Outbox payload 직렬화 실패: {}", e.getMessage());
+            log.error("Outbox Payload 직렬화 실패: {}", payload, e);
             throw new PostServiceException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }

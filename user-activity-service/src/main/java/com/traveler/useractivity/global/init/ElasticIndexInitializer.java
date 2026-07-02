@@ -38,6 +38,7 @@ public class ElasticIndexInitializer {
             indexOps.putMapping(indexOps.createMapping());
         } catch (Exception e) {
             log.error("Elasticsearch 인덱스 초기화 실패: {}", name, e);
+            throw new IllegalStateException("Elasticsearch 인덱스 초기화 실패: " + name, e);
         }
     }
 }

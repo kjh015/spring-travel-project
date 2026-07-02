@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface DedupRuleRepository extends JpaRepository<DedupRule, Long> {
     Page<DedupRule> findByLogProcessId(Long logProcessId, Pageable pageable);
 
-    List<DedupRule> findAllByLogProcessIdAndIsActiveTrue(Long logProcessId);
+    List<DedupRule> findAllByLogProcessIdAndIsActiveTrueOrderByIdAsc(Long logProcessId);
 }

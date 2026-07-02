@@ -1,4 +1,4 @@
-package com.traveler.useractivity.domain.process.sink.dto.message;
+package com.traveler.useractivity.domain.process.sink.message;
 
 public final class SinkMessage {
 

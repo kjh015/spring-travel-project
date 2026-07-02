@@ -14,7 +14,7 @@ public class DedupRuleProvider {
 
     @Cacheable(cacheNames = "activeDedupRulesCache", key = "#logProcessId")
     public List<ActiveDedupRule> getActiveDedupRules(Long logProcessId) {
-        return dedupRuleRepository.findAllByLogProcessIdAndIsActiveTrue(logProcessId).stream()
+        return dedupRuleRepository.findAllByLogProcessIdAndIsActiveTrueOrderByIdAsc(logProcessId).stream()
                 .map(rule -> new ActiveDedupRule(rule.getId(), rule.getName(), rule.getRules()))
                 .toList();
     }

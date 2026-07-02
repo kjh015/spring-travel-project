@@ -25,9 +25,9 @@ public final class FilterNode {
         @JsonSubTypes.Type(value = Condition.class, name = "condition"),
         // "type" 필드의 값이 "operator"인 경우 Operator 클래스로 매핑하여 역직렬화
         @JsonSubTypes.Type(value = Operator.class, name = "operator"),
-        // "type" 필드의 값이 "left-paren" 또는 "right-paren"인 경우 Paren 클래스로 매핑하여 역직렬화
-        @JsonSubTypes.Type(value = Paren.class, name = "left-paren"),
-        @JsonSubTypes.Type(value = Paren.class, name = "right-paren")
+        // "type" 필드의 값이 "left-paren" 또는 "right-paren"인 경우 LeftParen, RightParen 클래스로 매핑하여 역직렬화
+        @JsonSubTypes.Type(value = LeftParen.class, name = "left-paren"),
+        @JsonSubTypes.Type(value = RightParen.class, name = "right-paren")
     })
     public interface Element {
         String type();
@@ -46,5 +46,7 @@ public final class FilterNode {
 
     public record Operator(String type, @NotNull Long groupId, @NotNull LogicalOperator value) implements Element {}
 
-    public record Paren(String type, @NotNull Long groupId) implements Element {}
+    public record LeftParen(String type, @NotNull Long groupId) implements Element {}
+
+    public record RightParen(String type, @NotNull Long groupId) implements Element {}
 }

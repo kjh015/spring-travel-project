@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FilterRuleRepository extends JpaRepository<FilterRule, Long> {
     Page<FilterRule> findByLogProcessId(Long logProcessId, Pageable pageable);
 
-    List<FilterRule> findAllByLogProcessIdAndIsActiveTrue(Long logProcessId);
+    List<FilterRule> findAllByLogProcessIdAndIsActiveTrueOrderByIdAsc(Long logProcessId);
 }

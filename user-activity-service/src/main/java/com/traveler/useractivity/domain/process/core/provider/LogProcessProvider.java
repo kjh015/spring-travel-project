@@ -2,6 +2,8 @@ package com.traveler.useractivity.domain.process.core.provider;
 
 import com.traveler.useractivity.domain.rule.process.entity.LogProcess;
 import com.traveler.useractivity.domain.rule.process.repository.LogProcessRepository;
+import com.traveler.useractivity.global.exception.UserActivityServiceException;
+import com.traveler.useractivity.global.exception.code.UserActivityServiceErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,7 @@ public class LogProcessProvider {
         return logProcessRepository
                 .findById(logProcessId)
                 .map(LogProcess::getName)
-                .orElse("Unknown Process");
+                .orElseThrow(
+                        () -> new UserActivityServiceException(UserActivityServiceErrorCode.LOG_PROCESS_NOT_FOUND));
     }
 }

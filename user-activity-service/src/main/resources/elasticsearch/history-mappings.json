@@ -22,12 +22,20 @@
         "stage": { "type": "keyword" },
         "fail_rule_id": { "type": "keyword" },
         "fail_rule_name": { "type": "keyword" },
-        "detail": { "type": "keyword" }
+        "detail": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        }
       }
     },
     "log_data": {
       "type": "object",
-      "dynamic": true
+      "enabled": false
     },
     "createdAt": {
       "type": "date",

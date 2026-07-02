@@ -19,7 +19,7 @@ public class FormatRuleProvider {
 
     @Cacheable(cacheNames = "activeFormatRulesCache", key = "#logProcessId")
     public List<ActiveFormatRule> getActiveFormatRules(Long logProcessId) {
-        return formatRuleRepository.findAllByLogProcessIdAndIsActiveTrue(logProcessId).stream()
+        return formatRuleRepository.findAllByLogProcessIdAndIsActiveTrueOrderByIdAsc(logProcessId).stream()
                 .map(rule -> new ActiveFormatRule(
                         rule.getId(),
                         convertNodeToMap(rule.getDefaultValues()),

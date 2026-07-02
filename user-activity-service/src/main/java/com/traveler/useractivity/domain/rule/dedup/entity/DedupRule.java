@@ -14,12 +14,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
 
 @SuperBuilder
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("is_deleted = false")
 @Table(
         name = "dedup_rule",
         indexes = {@Index(name = "idx_dedup_rule_deleted_at_status", columnList = "is_deleted, deleted_at")})
