@@ -5,7 +5,6 @@ import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.common.core.response.PageResponse;
 import com.traveler.web.domain.search.dto.response.CommentSearchResponse;
-import com.traveler.web.domain.search.dto.response.PostSearchResponse;
 import com.traveler.web.domain.search.facade.CommentSearchFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,7 +37,7 @@ public class CommentSearchController {
     @Operation(summary = "내가 쓴 댓글 조회", description = "현재 로그인한 사용자가 작성한 모든 댓글을 검색 엔진에서 조회합니다.")
     @RequireAuth
     @GetMapping("/me")
-    public ApiResponse<PageResponse<PostSearchResponse.ListDTO>> getMyComments(
+    public ApiResponse<PageResponse<CommentSearchResponse.ListDTO>> getMyComments(
             @ParameterObject @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
                     Pageable pageable) {
         return ApiResponse.onSuccess(SuccessCode.OK, commentSearchFacade.getMyComments(pageable));

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.traveler.useractivity.domain.rule.filter.enums.ComparisonOperator;
 import com.traveler.useractivity.domain.rule.filter.enums.LogicalOperator;
 import com.traveler.useractivity.domain.rule.filter.enums.ValueType;
+import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -29,14 +31,26 @@ public final class FilterNode {
         @JsonSubTypes.Type(value = LeftParen.class, name = "left-paren"),
         @JsonSubTypes.Type(value = RightParen.class, name = "right-paren")
     })
+    @Schema(
+            oneOf = {Condition.class, Operator.class, LeftParen.class, RightParen.class},
+            discriminatorProperty = "type",
+            discriminatorMapping = {
+                @DiscriminatorMapping(value = "condition", schema = Condition.class),
+                @DiscriminatorMapping(value = "operator", schema = Operator.class),
+                @DiscriminatorMapping(value = "left-paren", schema = LeftParen.class),
+                @DiscriminatorMapping(value = "right-paren", schema = RightParen.class)
+            })
     public interface Element {
+        @Schema(
+                description = "노드 타입 (반드시 소문자/케밥케이스)",
+                allowableValues = {"condition", "operator", "left-paren", "right-paren"})
         String type();
 
         Long groupId();
     }
 
     public record Condition(
-            String type,
+            @Schema(example = "condition") String type,
             @NotNull Long groupId,
             @NotBlank String field,
             @NotNull ComparisonOperator operator,
@@ -44,9 +58,11 @@ public final class FilterNode {
             @NotNull ValueType valueType)
             implements Element {}
 
-    public record Operator(String type, @NotNull Long groupId, @NotNull LogicalOperator value) implements Element {}
+    public record Operator(
+            @Schema(example = "operator") String type, @NotNull Long groupId, @NotNull LogicalOperator value)
+            implements Element {}
 
-    public record LeftParen(String type, @NotNull Long groupId) implements Element {}
+    public record LeftParen(@Schema(example = "left-paren") String type, @NotNull Long groupId) implements Element {}
 
-    public record RightParen(String type, @NotNull Long groupId) implements Element {}
+    public record RightParen(@Schema(example = "right-paren") String type, @NotNull Long groupId) implements Element {}
 }

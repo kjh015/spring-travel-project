@@ -118,7 +118,8 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
                 .withAggregation("top_tags", Aggregation.of(a -> a.terms(
                                 t -> t.field(field).size(topN))
                         .aggregations(
-                                "total_score", sub -> sub.sum(sum -> sum.field(PostDocument.Fields.POPULARITY_SCORE)))))
+                                "total_score",
+                                sub -> sub.sum(sum -> sum.field(PostDocument.Fields.POPULARITY_SCORE_VALUE)))))
                 .build();
 
         // 2. 실행

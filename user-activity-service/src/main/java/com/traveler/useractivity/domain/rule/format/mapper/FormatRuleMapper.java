@@ -10,6 +10,7 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface FormatRuleMapper {
+    @Mapping(target = "id", ignore = true)
     @Mapping(source = "dto.name", target = "name")
     @Mapping(source = "dto.isActive", target = "isActive")
     @Mapping(source = "logProcess", target = "logProcess")
@@ -25,8 +26,10 @@ public interface FormatRuleMapper {
     FormatRuleResponse.DeleteDTO toDeleteDTO(FormatRule formatRule);
 
     @Mapping(source = "id", target = "formatRuleId")
+    @Mapping(source = "active", target = "isActive")
     FormatRuleResponse.ListDTO toListDTO(FormatRule formatRule);
 
     @Mapping(source = "id", target = "formatRuleId")
+    @Mapping(source = "active", target = "isActive")
     FormatRuleResponse.DetailDTO toDetailDTO(FormatRule formatRule);
 }

@@ -10,6 +10,7 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface DedupRuleMapper {
+    @Mapping(target = "id", ignore = true)
     @Mapping(source = "dto.name", target = "name")
     @Mapping(source = "dto.rules", target = "rules")
     @Mapping(source = "dto.isActive", target = "isActive")
@@ -26,8 +27,10 @@ public interface DedupRuleMapper {
     DedupRuleResponse.DeleteDTO toDeleteDTO(DedupRule dedupRule);
 
     @Mapping(source = "id", target = "dedupRuleId")
+    @Mapping(source = "active", target = "isActive")
     DedupRuleResponse.ListDTO toListDTO(DedupRule dedupRule);
 
     @Mapping(source = "id", target = "dedupRuleId")
+    @Mapping(source = "active", target = "isActive")
     DedupRuleResponse.DetailDTO toDetailDTO(DedupRule dedupRule);
 }

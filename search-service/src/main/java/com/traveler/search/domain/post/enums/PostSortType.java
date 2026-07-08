@@ -8,7 +8,7 @@ import org.springframework.data.domain.Sort;
 @RequiredArgsConstructor
 public enum PostSortType {
     ACCURACY(null),
-    POPULAR("popularityScore"),
+    POPULAR("popularityScoreValue"),
     LATEST("createdAt"),
     STAR_AVG("starAvg"),
     VIEW_COUNT("viewCount");

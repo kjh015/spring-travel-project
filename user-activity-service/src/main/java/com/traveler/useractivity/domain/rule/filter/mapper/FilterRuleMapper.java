@@ -11,6 +11,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface FilterRuleMapper {
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(source = "dto.name", target = "name")
     @Mapping(source = "dto.isActive", target = "isActive")
     @Mapping(source = "dto.conditions", target = "conditions")
@@ -28,8 +29,10 @@ public interface FilterRuleMapper {
     FilterRuleResponse.DeleteDTO toDeleteDTO(FilterRule filterRule);
 
     @Mapping(source = "id", target = "filterRuleId")
+    @Mapping(source = "active", target = "isActive")
     FilterRuleResponse.ListDTO toListDTO(FilterRule filterRule);
 
     @Mapping(source = "id", target = "filterRuleId")
+    @Mapping(source = "active", target = "isActive")
     FilterRuleResponse.DetailDTO toDetailDTO(FilterRule filterRule);
 }

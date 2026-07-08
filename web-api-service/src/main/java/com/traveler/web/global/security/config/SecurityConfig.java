@@ -3,10 +3,7 @@ package com.traveler.web.global.security.config;
 import com.traveler.web.global.security.oauth2.CookieAuthorizationRequestRepository;
 import com.traveler.web.global.security.oauth2.OAuth2AuthenticationFailureHandler;
 import com.traveler.web.global.security.oauth2.OAuth2AuthenticationSuccessHandler;
-import java.util.Arrays;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,13 +11,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(SecurityProperties.class)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -28,13 +21,12 @@ public class SecurityConfig {
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
-    private final SecurityProperties securityProperties;
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 정책 추가
+                // CORS는 api-gateway(globalcors)에서 일괄 처리 — 여기서 중복 설정하지 않음
+                .cors(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -48,24 +40,5 @@ public class SecurityConfig {
                         );
 
         return http.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(securityProperties.allowedOrigins());
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*"));
-
-        // 토큰(쿠키)을 브라우저에 저장하고 주고받기 위해 true로 설정
-        configuration.setAllowCredentials(true);
-
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
-        configuration.setMaxAge(3600L); // Preflight 요청 캐싱 시간
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }

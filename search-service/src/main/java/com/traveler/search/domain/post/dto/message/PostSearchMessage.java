@@ -42,5 +42,11 @@ public final class PostSearchMessage {
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public record StatUpdateDoc(
-            Long postId, Double starAvg, Long commentCount, Long likeCount, Long viewCount, Double popularityScore) {}
+            Long postId,
+            Double starAvg,
+            Long commentCount,
+            Long likeCount,
+            Long viewCount,
+            Double popularityScore,
+            Double popularityScoreValue) {}
 }
