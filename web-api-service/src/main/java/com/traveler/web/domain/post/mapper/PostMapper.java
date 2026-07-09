@@ -1,8 +1,10 @@
 package com.traveler.web.domain.post.mapper;
 
 import com.traveler.web.domain.post.client.dto.request.PostClientRequest;
+import com.traveler.web.domain.post.client.dto.response.AdminPostClientResponse;
 import com.traveler.web.domain.post.client.dto.response.PostClientResponse;
 import com.traveler.web.domain.post.dto.request.PostRequest;
+import com.traveler.web.domain.post.dto.response.AdminPostResponse;
 import com.traveler.web.domain.post.dto.response.PostResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -20,4 +22,16 @@ public interface PostMapper {
     PostResponse.DeleteDTO toDeleteResponse(PostClientResponse.DeleteDTO result);
 
     PostResponse.PresignedUrlDTO toPresignedUrlResponse(PostClientResponse.PresignedUrlDTO result);
+
+    // Admin
+    AdminPostResponse.ListDTO toAdminListResponse(AdminPostClientResponse.ListDTO clientResponse);
+
+    AdminPostResponse.DetailDTO toAdminDetailResponse(AdminPostClientResponse.DetailDTO clientResponse);
+
+    AdminPostResponse.DeleteDTO toAdminDeleteResponse(AdminPostClientResponse.DeleteDTO clientResponse);
+
+    AdminPostResponse.RestoreDTO toAdminRestoreResponse(AdminPostClientResponse.RestoreDTO clientResponse);
+
+    AdminPostResponse.PermanentDeleteDTO toAdminPermanentDeleteResponse(
+            AdminPostClientResponse.PermanentDeleteDTO clientResponse);
 }
