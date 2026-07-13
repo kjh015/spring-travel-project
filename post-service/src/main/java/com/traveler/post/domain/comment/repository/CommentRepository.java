@@ -36,6 +36,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             nativeQuery = true)
     Page<Comment> findAllForAdmin(@Param("postId") Long postId, @Param("deleted") Boolean deleted, Pageable pageable);
 
-    @Query(value = "SELECT * FROM comment c WHERE c.id = :commentId", nativeQuery = true)
-    Optional<Comment> findByIdForAdmin(@Param("commentId") Long commentId);
+    @Query(value = "SELECT * FROM comment c WHERE c.id = :commentId FOR UPDATE", nativeQuery = true)
+    Optional<Comment> findByIdForAdminWithLock(@Param("commentId") Long commentId);
 }

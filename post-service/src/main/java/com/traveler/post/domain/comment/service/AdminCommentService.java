@@ -40,7 +40,7 @@ public class AdminCommentService {
 
     public AdminCommentResponse.DeleteDTO deleteComment(Long commentId) {
         Comment comment = commentRepository
-                .findByIdForAdmin(commentId)
+                .findByIdForAdminWithLock(commentId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.COMMENT_NOT_FOUND));
 
         if (comment.isDeleted()) {
@@ -66,7 +66,7 @@ public class AdminCommentService {
 
     public AdminCommentResponse.RestoreDTO restoreComment(Long commentId) {
         Comment comment = commentRepository
-                .findByIdForAdmin(commentId)
+                .findByIdForAdminWithLock(commentId)
                 .orElseThrow(() -> new PostServiceException(PostServiceErrorCode.COMMENT_NOT_FOUND));
 
         if (!comment.isDeleted()) {
