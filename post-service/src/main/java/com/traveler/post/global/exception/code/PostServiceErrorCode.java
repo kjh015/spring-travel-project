@@ -12,11 +12,14 @@ public enum PostServiceErrorCode implements BaseErrorCode {
     POST_NOT_FOUND(404, "POST404_1", "요청한 게시물을 찾을 수 없습니다."),
     POST_IMAGE_DUPLICATE(400, "POST400_2", "중복된 이미지 URL이 포함되어 있습니다."),
     POST_ALREADY_DELETED(400, "POST400_3", "이미 삭제된 게시물입니다."),
+    POST_NOT_DELETED(400, "POST400_4", "삭제되지 않은 게시물입니다."),
 
     // Domain - Comment
     COMMENT_BAD_REQUEST(400, "COMMENT400_1", "잘못된 입력 값입니다."),
     COMMENT_NOT_FOUND(404, "COMMENT404_1", "요청한 댓글을 찾을 수 없습니다."),
     COMMENT_ALREADY_DELETED(400, "COMMENT400_2", "이미 삭제된 댓글입니다."),
+    COMMENT_NOT_DELETED(400, "COMMENT400_3", "삭제되지 않은 댓글입니다."),
+    COMMENT_PARENT_POST_DELETED(400, "COMMENT400_4", "삭제된 게시물의 댓글은 복구할 수 없습니다."),
 
     // Infra - Kafka
     TOPIC_NOT_CONFIGURED(500, "EVENT500_1", "해당 이벤트 타입에 대한 Kafka 토픽 설정이 누락되었습니다."),

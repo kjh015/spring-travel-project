@@ -49,8 +49,9 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
             buildMustClause(b, dto.keyword());
             buildFilterClause(b, dto.category(), dto.region());
             if (dto.sort() == PostSortType.ACCURACY) {
-                b.should(s -> s.rankFeature(rf ->
-                        rf.field(PostSortType.POPULAR.getField()).boost(2.0f).saturation(sa -> sa)));
+                b.should(s -> s.rankFeature(rf -> rf.field(PostDocument.Fields.POPULARITY_SCORE)
+                        .boost(2.0f)
+                        .saturation(sa -> sa)));
             }
             return b;
         }));
@@ -118,7 +119,8 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
                 .withAggregation("top_tags", Aggregation.of(a -> a.terms(
                                 t -> t.field(field).size(topN))
                         .aggregations(
-                                "total_score", sub -> sub.sum(sum -> sum.field(PostDocument.Fields.POPULARITY_SCORE)))))
+                                "total_score",
+                                sub -> sub.sum(sum -> sum.field(PostDocument.Fields.POPULARITY_SCORE_VALUE)))))
                 .build();
 
         // 2. 실행

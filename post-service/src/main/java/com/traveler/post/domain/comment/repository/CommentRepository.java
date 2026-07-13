@@ -3,6 +3,8 @@ package com.traveler.post.domain.comment.repository;
 import com.traveler.post.domain.comment.entity.Comment;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +21,21 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM Comment c WHERE c.id IN :commentIds")
     void hardDeleteCommentsByIds(@Param("commentIds") List<Long> commentIds);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM Comment c WHERE c.post.id = :postId")
+    void hardDeleteCommentsByPostId(@Param("postId") Long postId);
+
+    // Admin - @SQLRestriction 우회를 위해 삭제된 댓글도 포함하여 조회하는 네이티브 쿼리
+    @Query(
+            value = "SELECT * FROM comment c WHERE (:postId IS NULL OR c.post_id = :postId) "
+                    + "AND (:deleted IS NULL OR c.is_deleted = :deleted) "
+                    + "ORDER BY c.created_at DESC",
+            countQuery = "SELECT COUNT(*) FROM comment c WHERE (:postId IS NULL OR c.post_id = :postId) "
+                    + "AND (:deleted IS NULL OR c.is_deleted = :deleted)",
+            nativeQuery = true)
+    Page<Comment> findAllForAdmin(@Param("postId") Long postId, @Param("deleted") Boolean deleted, Pageable pageable);
+
+    @Query(value = "SELECT * FROM comment c WHERE c.id = :commentId FOR UPDATE", nativeQuery = true)
+    Optional<Comment> findByIdForAdminWithLock(@Param("commentId") Long commentId);
 }

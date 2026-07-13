@@ -26,7 +26,8 @@ public class RankingService {
     }
 
     public List<RankingResponse.PostRank> getTopPosts(int topN) {
-        Pageable pageable = PageRequest.of(0, topN, Sort.by(Sort.Direction.DESC, PostDocument.Fields.POPULARITY_SCORE));
+        Pageable pageable =
+                PageRequest.of(0, topN, Sort.by(Sort.Direction.DESC, PostDocument.Fields.POPULARITY_SCORE_VALUE));
         return postDocumentRepository.findAll(pageable).stream()
                 .map(rankingMapper::toPostRank)
                 .toList();

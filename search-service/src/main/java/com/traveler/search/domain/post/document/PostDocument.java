@@ -28,6 +28,7 @@ public class PostDocument extends BaseDocument {
         public static final String CATEGORY = "category";
         public static final String REGION = "region";
         public static final String POPULARITY_SCORE = "popularityScore";
+        public static final String POPULARITY_SCORE_VALUE = "popularityScoreValue";
         public static final String IMAGES = "images";
     }
 
@@ -78,6 +79,12 @@ public class PostDocument extends BaseDocument {
 
     @Field(type = FieldType.Rank_Feature)
     private Long popularityScore;
+
+    // popularityScore(rank_feature)는 relevance boost 전용이라 정렬/집계를 지원하지 않으므로,
+    // 정렬·집계용으로 동일한 값을 별도의 숫자 필드에 복제해서 저장한다.
+    @Field(type = FieldType.Double)
+    @Builder.Default
+    private Double popularityScoreValue = 0.0;
 
     @Field(type = FieldType.Nested)
     private List<PostImage> images;

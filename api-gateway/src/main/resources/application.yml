@@ -26,6 +26,13 @@ spring:
             - Path=/api/v1/members
             - Method=POST
 
+        - id: web-api-service-search-me
+          uri: lb://web-api-service
+          predicates:
+            - Path=/api/v1/search/*/me
+          filters:
+            - name: JwtAuthenticationFilter
+
         - id: web-api-service-guest
           uri: lb://web-api-service
           predicates:
@@ -36,7 +43,7 @@ spring:
         - id: web-api-service-user
           uri: lb://web-api-service
           predicates:
-            - Path=/api/v1/posts/**, /api/v1/comments/**, /api/v1/likes/**, /api/v1/search/*/me, /api/v1/members/**, /api/v1/auth/**
+            - Path=/api/v1/posts/**, /api/v1/comments/**, /api/v1/likes/**, /api/v1/members/**, /api/v1/auth/**
           filters:
             - name: JwtAuthenticationFilter
 

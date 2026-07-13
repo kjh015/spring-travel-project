@@ -53,6 +53,14 @@ public class Comment extends BaseEntity {
         this.deletedAt = Instant.now();
     }
 
+    public void restore() {
+        if (!this.isDeleted) {
+            throw new PostServiceException(PostServiceErrorCode.COMMENT_NOT_DELETED);
+        }
+        this.isDeleted = false;
+        this.deletedAt = null;
+    }
+
     private void validateNotDeleted() {
         if (this.isDeleted) {
             throw new PostServiceException(PostServiceErrorCode.COMMENT_ALREADY_DELETED);

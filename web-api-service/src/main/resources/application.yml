@@ -69,8 +69,6 @@ eureka:
 app:
   jwt:
     refresh-expiration: ${JWT_REFRESH_EXPIRATION:1209600000} # 14일
-  security:
-    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
   frontend:
     redirect-uri: ${FRONTEND_REDIRECT_URI}
   cookie:

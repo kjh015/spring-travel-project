@@ -87,6 +87,14 @@ public class Post extends BaseEntity {
         this.deletedAt = Instant.now();
     }
 
+    public void restore() {
+        if (!this.isDeleted) {
+            throw new PostServiceException(PostServiceErrorCode.POST_NOT_DELETED);
+        }
+        this.isDeleted = false;
+        this.deletedAt = null;
+    }
+
     public List<String> setImages(List<String> newUrls) {
         if (newUrls == null) return Collections.emptyList();
         // List를 Set으로 변환하여 탐색 속도 개선
