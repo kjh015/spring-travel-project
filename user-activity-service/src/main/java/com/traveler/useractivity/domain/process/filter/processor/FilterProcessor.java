@@ -40,14 +40,20 @@ public class FilterProcessor {
             LogPayload<Map<String, String>> logPayload = objectMapper.readValue(payload, new TypeReference<>() {});
             LogMetadata metadata = logPayload.metadata();
             Map<String, String> logData = logPayload.data();
+            log.info("[Filter] 로그 수신 (traceId: {}, 프로세스명: {})", metadata.traceId(), metadata.logProcessName());
 
             List<ActiveFilterRule> activeFilterRules = filterRuleProvider.getActiveFilterRules(metadata.logProcessId());
             Optional<ActiveFilterRule> failedRuleOpt = filterService.findFirstFailedRule(logData, activeFilterRules);
 
             if (failedRuleOpt.isPresent()) {
+                log.warn(
+                        "[Filter] 필터 조건 불일치 - Sink로 전달 (traceId: {}, 규칙명: {})",
+                        metadata.traceId(),
+                        failedRuleOpt.get().name());
                 FailInfo failInfo = createFailInfo(failedRuleOpt.get());
                 return processDispatcher.dispatchFailure(topics.sinkStream(), metadata, failInfo, logData);
             }
+            log.info("[Filter] 필터 통과 - Dedup으로 전달 (traceId: {})", metadata.traceId());
             return processDispatcher.dispatchSuccess(topics.dedupStream(), metadata, logData);
         });
     }

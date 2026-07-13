@@ -85,9 +85,11 @@ public class Member extends BaseEntity {
         }
     }
 
-    public void update(String nickname) {
+    public void update(String nickname, Gender gender, LocalDate birthDate) {
         validateNotDeleted();
         this.nickname = nickname;
+        this.gender = gender;
+        this.birthDate = birthDate;
     }
 
     public void updatePassword(String password) {

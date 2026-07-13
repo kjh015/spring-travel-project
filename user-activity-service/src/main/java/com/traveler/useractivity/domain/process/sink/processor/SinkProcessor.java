@@ -3,6 +3,7 @@ package com.traveler.useractivity.domain.process.sink.processor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.useractivity.domain.process.core.executor.KafkaPipelineExecutor;
+import com.traveler.useractivity.domain.process.core.message.LogMetadata;
 import com.traveler.useractivity.domain.process.core.message.LogPayload;
 import com.traveler.useractivity.domain.process.sink.service.SinkService;
 import java.util.Map;
@@ -27,6 +28,16 @@ public class SinkProcessor {
     public CompletableFuture<Void> process(@Payload String payload, Acknowledgment ack) {
         return pipelineExecutor.execute(ack, () -> {
             LogPayload<Map<String, String>> logPayload = objectMapper.readValue(payload, new TypeReference<>() {});
+            LogMetadata metadata = logPayload.metadata();
+            if (logPayload.failInfo() != null) {
+                log.info(
+                        "[Sink] 실패 로그 수신 (traceId: {}, 프로세스명: {}, 실패코드: {})",
+                        metadata.traceId(),
+                        metadata.logProcessName(),
+                        logPayload.failInfo().code());
+            } else {
+                log.info("[Sink] 정상 로그 수신 (traceId: {}, 프로세스명: {})", metadata.traceId(), metadata.logProcessName());
+            }
             return sinkService.sinkLog(logPayload);
         });
     }

@@ -73,7 +73,7 @@ public class MemberCommandService {
             throw new MemberServiceException(MemberServiceErrorCode.MEMBER_EXISTS_NICKNAME);
         }
 
-        member.update(dto.nickname());
+        member.update(dto.nickname(), dto.gender(), dto.birthDate());
         return memberMapper.toUpdateDTO(member);
     }
 

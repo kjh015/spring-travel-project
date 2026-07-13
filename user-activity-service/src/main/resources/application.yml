@@ -99,6 +99,6 @@ app:
       sink: "user-activity-sink-group"
   elasticsearch:
     indices:
-      history: "histories"
+      history: "histories_1"
 
 

@@ -43,14 +43,20 @@ public class DedupProcessor {
             LogPayload<Map<String, String>> logPayload = objectMapper.readValue(payload, new TypeReference<>() {});
             LogMetadata metadata = logPayload.metadata();
             Map<String, String> logData = logPayload.data();
+            log.info("[Dedup] 로그 수신 (traceId: {}, 프로세스명: {})", metadata.traceId(), metadata.logProcessName());
 
             List<ActiveDedupRule> activeDedupRules = dedupRuleProvider.getActiveDedupRules(metadata.logProcessId());
             Optional<DedupResult> dedupResultOpt = dedupService.findFirstDuplicatedRule(logData, activeDedupRules);
 
             if (dedupResultOpt.isPresent()) {
+                log.warn(
+                        "[Dedup] 중복 로그 감지 - Sink로 전달 (traceId: {}, 규칙명: {})",
+                        metadata.traceId(),
+                        dedupResultOpt.get().rule().name());
                 FailInfo failInfo = createFailInfo(dedupResultOpt.get(), logData);
                 return processDispatcher.dispatchFailure(topics.sinkStream(), metadata, failInfo, logData);
             }
+            log.info("[Dedup] 중복 검사 통과 - Sink로 전달 (traceId: {})", metadata.traceId());
             return processDispatcher.dispatchSuccess(topics.sinkStream(), metadata, logData);
         });
     }

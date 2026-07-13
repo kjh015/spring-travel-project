@@ -12,6 +12,7 @@ import com.traveler.useractivity.domain.process.format.model.ActiveFormatRule;
 import com.traveler.useractivity.domain.process.format.provider.FormatRuleProvider;
 import com.traveler.useractivity.domain.process.format.service.FormatService;
 import com.traveler.useractivity.global.kafka.KafkaTopicProperties;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,8 +40,13 @@ public class FormatProcessor {
     @KafkaListener(topics = "${app.kafka.topics.format-stream}", groupId = "${app.kafka.groups.format}")
     public CompletableFuture<Void> process(
             @Payload String payload,
-            @Header(value = "X-Log-Process-Id", required = false) Long logProcessId,
+            @Header(value = "X-Log-Process-Id", required = false) byte[] logProcessIdHeader,
             Acknowledgment ack) {
+
+        // fluentd는 헤더를 순수 문자열 바이트로 보내므로(타입 메타데이터 없음) 직접 파싱해야 함
+        Long logProcessId = logProcessIdHeader == null
+                ? null
+                : Long.parseLong(new String(logProcessIdHeader, StandardCharsets.UTF_8).trim());
 
         return kafkaPipelineExecutor.execute(ack, () -> {
             if (logProcessId == null) {
@@ -51,15 +57,22 @@ public class FormatProcessor {
 
             RawLog rawLog = objectMapper.readValue(payload, RawLog.class);
             LogMetadata metadata = createMetadata(logProcessId);
+            log.info(
+                    "[Format] 로그 수신 (traceId: {}, logProcessId: {}, 프로세스명: {})",
+                    metadata.traceId(),
+                    logProcessId,
+                    metadata.logProcessName());
 
             List<ActiveFormatRule> activeFormatRules = formatRuleProvider.getActiveFormatRules(logProcessId);
             Map<String, String> formattedLog = formatService.formatLog(rawLog, activeFormatRules);
 
             if (formattedLog == null || formattedLog.isEmpty()) {
+                log.warn("[Format] 포맷팅 실패 - Sink로 전달 (traceId: {}, path: {})", metadata.traceId(), rawLog.path());
                 FailInfo failInfo = createFailInfo();
                 Map<String, String> failData = Map.of("path", rawLog.path() != null ? rawLog.path() : "");
                 return processDispatcher.dispatchFailure(topics.sinkStream(), metadata, failInfo, failData);
             }
+            log.info("[Format] 포맷팅 성공 - Filter로 전달 (traceId: {})", metadata.traceId());
             return processDispatcher.dispatchSuccess(topics.filterStream(), metadata, formattedLog);
         });
     }
