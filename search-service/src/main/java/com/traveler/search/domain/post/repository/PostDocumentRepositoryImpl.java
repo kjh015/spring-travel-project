@@ -49,8 +49,9 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
             buildMustClause(b, dto.keyword());
             buildFilterClause(b, dto.category(), dto.region());
             if (dto.sort() == PostSortType.ACCURACY) {
-                b.should(s -> s.rankFeature(rf ->
-                        rf.field(PostSortType.POPULAR.getField()).boost(2.0f).saturation(sa -> sa)));
+                b.should(s -> s.rankFeature(rf -> rf.field(PostDocument.Fields.POPULARITY_SCORE)
+                        .boost(2.0f)
+                        .saturation(sa -> sa)));
             }
             return b;
         }));

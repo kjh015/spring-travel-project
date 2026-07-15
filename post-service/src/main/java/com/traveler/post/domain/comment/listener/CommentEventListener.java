@@ -28,4 +28,9 @@ public class CommentEventListener {
     public void handleDeletedEvent(CommentEvent.Deleted event) {
         commentOutboxPublisher.publishDeleted(event.commentMsg());
     }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void handleAdminDeletedEvent(CommentEvent.AdminDeleted event) {
+        commentOutboxPublisher.publishDeleted(event.commentMsg());
+    }
 }
