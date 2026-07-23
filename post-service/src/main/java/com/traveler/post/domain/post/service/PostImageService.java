@@ -2,8 +2,8 @@ package com.traveler.post.domain.post.service;
 
 import com.traveler.post.domain.post.dto.response.PostImageResponse;
 import com.traveler.post.domain.post.mapper.PostImageMapper;
-import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
+import com.traveler.post.global.exception.code.PostServiceErrorCode;
 import com.traveler.post.global.s3.S3Service;
 import java.util.Map;
 import java.util.Set;

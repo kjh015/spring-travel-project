@@ -21,4 +21,6 @@ public final class PostEvent {
     public interface StatUpdate {
         PostMessage.UpdateStatDTO postMsg();
     }
+
+    public record StatUpdated(PostMessage.UpdateStatDTO postMsg) implements StatUpdate {}
 }

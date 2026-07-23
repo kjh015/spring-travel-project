@@ -5,7 +5,9 @@ import com.traveler.search.domain.ranking.service.RankingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
+@Component
 @RequiredArgsConstructor
 public class RankingScheduler {
     private final RankingService rankingService;

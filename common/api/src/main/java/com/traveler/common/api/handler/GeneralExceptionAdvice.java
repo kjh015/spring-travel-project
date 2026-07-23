@@ -79,6 +79,17 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     protected ResponseEntity<ApiResponse<List<ErrorResponse>>> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException ex) {
+        // @JsonCreator 등 역직렬화 도중 발생한 비즈니스 예외(GeneralException 계열)는
+        // Jackson/Spring이 HttpMessageNotReadableException으로 감싸더라도
+        // 원래 의도한 에러 코드를 그대로 살려서 응답한다.
+        GeneralException businessException = findCause(ex, GeneralException.class);
+        if (businessException != null) {
+            log.warn(
+                    "[Deserialization Business Exception] Code: {}, Message: {}",
+                    businessException.getCode(),
+                    businessException.getMessage());
+            return createErrorResponse(businessException.getCode(), null);
+        }
         if (ex.getCause() instanceof InvalidFormatException ife) {
             List<ErrorResponse> errors = exceptionConverter.from(ife);
             String field = errors.isEmpty() ? "unknown" : errors.getFirst().field();
@@ -140,5 +151,16 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
                 ex.getMessage(),
                 ex);
         return createErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, null);
+    }
+
+    private static <T extends Throwable> T findCause(Throwable throwable, Class<T> type) {
+        Throwable cause = throwable;
+        while (cause != null) {
+            if (type.isInstance(cause)) {
+                return type.cast(cause);
+            }
+            cause = cause.getCause();
+        }
+        return null;
     }
 }

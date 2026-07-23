@@ -7,7 +7,7 @@ import com.traveler.common.core.code.SuccessCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.post.domain.like.dto.request.LikeRequest;
 import com.traveler.post.domain.like.service.LikeService;
-import com.traveler.post.global.code.PostServiceErrorCode;
+import com.traveler.post.global.exception.code.PostServiceErrorCode;
 import com.traveler.post.global.swagger.ApiErrorCodeExamples;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

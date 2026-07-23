@@ -41,7 +41,10 @@ public final class MemberRequest {
             @Schema(description = "변경할 닉네임", example = "새로운트래블러")
                     @NotBlank(message = "닉네임은 필수입니다.")
                     @Size(min = 2, max = 30, message = "닉네임은 2자 이상 30자 이하로 입력해주세요.")
-                    String nickname) {}
+                    String nickname,
+            @Schema(description = "성별", example = "MALE") Gender gender,
+            @Schema(description = "생년월일", example = "1995-05-05") @Past(message = "생년월일은 과거 날짜만 가능합니다.")
+                    LocalDate birthDate) {}
 
     @Schema(description = "비밀번호 변경 요청 DTO")
     public record UpdatePasswordDTO(

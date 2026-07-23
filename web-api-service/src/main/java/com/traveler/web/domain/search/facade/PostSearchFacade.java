@@ -25,7 +25,14 @@ public class PostSearchFacade {
 
     public PageResponse<PostSearchResponse.ListDTO> search(PostSearchRequest.SearchDTO dto) {
         PageResponse<PostSearchClientResponse.SearchDTO> result = postSearchClient
-                .search(postSearchMapper.toSearchClientRequest(dto))
+                .search(
+                        dto.keyword(),
+                        dto.category(),
+                        dto.region(),
+                        dto.sort(),
+                        dto.direction(),
+                        dto.page(),
+                        dto.size())
                 .result();
 
         Set<Long> memberIds = result.content().stream()

@@ -2,7 +2,7 @@ package com.traveler.search.global.swagger;
 
 import com.traveler.common.api.swagger.annotation.SwaggerErrorResponse;
 import com.traveler.common.core.code.ErrorCode;
-import com.traveler.search.global.code.SearchServiceErrorCode;
+import com.traveler.search.global.exception.code.SearchServiceErrorCode;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -45,4 +45,6 @@ public final class PostMessage {
     }
 
     public record UpdateStatDTO(Long postId, Double starAvg, Long commentCount, Long likeCount, Long viewCount) {}
+
+    public record PostViewedDTO(Long postId, String traceId) {}
 }

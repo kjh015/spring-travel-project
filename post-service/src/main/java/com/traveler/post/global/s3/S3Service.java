@@ -1,7 +1,7 @@
 package com.traveler.post.global.s3;
 
-import com.traveler.post.global.code.PostServiceErrorCode;
 import com.traveler.post.global.exception.PostServiceException;
+import com.traveler.post.global.exception.code.PostServiceErrorCode;
 import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -90,7 +90,7 @@ public class S3Service {
                 .bucket(bucket)
                 .key(key)
                 .contentType(contentType)
-                .contentLength(MAX_FILE_SIZE)
+                //                .contentLength(MAX_FILE_SIZE)
                 .build();
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()

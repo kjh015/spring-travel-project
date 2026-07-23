@@ -18,4 +18,7 @@ public final class CommentEvent {
 
     public record Deleted(CommentMessage.DeletedDTO commentMsg, PostMessage.UpdateStatDTO postMsg)
             implements PostEvent.StatUpdate {}
+
+    // 부모 게시물이 이미 삭제되어 통계 갱신 없이 댓글 삭제 메시지만 발행하는 어드민 전용 이벤트
+    public record AdminDeleted(CommentMessage.DeletedDTO commentMsg) {}
 }

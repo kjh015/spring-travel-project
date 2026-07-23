@@ -17,9 +17,11 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Post Search", description = "게시글 조회 API")
+@Validated
 @RestController
 @RequestMapping("/api/v1/search/posts")
 @RequiredArgsConstructor

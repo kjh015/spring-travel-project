@@ -1,0 +1,104 @@
+server:
+  port: 8083
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: "user-activity-service"
+
+  config:
+    import: optional:file:user-activity-service/.env[.properties]
+
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS}
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      group-id: user-activity-default-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    listener:
+      concurrency: 3
+      ack-mode: manual_immediate
+
+  cloud:
+    aws:
+      s3:
+        bucket: ${S3_BUCKET}
+      region:
+        static: ap-northeast-2
+
+
+swagger:
+  info:
+    paths-to-match:
+      - "/v1/admin/log-processes/**"
+      - "/v1/admin/format-rules/**"
+      - "/v1/admin/filter-rules/**"
+      - "/v1/admin/dedup-rules/**"
+      - "/v1/admin/histories/**"
+
+springdoc:
+  api-docs:
+    path: /v1/user-activity/v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVERS}/eureka
+
+app:
+  kafka:
+    topics:
+      format-stream: "user-activity-service.process.format.stream"
+      filter-stream: "user-activity-service.process.filter.stream"
+      dedup-stream: "user-activity-service.process.dedup.stream"
+      sink-stream: "user-activity-service.process.sink.stream"
+      view-events: "user-activity-service.post.events.viewed"
+    groups:
+      format: "user-activity-format-group"
+      filter: "user-activity-filter-group"
+      dedup: "user-activity-dedup-group"
+      sink: "user-activity-sink-group"
+  elasticsearch:
+    indices:
+      history: "histories_1"
+
+

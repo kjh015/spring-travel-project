@@ -6,6 +6,7 @@ include("post-service")
 include("search-service")
 include("web-api-service")
 include("member-service")
+include("user-activity-service")
 include("discovery-service")
 include("api-gateway")
 

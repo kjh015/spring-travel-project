@@ -20,7 +20,11 @@ public class SearchServiceExceptionAdvice implements BaseExceptionAdvice {
     /** Search Service에서 발생하는 커스텀 비즈니스 예외 처리 */
     @ExceptionHandler(SearchServiceException.class)
     protected ResponseEntity<ApiResponse<Void>> handleGeneralException(SearchServiceException ex) {
-        log.warn("[Search Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
+        if (ex.getCause() != null) {
+            log.error("[Search Service System Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage(), ex);
+        } else {
+            log.warn("[Search Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
+        }
         return createErrorResponse(ex.getCode(), null);
     }
 }

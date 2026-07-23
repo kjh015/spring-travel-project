@@ -74,4 +74,7 @@ public interface PostMapper {
 
     @Mapping(source = "id", target = "postId")
     PostMessage.UpdateStatDTO toUpdateStatusDTO(Post post);
+
+    @Mapping(target = "postMsg", source = "post")
+    PostEvent.StatUpdated toStatUpdatedEvent(Post post);
 }

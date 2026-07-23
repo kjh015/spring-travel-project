@@ -6,6 +6,7 @@ import jakarta.persistence.QueryHint;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.*;
@@ -34,4 +35,22 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
     @Query("select p from Post p where p.id = :id")
     Optional<Post> findByIdWithLock(@Param("id") Long id);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Post p SET p.viewCount = p.viewCount + :increment WHERE p.id = :postId")
+    void incrementViewCount(@Param("postId") Long postId, @Param("increment") Long increment);
+
+    // Admin - @SQLRestriction 우회를 위해 삭제된 게시글도 포함하여 조회하는 네이티브 쿼리
+    @Query(
+            value = "SELECT * FROM post p WHERE (:deleted IS NULL OR p.is_deleted = :deleted) "
+                    + "ORDER BY p.created_at DESC",
+            countQuery = "SELECT COUNT(*) FROM post p WHERE (:deleted IS NULL OR p.is_deleted = :deleted)",
+            nativeQuery = true)
+    Page<Post> findAllForAdmin(@Param("deleted") Boolean deleted, Pageable pageable);
+
+    @Query(value = "SELECT * FROM post p WHERE p.id = :postId", nativeQuery = true)
+    Optional<Post> findByIdForAdmin(@Param("postId") Long postId);
+
+    @Query(value = "SELECT * FROM post p WHERE p.id = :postId FOR UPDATE", nativeQuery = true)
+    Optional<Post> findByIdForAdminWithLock(@Param("postId") Long postId);
 }

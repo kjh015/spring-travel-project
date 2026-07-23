@@ -11,7 +11,7 @@ public final class MemberClientRequest {
     public record SignUpDTO(
             String loginId, String password, String email, String nickname, Gender gender, LocalDate birthDate) {}
 
-    public record UpdateDTO(String nickname) {}
+    public record UpdateDTO(String nickname, Gender gender, LocalDate birthDate) {}
 
     public record UpdatePasswordDTO(String curPassword, String newPassword) {}
 }

@@ -5,7 +5,6 @@ import com.traveler.web.domain.member.adaptor.MemberClientAdaptor;
 import com.traveler.web.domain.search.client.CommentSearchClient;
 import com.traveler.web.domain.search.client.dto.response.CommentSearchClientResponse;
 import com.traveler.web.domain.search.dto.response.CommentSearchResponse;
-import com.traveler.web.domain.search.dto.response.PostSearchResponse;
 import com.traveler.web.domain.search.mapper.CommentSearchMapper;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +37,7 @@ public class CommentSearchFacade {
         });
     }
 
-    public PageResponse<PostSearchResponse.ListDTO> getMyComments(Pageable pageable) {
+    public PageResponse<CommentSearchResponse.ListDTO> getMyComments(Pageable pageable) {
         PageResponse<CommentSearchClientResponse.MyDTO> result =
                 commentSearchClient.getMyComments(pageable).result();
 

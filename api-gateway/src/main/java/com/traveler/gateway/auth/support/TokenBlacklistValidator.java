@@ -1,8 +1,8 @@
 package com.traveler.gateway.auth.support;
 
 import com.traveler.common.core.auth.AuthConstants;
-import com.traveler.gateway.exception.ApiGatewayErrorCode;
 import com.traveler.gateway.exception.ApiGatewayNoStackException;
+import com.traveler.gateway.exception.code.ApiGatewayErrorCode;
 import com.traveler.gateway.util.TokenHashUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;

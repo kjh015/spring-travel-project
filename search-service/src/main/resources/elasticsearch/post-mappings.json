@@ -32,6 +32,7 @@
     "likeCount": { "type": "long" },
     "commentCount": { "type": "long" },
     "popularityScore": {"type": "rank_feature"},
+    "popularityScoreValue": {"type": "double"},
     "images": {
       "type": "nested",
       "properties": {
