@@ -16,7 +16,7 @@ public final class HistoryClientResponse {
             boolean success,
             String failStage,
             String failRuleName,
-            Instant createdAt) {}
+            Instant timestamp) {}
 
     public record DetailDTO(String historyId, Map<String, Object> logData) {}
 }

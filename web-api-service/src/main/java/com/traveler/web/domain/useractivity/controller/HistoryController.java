@@ -31,7 +31,7 @@ public class HistoryController {
     public ApiResponse<PageResponse<HistoryResponse.ListDTO>> getHistories(
             @Parameter(description = "처리 상태") @RequestParam(required = false) HistoryStatus status,
             @Parameter(description = "실패 단계") @RequestParam(required = false) FailStage stage,
-            @ParameterObject @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            @ParameterObject @PageableDefault(size = 10, sort = "timestamp", direction = Sort.Direction.DESC)
                     Pageable pageable) {
         return ApiResponse.onSuccess(SuccessCode.OK, historyFacade.getHistories(status, stage, pageable));
     }
