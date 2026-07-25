@@ -1,5 +1,41 @@
 {
   "dynamic": "strict",
+  "date_detection": false,
+  "dynamic_templates": [
+    {
+      "strings_as_keyword": {
+        "match_mapping_type": "string",
+        "mapping": {
+          "type": "keyword",
+          "ignore_above": 256
+        }
+      }
+    },
+    {
+      "integers_as_long": {
+        "match_mapping_type": "long",
+        "mapping": {
+          "type": "long"
+        }
+      }
+    },
+    {
+      "decimals_as_double": {
+        "match_mapping_type": "double",
+        "mapping": {
+          "type": "double"
+        }
+      }
+    },
+    {
+      "booleans_as_boolean": {
+        "match_mapping_type": "boolean",
+        "mapping": {
+          "type": "boolean"
+        }
+      }
+    }
+  ],
   "properties": {
     "@timestamp": {
       "type": "date"
@@ -38,7 +74,7 @@
     },
     "log_data": {
       "type": "object",
-      "enabled": false
+      "dynamic": true
     },
     "createdAt": {
       "type": "date",

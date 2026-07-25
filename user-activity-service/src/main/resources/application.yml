@@ -107,6 +107,7 @@ app:
       sink: "user-activity-sink-group"
   elasticsearch:
     indices:
-      history: "histories_1"
+      # v2: log_data 하위 필드를 dynamic_templates로 색인 (Kibana 대시보드 집계용)
+      history: "histories_2"
 
 
