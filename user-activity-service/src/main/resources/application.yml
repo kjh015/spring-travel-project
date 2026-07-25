@@ -59,6 +59,14 @@ spring:
         static: ap-northeast-2
 
 
+logging:
+  pattern:
+    # PID/앱이름을 걷어내고, 반복되는 식별자는 MDC 컬럼(trace/event/ref)으로 분리
+    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5p) %clr(%-8.8X{trace:-}){faint} %clr(%-22.22X{event:-}){magenta} %clr(%-18.18X{ref:-}){cyan} %clr(%-16.16logger{0}){faint} %clr(:){faint} %m%n%wEx"
+  level:
+    # 파이프라인 단계별 상세(수신 로그, 원본 path 등)가 필요하면 DEBUG로 변경
+    com.traveler.useractivity.domain.process: INFO
+
 swagger:
   info:
     paths-to-match:

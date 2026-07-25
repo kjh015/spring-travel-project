@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.useractivity.domain.process.core.code.ProcessFailCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
 import com.traveler.useractivity.domain.process.core.executor.KafkaPipelineExecutor;
+import com.traveler.useractivity.domain.process.core.logging.ProcessLogContext;
 import com.traveler.useractivity.domain.process.core.message.FailInfo;
 import com.traveler.useractivity.domain.process.core.message.LogMetadata;
 import com.traveler.useractivity.domain.process.core.message.LogPayload;
@@ -40,20 +41,18 @@ public class FilterProcessor {
             LogPayload<Map<String, String>> logPayload = objectMapper.readValue(payload, new TypeReference<>() {});
             LogMetadata metadata = logPayload.metadata();
             Map<String, String> logData = logPayload.data();
-            log.info("[Filter] 로그 수신 (traceId: {}, 프로세스명: {})", metadata.traceId(), metadata.logProcessName());
+            ProcessLogContext.put(metadata, logData);
+            log.debug("수신 {}", logData);
 
             List<ActiveFilterRule> activeFilterRules = filterRuleProvider.getActiveFilterRules(metadata.logProcessId());
             Optional<ActiveFilterRule> failedRuleOpt = filterService.findFirstFailedRule(logData, activeFilterRules);
 
             if (failedRuleOpt.isPresent()) {
-                log.warn(
-                        "[Filter] 필터 조건 불일치 - Sink로 전달 (traceId: {}, 규칙명: {})",
-                        metadata.traceId(),
-                        failedRuleOpt.get().name());
+                log.warn("조건 불일치 -> Sink (규칙: {})", failedRuleOpt.get().name());
                 FailInfo failInfo = createFailInfo(failedRuleOpt.get());
                 return processDispatcher.dispatchFailure(topics.sinkStream(), metadata, failInfo, logData);
             }
-            log.info("[Filter] 필터 통과 - Dedup으로 전달 (traceId: {})", metadata.traceId());
+            log.info("필터 통과 -> Dedup");
             return processDispatcher.dispatchSuccess(topics.dedupStream(), metadata, logData);
         });
     }

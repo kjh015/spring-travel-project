@@ -1,5 +1,6 @@
 package com.traveler.useractivity.domain.process.core.executor;
 
+import com.traveler.useractivity.domain.process.core.logging.ProcessLogContext;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NestedExceptionUtils;
@@ -22,6 +23,9 @@ public class KafkaPipelineExecutor {
                             CompletableFuture.failedFuture((Exception) NestedExceptionUtils.getMostSpecificCause(ex)));
         } catch (Exception e) {
             return CompletableFuture.failedFuture((Exception) NestedExceptionUtils.getMostSpecificCause(e));
+        } finally {
+            // 리스너 스레드는 재사용되므로 MDC 식별자가 다음 메시지로 새지 않도록 정리
+            ProcessLogContext.clear();
         }
     }
 }

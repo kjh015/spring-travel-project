@@ -26,6 +26,7 @@ repositories {
 
 ext {
     set('springCloudVersion', "2024.0.1")
+    set('elasticsearch.version', "8.15.5")  // ES 서버(docker)와 버전 일치
 }
 
 dependencies {
@@ -57,7 +58,7 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    // ElasticSearch:8.12
+    // ElasticSearch (클라이언트 8.15.5 = 서버 버전과 일치)
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
     // Cache

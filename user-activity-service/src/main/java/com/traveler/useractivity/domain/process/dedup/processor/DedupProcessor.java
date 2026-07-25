@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.useractivity.domain.process.core.code.ProcessFailCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
 import com.traveler.useractivity.domain.process.core.executor.KafkaPipelineExecutor;
+import com.traveler.useractivity.domain.process.core.logging.ProcessLogContext;
 import com.traveler.useractivity.domain.process.core.message.FailInfo;
 import com.traveler.useractivity.domain.process.core.message.LogMetadata;
 import com.traveler.useractivity.domain.process.core.message.LogPayload;
@@ -43,20 +44,18 @@ public class DedupProcessor {
             LogPayload<Map<String, String>> logPayload = objectMapper.readValue(payload, new TypeReference<>() {});
             LogMetadata metadata = logPayload.metadata();
             Map<String, String> logData = logPayload.data();
-            log.info("[Dedup] 로그 수신 (traceId: {}, 프로세스명: {})", metadata.traceId(), metadata.logProcessName());
+            ProcessLogContext.put(metadata, logData);
+            log.debug("수신 {}", logData);
 
             List<ActiveDedupRule> activeDedupRules = dedupRuleProvider.getActiveDedupRules(metadata.logProcessId());
             Optional<DedupResult> dedupResultOpt = dedupService.findFirstDuplicatedRule(logData, activeDedupRules);
 
             if (dedupResultOpt.isPresent()) {
-                log.warn(
-                        "[Dedup] 중복 로그 감지 - Sink로 전달 (traceId: {}, 규칙명: {})",
-                        metadata.traceId(),
-                        dedupResultOpt.get().rule().name());
+                log.warn("중복 감지 -> Sink (규칙: {})", dedupResultOpt.get().rule().name());
                 FailInfo failInfo = createFailInfo(dedupResultOpt.get(), logData);
                 return processDispatcher.dispatchFailure(topics.sinkStream(), metadata, failInfo, logData);
             }
-            log.info("[Dedup] 중복 검사 통과 - Sink로 전달 (traceId: {})", metadata.traceId());
+            log.info("중복 없음 -> Sink");
             return processDispatcher.dispatchSuccess(topics.sinkStream(), metadata, logData);
         });
     }
