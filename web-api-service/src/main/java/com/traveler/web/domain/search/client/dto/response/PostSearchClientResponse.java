@@ -21,7 +21,7 @@ public final class PostSearchClientResponse {
             Long viewCount,
             Long likeCount,
             Long commentCount,
-            Long popularityScore,
+            Double popularityScore,
             Instant updatedAt) {}
 
     public record DetailDTO(
@@ -52,6 +52,6 @@ public final class PostSearchClientResponse {
             Long viewCount,
             Long likeCount,
             Long commentCount,
-            Long popularityScore,
+            Double popularityScore,
             Instant updatedAt) {}
 }

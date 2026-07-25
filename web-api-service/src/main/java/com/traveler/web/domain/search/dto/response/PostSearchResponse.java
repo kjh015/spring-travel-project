@@ -27,7 +27,7 @@ public final class PostSearchResponse {
             @Schema(description = "조회수", example = "1250") Long viewCount,
             @Schema(description = "좋아요 수", example = "45") Long likeCount,
             @Schema(description = "댓글 수", example = "12") Long commentCount,
-            @Schema(description = "인기 점수", example = "10.1") Long popularityScore,
+            @Schema(description = "인기 점수", example = "10.1") Double popularityScore,
             @Schema(description = "최종 수정 일시", example = "2026-04-27T19:39:46") Instant updatedAt) {}
 
     @Schema(description = "게시글 상세 정보")

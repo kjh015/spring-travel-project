@@ -137,7 +137,8 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
                 .buckets()
                 .array()
                 .stream()
-                .map(bucket -> RankingResult.of(bucket.key().stringValue(), (long)
+                .map(bucket -> RankingResult.of(
+                        bucket.key().stringValue(),
                         bucket.aggregations().get("total_score").sum().value()))
                 .toList();
     }

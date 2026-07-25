@@ -9,8 +9,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface PostDocumentRepositoryCustom {
 
-    record RankingResult(String name, Long score) {
-        public static RankingResult of(String name, Long score) {
+    record RankingResult(String name, Double score) {
+        public static RankingResult of(String name, Double score) {
             return new RankingResult(name, score);
         }
     }
