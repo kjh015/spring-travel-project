@@ -25,6 +25,7 @@ public class PostViewConsumer {
     @KafkaListener(topics = "${app.kafka.topics.view-events}", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeViewCount(@Payload String payload, Acknowledgment ack) {
         PostMessage.PostViewedDTO dto = objectMapper.readValue(payload, PostMessage.PostViewedDTO.class);
+        log.info("조회수 증가 메시지 수신 traceId: {}", dto.traceId());
 
         // 멱등성 체크와 조회수 증가
         boolean isFirst = postViewRepository.incrementViewCountIfFirst(dto.traceId(), dto.postId(), IDEMPOTENCY_TTL);
@@ -32,6 +33,8 @@ public class PostViewConsumer {
         if (!isFirst) {
             log.debug("중복된 조회수 이벤트로 무시되었습니다. traceId: {}", dto.traceId());
         }
+
+        log.info("조회수 증가 메시지 Redis 추가 완료 traceId: {}", dto.traceId());
 
         // 수동 커밋
         ack.acknowledge();
