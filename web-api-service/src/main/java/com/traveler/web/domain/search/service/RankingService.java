@@ -77,14 +77,7 @@ public class RankingService {
     @Scheduled(fixedRate = 15000)
     public void sendHeartbeat() {
         for (SseEmitter emitter : emitters) {
-            sseExecutor.execute(() -> {
-                try {
-                    emitter.send(SseEmitter.event().comment("heartbeat"));
-                } catch (IOException e) {
-                    emitters.remove(emitter);
-                    emitter.complete();
-                }
-            });
+            sseExecutor.execute(() -> send(emitter, SseEmitter.event().comment("heartbeat")));
         }
     }
 
@@ -115,12 +108,21 @@ public class RankingService {
     }
 
     private void sendToClient(SseEmitter emitter, String name, Object data) {
+        send(emitter, SseEmitter.event().name(name).data(data));
+    }
+
+    private void send(SseEmitter emitter, SseEmitter.SseEventBuilder event) {
         try {
-            emitter.send(SseEmitter.event().name(name).data(data));
-        } catch (IOException e) {
-            log.warn("Failed to send SSE, removing emitter.");
+            emitter.send(event);
+        } catch (Exception e) {
+            // 클라이언트가 이미 끊긴 경우(새로고침/탭 종료)는 정상 흐름이므로 debug로만 남긴다.
+            log.debug("Client disconnected, removing emitter: {}", e.getMessage());
             emitters.remove(emitter);
-            emitter.complete();
+            try {
+                emitter.complete();
+            } catch (Exception ignored) {
+                // 이미 닫힌 커넥션이면 무시
+            }
         }
     }
 }
