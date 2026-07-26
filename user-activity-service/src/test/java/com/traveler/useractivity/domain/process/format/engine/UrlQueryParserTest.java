@@ -47,4 +47,20 @@ class UrlQueryParserTest {
 
         assertThat(result).containsEntry("keyword", "hot place");
     }
+
+    @Test
+    @DisplayName("동일한 키가 중복되면 첫 번째 값을 유지한다")
+    void keepsFirstValueForDuplicateKey() {
+        Map<String, String> result = parser.extractQueryParams("/search?keyword=first&keyword=second");
+
+        assertThat(result).containsEntry("keyword", "first");
+    }
+
+    @Test
+    @DisplayName("잘못된 인코딩 항목이 있어도 나머지 파라미터는 파싱한다")
+    void skipsOnlyInvalidPair() {
+        Map<String, String> result = parser.extractQueryParams("/search?keyword=%ZZ&page=2");
+
+        assertThat(result).doesNotContainKey("keyword").containsEntry("page", "2");
+    }
 }

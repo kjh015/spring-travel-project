@@ -22,14 +22,14 @@ public class UrlQueryParser {
             return queryParams;
         }
 
-        try {
-            String queryString = url.substring(url.indexOf('?') + 1);
-            String[] pairs = queryString.split("&");
+        String queryString = url.substring(url.indexOf('?') + 1);
+        String[] pairs = queryString.split("&");
 
-            for (String pair : pairs) {
-                // "&&" 처럼 비어있는 엣지 케이스 무시
-                if (pair.isEmpty()) continue;
+        for (String pair : pairs) {
+            // "&&" 처럼 비어있는 엣지 케이스 무시
+            if (pair.isEmpty()) continue;
 
+            try {
                 int idx = pair.indexOf('=');
 
                 String key;
@@ -45,10 +45,12 @@ public class UrlQueryParser {
                     value = "";
                 }
 
-                queryParams.put(key, value);
+                // 동일 키가 여러 번 오면 첫 번째 값을 유지한다 (기존 파서 동작과 동일)
+                queryParams.putIfAbsent(key, value);
+            } catch (IllegalArgumentException e) {
+                // 잘못된 인코딩 항목 하나 때문에 나머지 파라미터 파싱을 중단하지 않는다
+                log.warn("URL 쿼리 파라미터 디코딩 실패로 해당 항목 무시. pair: {}, 원인: {}", pair, e.getMessage());
             }
-        } catch (Exception e) {
-            log.warn("URL 쿼리 파라미터 파싱 중 오류 발생. URL: {}", url, e);
         }
 
         return queryParams;

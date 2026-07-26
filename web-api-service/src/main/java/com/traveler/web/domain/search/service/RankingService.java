@@ -114,15 +114,15 @@ public class RankingService {
     private void send(SseEmitter emitter, SseEmitter.SseEventBuilder event) {
         try {
             emitter.send(event);
-        } catch (Exception e) {
-            // 클라이언트가 이미 끊긴 경우(새로고침/탭 종료)는 정상 흐름이므로 debug로만 남긴다.
+        } catch (IOException e) {
+            // 연결이 이미 끊긴 경우(새로고침/탭 종료)는 정상 흐름이므로 debug로만 남긴다.
+            // IOException 이후의 complete()/completeWithError() 호출은 컨테이너의 async 오류 처리와 중복되므로 호출하지 않는다.
             log.debug("Client disconnected, removing emitter: {}", e.getMessage());
             emitters.remove(emitter);
-            try {
-                emitter.complete();
-            } catch (Exception ignored) {
-                // 이미 닫힌 커넥션이면 무시
-            }
+        } catch (IllegalStateException e) {
+            // 직렬화 실패 등 예상치 못한 오류는 숨기지 않고 error로 남긴다.
+            log.error("Unexpected SSE send failure", e);
+            emitters.remove(emitter);
         }
     }
 }

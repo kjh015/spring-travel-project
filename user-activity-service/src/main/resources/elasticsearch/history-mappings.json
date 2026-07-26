@@ -74,7 +74,15 @@
     },
     "log_data": {
       "type": "object",
-      "dynamic": true
+      "dynamic": true,
+      "properties": {
+        "staySeconds": { "type": "long", "ignore_malformed": true },
+        "resultCount": { "type": "integer", "ignore_malformed": true },
+        "rank": { "type": "integer", "ignore_malformed": true },
+        "position": { "type": "integer", "ignore_malformed": true },
+        "star": { "type": "integer", "ignore_malformed": true },
+        "isLoggedIn": { "type": "boolean" }
+      }
     },
     "createdAt": {
       "type": "date",

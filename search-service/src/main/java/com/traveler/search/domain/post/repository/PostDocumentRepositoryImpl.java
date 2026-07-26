@@ -1,9 +1,11 @@
 package com.traveler.search.domain.post.repository;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
+import co.elastic.clients.util.NamedValue;
 import com.traveler.search.domain.post.document.PostDocument;
 import com.traveler.search.domain.post.dto.message.PostSearchMessage;
 import com.traveler.search.domain.post.dto.request.PostSearchRequest;
@@ -39,6 +41,8 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
     private static final int BOOST_TITLE = 5;
     private static final int BOOST_TITLE_NGRAM = 3;
     private static final int BOOST_TITLE_CHOSUNG = 2;
+    private static final String TOP_TAGS_AGG = "top_tags";
+    private static final String TOTAL_SCORE_AGG = "total_score";
 
     @Override
     public Page<PostDocument> search(PostSearchRequest.SearchDTO dto, Pageable pageable) {
@@ -116,10 +120,12 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
         // 1. NativeQueryBuilder를 사용하여 집계 쿼리 생성
         NativeQuery query = NativeQuery.builder()
                 .withMaxResults(0) // 실제 문서는 필요 없음 (size: 0)
-                .withAggregation("top_tags", Aggregation.of(a -> a.terms(
-                                t -> t.field(field).size(topN))
+                .withAggregation(TOP_TAGS_AGG, Aggregation.of(a -> a.terms(t -> t.field(field)
+                                .size(topN)
+                                .order(List.of(NamedValue.of(TOTAL_SCORE_AGG, SortOrder.Desc)))
+                                .shardSize(topN * 10))
                         .aggregations(
-                                "total_score",
+                                TOTAL_SCORE_AGG,
                                 sub -> sub.sum(sum -> sum.field(PostDocument.Fields.POPULARITY_SCORE_VALUE)))))
                 .build();
 
@@ -130,7 +136,7 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
         ElasticsearchAggregations aggregations = (ElasticsearchAggregations) searchHits.getAggregations();
         if (aggregations == null) return List.of();
 
-        return Objects.requireNonNull(aggregations.get("top_tags"))
+        return Objects.requireNonNull(aggregations.get(TOP_TAGS_AGG))
                 .aggregation()
                 .getAggregate()
                 .sterms() // String Terms 집계
@@ -139,7 +145,7 @@ public class PostDocumentRepositoryImpl implements PostDocumentRepositoryCustom 
                 .stream()
                 .map(bucket -> RankingResult.of(
                         bucket.key().stringValue(),
-                        bucket.aggregations().get("total_score").sum().value()))
+                        bucket.aggregations().get(TOTAL_SCORE_AGG).sum().value()))
                 .toList();
     }
 

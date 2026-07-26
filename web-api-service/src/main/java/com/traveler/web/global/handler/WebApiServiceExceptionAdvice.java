@@ -42,7 +42,7 @@ public class WebApiServiceExceptionAdvice implements BaseExceptionAdvice {
     @ExceptionHandler(IOException.class)
     protected ResponseEntity<ApiResponse<Void>> handleIOException(
             IOException ex, HttpServletRequest request, HttpServletResponse response) {
-        if (response.isCommitted() || request.isAsyncStarted()) {
+        if (response.isCommitted()) {
             log.debug("[Client Disconnected] URI: {}, Message: {}", request.getRequestURI(), ex.getMessage());
             return null;
         }
