@@ -2,6 +2,14 @@
   "index": {
     "number_of_shards": 3,
     "number_of_replicas": 1,
-    "refresh_interval": "5s"
+    "refresh_interval": "5s",
+    "mapping": {
+      "total_fields": {
+        "limit": 200
+      },
+      "depth": {
+        "limit": 5
+      }
+    }
   }
 }

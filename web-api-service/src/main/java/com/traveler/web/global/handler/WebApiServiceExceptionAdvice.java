@@ -1,8 +1,12 @@
 package com.traveler.web.global.handler;
 
 import com.traveler.common.api.handler.BaseExceptionAdvice;
+import com.traveler.common.core.code.ErrorCode;
 import com.traveler.common.core.response.ApiResponse;
 import com.traveler.web.global.exception.WebApiServiceException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -26,5 +30,23 @@ public class WebApiServiceExceptionAdvice implements BaseExceptionAdvice {
             log.warn("[WebApi Service Business Exception] Code: {}, Message: {}", ex.getCode(), ex.getMessage());
         }
         return createErrorResponse(ex.getCode(), null);
+    }
+
+    /**
+     * [Client Disconnect] 클라이언트가 먼저 연결을 끊었을 때 소켓 write/flush에서 발생하는 IOException.
+     *
+     * <p>SSE(/rankings/live)는 응답이 이미 커밋된 상태라 어떤 본문도 쓸 수 없다. 이때 전역 핸들러가 ApiResponse(JSON)를 쓰려 하면
+     * "No converter with preset Content-Type 'text/event-stream'"으로 실패하면서 스택트레이스가 여러 번 찍히므로, null을 반환해 요청을
+     * 처리 완료로 표시하고 로그만 남긴다. 아직 커밋되지 않은 요청의 IOException은 진짜 장애이므로 500으로 응답한다.
+     */
+    @ExceptionHandler(IOException.class)
+    protected ResponseEntity<ApiResponse<Void>> handleIOException(
+            IOException ex, HttpServletRequest request, HttpServletResponse response) {
+        if (response.isCommitted()) {
+            log.debug("[Client Disconnected] URI: {}, Message: {}", request.getRequestURI(), ex.getMessage());
+            return null;
+        }
+        log.error("[IO Exception] Method: {}, URI: {}", request.getMethod(), request.getRequestURI(), ex);
+        return createErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, null);
     }
 }

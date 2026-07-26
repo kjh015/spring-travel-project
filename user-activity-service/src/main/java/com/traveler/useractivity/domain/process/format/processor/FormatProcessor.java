@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.traveler.useractivity.domain.process.core.code.ProcessFailCode;
 import com.traveler.useractivity.domain.process.core.dispatcher.ProcessDispatcher;
 import com.traveler.useractivity.domain.process.core.executor.KafkaPipelineExecutor;
+import com.traveler.useractivity.domain.process.core.logging.ProcessLogContext;
 import com.traveler.useractivity.domain.process.core.message.FailInfo;
 import com.traveler.useractivity.domain.process.core.message.LogMetadata;
 import com.traveler.useractivity.domain.process.core.provider.LogProcessProvider;
@@ -57,22 +58,21 @@ public class FormatProcessor {
 
             RawLog rawLog = objectMapper.readValue(payload, RawLog.class);
             LogMetadata metadata = createMetadata(logProcessId);
-            log.info(
-                    "[Format] 로그 수신 (traceId: {}, logProcessId: {}, 프로세스명: {})",
-                    metadata.traceId(),
-                    logProcessId,
-                    metadata.logProcessName());
+            ProcessLogContext.put(metadata);
+            log.debug("수신 (logProcessId: {}, path: {})", logProcessId, rawLog.path());
 
             List<ActiveFormatRule> activeFormatRules = formatRuleProvider.getActiveFormatRules(logProcessId);
             Map<String, String> formattedLog = formatService.formatLog(rawLog, activeFormatRules);
 
             if (formattedLog == null || formattedLog.isEmpty()) {
-                log.warn("[Format] 포맷팅 실패 - Sink로 전달 (traceId: {}, path: {})", metadata.traceId(), rawLog.path());
+                log.warn("포맷 실패 -> Sink (path: {})", rawLog.path());
                 FailInfo failInfo = createFailInfo();
                 Map<String, String> failData = Map.of("path", rawLog.path() != null ? rawLog.path() : "");
                 return processDispatcher.dispatchFailure(topics.sinkStream(), metadata, failInfo, failData);
             }
-            log.info("[Format] 포맷팅 성공 - Filter로 전달 (traceId: {})", metadata.traceId());
+            // 여기서부터 event가 확정되므로 로그 컨텍스트를 갱신
+            ProcessLogContext.put(metadata, formattedLog);
+            log.info("포맷 성공 -> Filter");
             return processDispatcher.dispatchSuccess(topics.filterStream(), metadata, formattedLog);
         });
     }

@@ -17,7 +17,7 @@ public interface RankingMapper {
             List<RankingResponse.RegionRank> regions);
 
     @Mapping(source = "id", target = "postId")
-    @Mapping(source = "popularityScore", target = "score")
+    @Mapping(source = "popularityScoreValue", target = "score")
     @Mapping(
             target = "thumbnail",
             expression = "java(post.getImages().isEmpty() ? null : post.getImages().get(0).getImageKey())")

@@ -77,14 +77,7 @@ public class RankingService {
     @Scheduled(fixedRate = 15000)
     public void sendHeartbeat() {
         for (SseEmitter emitter : emitters) {
-            sseExecutor.execute(() -> {
-                try {
-                    emitter.send(SseEmitter.event().comment("heartbeat"));
-                } catch (IOException e) {
-                    emitters.remove(emitter);
-                    emitter.complete();
-                }
-            });
+            sseExecutor.execute(() -> send(emitter, SseEmitter.event().comment("heartbeat")));
         }
     }
 
@@ -115,12 +108,21 @@ public class RankingService {
     }
 
     private void sendToClient(SseEmitter emitter, String name, Object data) {
+        send(emitter, SseEmitter.event().name(name).data(data));
+    }
+
+    private void send(SseEmitter emitter, SseEmitter.SseEventBuilder event) {
         try {
-            emitter.send(SseEmitter.event().name(name).data(data));
+            emitter.send(event);
         } catch (IOException e) {
-            log.warn("Failed to send SSE, removing emitter.");
+            // 연결이 이미 끊긴 경우(새로고침/탭 종료)는 정상 흐름이므로 debug로만 남긴다.
+            // IOException 이후의 complete()/completeWithError() 호출은 컨테이너의 async 오류 처리와 중복되므로 호출하지 않는다.
+            log.debug("Client disconnected, removing emitter: {}", e.getMessage());
             emitters.remove(emitter);
-            emitter.complete();
+        } catch (IllegalStateException e) {
+            // 직렬화 실패 등 예상치 못한 오류는 숨기지 않고 error로 남긴다.
+            log.error("Unexpected SSE send failure", e);
+            emitters.remove(emitter);
         }
     }
 }

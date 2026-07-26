@@ -22,6 +22,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -139,6 +140,15 @@ public class GeneralExceptionAdvice implements BaseExceptionAdvice {
             IllegalArgumentException ex) {
         log.warn("[Illegal Argument] Message: {}", ex.getMessage());
         return createErrorResponse(ErrorCode.BAD_REQUEST, exceptionConverter.from("요청 값이 올바르지 않습니다."));
+    }
+
+    /**
+     * [SSE Client Disconnect] SseEmitter 스트림에서 클라이언트가 연결을 끊은 경우 발생.
+     * 이미 닫힌 응답이라 JSON(ApiResponse)으로 변환할 수 없으므로 로그만 남기고 응답 본문을 생성하지 않는다.
+     */
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    protected void handleAsyncRequestNotUsable(AsyncRequestNotUsableException ex) {
+        log.debug("[SSE Disconnected] {}", ex.getMessage());
     }
 
     /** [500 Internal Server Error] 사전에 정의되지 않은 모든 예외 처리 */

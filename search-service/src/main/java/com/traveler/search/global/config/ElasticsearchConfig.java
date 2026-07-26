@@ -1,13 +1,10 @@
 package com.traveler.search.global.config;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.JsonpMapper;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
-import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
@@ -20,6 +17,12 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
     @Value("${spring.elasticsearch.uris}")
     private String esUris;
 
+    private final ObjectMapper objectMapper;
+
+    public ElasticsearchConfig(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     public ClientConfiguration clientConfiguration() {
         return ClientConfiguration.builder()
@@ -29,9 +32,8 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
                 .build();
     }
 
-    /** Java API Client 빈 등록 */
-    @Bean
-    public ElasticsearchClient elasticsearchClient(RestClient restClient, ObjectMapper objectMapper) {
-        return new ElasticsearchClient(new RestClientTransport(restClient, new JacksonJsonpMapper(objectMapper)));
+    @Override
+    public JsonpMapper jsonpMapper() {
+        return new JacksonJsonpMapper(objectMapper);
     }
 }

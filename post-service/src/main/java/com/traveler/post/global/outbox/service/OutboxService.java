@@ -10,6 +10,7 @@ import com.traveler.post.global.outbox.mapper.OutboxMapper;
 import com.traveler.post.global.outbox.repository.OutboxRepository;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -52,15 +53,16 @@ public class OutboxService {
         Pageable pageable = PageRequest.of(0, BATCH_SIZE_RETRY);
 
         while (true) {
-            Slice<Outbox> retryCandidates =
-                    outboxRepository.findRetryableMessages(threshold, MAX_RETRY_COUNT, pageable);
+            // 1) 짧은 트랜잭션에서 대상 선점(락) + retryCount 증가 → 커밋되며 락 해제
+            List<Outbox> claimed = outboxStatusManager.claimRetryableMessages(threshold, MAX_RETRY_COUNT, pageable);
 
-            if (retryCandidates.isEmpty()) break;
+            if (claimed.isEmpty()) break;
 
-            log.info("Outbox 재시도 대상 {}건 처리 중", retryCandidates.getNumberOfElements());
-            for (Outbox outbox : retryCandidates) {
+            log.info("Outbox 재시도 대상 {}건 처리 중", claimed.size());
+
+            // 2) 락 밖에서 카프카 전송 (relaySync 내부에서 SENT/FAILED 갱신)
+            for (Outbox outbox : claimed) {
                 try {
-                    outboxStatusManager.prepareRetry(outbox.getId());
                     outboxRelay.relaySync(
                             outbox.getEventId(), outbox.getTopic(), outbox.getEventType(), outbox.getPayload());
                 } catch (Exception e) {
@@ -68,7 +70,7 @@ public class OutboxService {
                 }
             }
 
-            if (!retryCandidates.hasNext()) break;
+            if (claimed.size() < BATCH_SIZE_RETRY) break;
         }
     }
 

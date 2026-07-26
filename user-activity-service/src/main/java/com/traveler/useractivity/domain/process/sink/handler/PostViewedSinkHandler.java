@@ -24,9 +24,9 @@ public class PostViewedSinkHandler implements SinkHandler {
     private final KafkaTopicProperties topics;
     private final ObjectMapper objectMapper;
 
-    private static final String FIELD_EVENT_ACTION = "event_action";
+    private static final String FIELD_EVENT_ACTION = "event";
     private static final String FIELD_POST_ID = "postId";
-    private static final String ACTION_VIEW = "view";
+    private static final String ACTION_VIEW = "travel_detail_pageview";
     private static final String EVENT_TYPE = "PostViewed";
 
     private static final Pattern NUMERIC_PATTERN = Pattern.compile("^\\d+$");
