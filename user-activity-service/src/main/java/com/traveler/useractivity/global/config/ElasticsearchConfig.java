@@ -33,8 +33,18 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
                 .withSocketTimeout(Duration.ofSeconds(10));
 
         // ES에 xpack.security가 켜져 있을 때만 Basic 인증을 붙인다.
-        // 값이 비어 있으면(보안 미적용 환경) 인증 없이 접속한다.
-        if (StringUtils.hasText(esUsername)) {
+        // username/password 는 반드시 쌍으로 설정한다. 한쪽만 설정되어 있으면
+        // 인증이 조용히 누락되거나 인증 실패가 런타임까지 지연되므로 기동 단계에서 실패시킨다.
+        boolean hasUsername = StringUtils.hasText(esUsername);
+        boolean hasPassword = StringUtils.hasText(esPassword);
+        if (hasUsername != hasPassword) {
+            throw new IllegalStateException("Elasticsearch 자격 증명이 불완전합니다. "
+                    + "spring.elasticsearch.username 과 spring.elasticsearch.password 는 "
+                    + "함께 설정하거나 함께 비워두어야 합니다.");
+        }
+
+        // 두 값이 모두 비어 있으면(보안 미적용 환경) 인증 없이 접속한다.
+        if (hasUsername) {
             builder = builder.withBasicAuth(esUsername, esPassword);
         }
 
