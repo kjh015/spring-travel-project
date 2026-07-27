@@ -10,7 +10,14 @@ spring:
     import: optional:file:user-activity-service/.env[.properties]
 
   elasticsearch:
+    # 값 형식은 "호스트:포트" (스킴 없음). ElasticsearchConfig의
+    # ClientConfiguration.connectedTo() 가 host:port 를 기대한다.
     uris: ${ELASTICSEARCH_URIS}
+    # ES 보안(xpack.security.enabled: true) 계정.
+    # ※ 이 두 줄만으로는 적용되지 않는다 — global/config/ElasticsearchConfig 가
+    #    이 값을 읽어 withBasicAuth() 로 넘긴다. 비어 있으면 인증 없이 접속.
+    username: ${ELASTICSEARCH_USERNAME:}
+    password: ${ELASTICSEARCH_PASSWORD:}
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

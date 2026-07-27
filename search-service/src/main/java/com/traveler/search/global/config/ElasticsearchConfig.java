@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+import org.springframework.util.StringUtils;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "com.traveler.search.domain")
@@ -16,6 +17,16 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
 
     @Value("${spring.elasticsearch.uris}")
     private String esUris;
+
+    // ※ 이 클래스가 ElasticsearchConfiguration을 상속해 ClientConfiguration을 직접 만들기 때문에
+    //    Spring Boot의 ES 자동 설정은 물러난다(back off). 즉 application.yml에
+    //    spring.elasticsearch.username/password 를 적어두기만 해서는 인증이 적용되지 않는다.
+    //    반드시 아래처럼 값을 읽어 withBasicAuth()로 넘겨야 한다.
+    @Value("${spring.elasticsearch.username:}")
+    private String esUsername;
+
+    @Value("${spring.elasticsearch.password:}")
+    private String esPassword;
 
     private final ObjectMapper objectMapper;
 
@@ -25,11 +36,18 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
 
     @Override
     public ClientConfiguration clientConfiguration() {
-        return ClientConfiguration.builder()
+        ClientConfiguration.TerminalClientConfigurationBuilder builder = ClientConfiguration.builder()
                 .connectedTo(esUris)
                 .withConnectTimeout(Duration.ofSeconds(5))
-                .withSocketTimeout(Duration.ofSeconds(10))
-                .build();
+                .withSocketTimeout(Duration.ofSeconds(10));
+
+        // ES에 xpack.security가 켜져 있을 때만 Basic 인증을 붙인다.
+        // 값이 비어 있으면(보안 미적용 환경) 인증 없이 접속한다.
+        if (StringUtils.hasText(esUsername)) {
+            builder = builder.withBasicAuth(esUsername, esPassword);
+        }
+
+        return builder.build();
     }
 
     @Override
