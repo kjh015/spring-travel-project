@@ -1,0 +1,35 @@
+# 버전 관리 · CI 설정
+.git
+.gitignore
+.gitattributes
+.github
+.coderabbit.yaml
+
+# 빌드 산출물 (build.gradle 은 이름이 달라 영향 없습니다)
+**/build
+.gradle
+**/.gradle
+**/out
+**/bin
+
+# IDE
+.idea
+.vscode
+**/*.iml
+.claude
+
+# 로컬 환경 · 비밀값 (컨테이너에 들어가면 안 됩니다)
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+
+# 문서 · 잡파일
+*.md
+docs
+deprecated
+q
+
+# 도커 관련 파일 자체는 이미지에 필요 없습니다
+.dockerignore
+docker-compose*.yml
