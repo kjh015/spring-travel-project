@@ -31,6 +31,10 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+
+tasks.named('bootJar') { enabled = false }
+tasks.named('jar') { enabled = false }
+
 // Spotless 상세 설정
 subprojects {
     apply plugin: 'java'
