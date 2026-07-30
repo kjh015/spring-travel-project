@@ -1,0 +1,365 @@
+# =============================================================================
+# TripNow CD — Build → ECR push → ECS deploy
+#
+# 설계 근거
+#  - ECS 네트워크 모드가 host + 인스턴스 1대 → 배포 옵션이 0%/100%로 강제됨
+#    → 배포는 반드시 "순차"로. 동시에 두 서비스를 내리면 메모리·포트가 겹칩니다.
+#  - 빌드(GitHub 러너)는 병렬로 해도 무방하므로 build 잡과 deploy 잡을 분리했습니다.
+#  - 태스크 정의는 콘솔에서 관리 → describe 해서 "이미지 URI만" 교체합니다.
+#    (환경 변수·secrets 블록은 절대 워크플로에서 새로 정의하지 않습니다)
+#  - 배포 후 `aws ecs wait services-stable`로 완료를 기다립니다.
+#  - 컨테이너 이름은 접두사 없음(api-gateway), 그 외 리소스는 접두사 있음(tripnow-api-gateway).
+# =============================================================================
+name: CD (Build & Deploy to ECS)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/pull_request_template.md"
+  workflow_dispatch:
+    inputs:
+      services:
+        description: "배포할 서비스 (all 또는 콤마 구분: post-service,member-service)"
+        required: false
+        default: "all"
+      image_tag:
+        description: "롤백/재배포용 기존 이미지 태그(커밋 SHA). 입력하면 빌드를 건너뜁니다."
+        required: false
+        default: ""
+
+# 단일 인스턴스라 배포가 겹치면 포트 충돌이 납니다. 브랜치와 무관하게 하나의 그룹으로 직렬화하고,
+# 진행 중인 배포는 절대 취소하지 않습니다(중간에 끊기면 서비스가 내려간 상태로 남습니다).
+concurrency:
+  group: tripnow-ecs-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write        # OIDC(AssumeRoleWithWebIdentity)용. 액세스 키만 쓸 때는 무해합니다.
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'ap-northeast-2' }}
+  ECS_CLUSTER: ${{ vars.ECS_CLUSTER || 'tripnow-cluster' }}
+  RESOURCE_PREFIX: ${{ vars.RESOURCE_PREFIX || 'tripnow' }}
+  DOCKERFILE_PATH: ${{ vars.DOCKERFILE_PATH || 'Dockerfile' }}
+  IMAGE_TAG: ${{ github.event.inputs.image_tag || github.sha }}
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1) 배포 대상 결정
+  #    push  → 변경 경로 감지 (common/** 등 공용 변경이면 전체)
+  #    수동   → 입력값 (all 또는 콤마 목록)
+  # ---------------------------------------------------------------------------
+  detect-changes:
+    name: Detect target services
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.set-services.outputs.services }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Filter changed paths
+        id: filter
+        if: github.event_name == 'push'
+        uses: dorny/paths-filter@v3
+        with:
+          # _shared 를 앵커로 두고 각 서비스 필터에 병합합니다.
+          # common/** · 루트 빌드 스크립트 · Dockerfile 이 바뀌면 7개 전체가 대상이 됩니다.
+          filters: |
+            _shared: &shared
+              - 'common/**'
+              - 'build.gradle'
+              - 'settings.gradle'
+              - 'gradle/**'
+              - 'gradlew'
+              - 'gradlew.bat'
+              - 'Dockerfile'
+              - 'Dockerfile.optimized'
+              - '.dockerignore'
+            api-gateway:
+              - *shared
+              - 'api-gateway/**'
+            discovery-service:
+              - *shared
+              - 'discovery-service/**'
+            member-service:
+              - *shared
+              - 'member-service/**'
+            post-service:
+              - *shared
+              - 'post-service/**'
+            search-service:
+              - *shared
+              - 'search-service/**'
+            user-activity-service:
+              - *shared
+              - 'user-activity-service/**'
+            web-api-service:
+              - *shared
+              - 'web-api-service/**'
+
+      - name: Resolve service list
+        id: set-services
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_SERVICES: ${{ github.event.inputs.services }}
+          CHANGED: ${{ steps.filter.outputs.changes }}
+          ALL_SERVICES: '["discovery-service","member-service","post-service","search-service","user-activity-service","web-api-service","api-gateway"]'
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            if [ -z "${INPUT_SERVICES:-}" ] || [ "$INPUT_SERVICES" = "all" ]; then
+              SERVICES="$ALL_SERVICES"
+            else
+              SERVICES=$(printf '%s' "$INPUT_SERVICES" \
+                | jq -R -c 'split(",") | map(gsub("^\\s+|\\s+$"; "")) | map(select(length > 0))')
+            fi
+          else
+            # 앵커 정의용 '_shared' 는 실제 서비스가 아니므로 제외합니다.
+            SERVICES=$(printf '%s' "${CHANGED:-[]}" | jq -c 'map(select(. != "_shared"))')
+          fi
+          echo "services=$SERVICES" >> "$GITHUB_OUTPUT"
+          {
+            echo "### 배포 대상"
+            echo ""
+            echo '```json'
+            echo "$SERVICES"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # 2) 빌드 & ECR 푸시 — 여기는 GitHub 러너에서 도는 작업이라 병렬로 해도 됩니다.
+  #    (image_tag 를 지정한 재배포/롤백에서는 통째로 건너뜁니다)
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build ${{ matrix.service }}
+    needs: detect-changes
+    if: >-
+      needs.detect-changes.outputs.services != '[]' &&
+      (github.event_name != 'workflow_dispatch' || github.event.inputs.image_tag == '')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: true          # 하나라도 빌드에 실패하면 배포 자체를 시작하지 않습니다.
+      max-parallel: 4
+      matrix:
+        service: ${{ fromJSON(needs.detect-changes.outputs.services) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        if: vars.AWS_ROLE_ARN != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          role-session-name: tripnow-cd-build-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure AWS credentials (access key)
+        if: vars.AWS_ROLE_ARN == ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Verify ECR repository exists
+        env:
+          SERVICE: ${{ matrix.service }}
+        run: |
+          set -euo pipefail
+          REPO="${RESOURCE_PREFIX:+$RESOURCE_PREFIX-}$SERVICE"
+          if ! aws ecr describe-repositories --repository-names "$REPO" >/dev/null 2>&1; then
+            echo "::error::ECR 저장소 '$REPO' 가 없습니다. 먼저 만드세요:"
+            echo "::error::aws ecr create-repository --repository-name $REPO --region $AWS_REGION"
+            exit 1
+          fi
+          echo "repo ok: $REPO"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push image
+        env:
+          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          SERVICE: ${{ matrix.service }}
+        run: |
+          set -euo pipefail
+          REPO="${RESOURCE_PREFIX:+$RESOURCE_PREFIX-}$SERVICE"
+          IMAGE_URI="$REGISTRY/$REPO"
+          # 앱 EC2가 t3.small(x86_64)이므로 amd64로 고정합니다. t4g 계열로 바꾸면 이 값도 바꿔야 합니다.
+          docker buildx build \
+            --platform linux/amd64 \
+            --file "$DOCKERFILE_PATH" \
+            --build-arg "TARGET=$SERVICE" \
+            --tag "$IMAGE_URI:$IMAGE_TAG" \
+            --tag "$IMAGE_URI:latest" \
+            --cache-from "type=gha,scope=$SERVICE" \
+            --cache-to "type=gha,mode=max,scope=$SERVICE" \
+            --provenance=false \
+            --push \
+            .
+          echo "pushed $IMAGE_URI:$IMAGE_TAG"
+
+  # ---------------------------------------------------------------------------
+  # 3) ECS 배포 — 잡 하나에서 순차로 돕니다.
+  #    matrix + max-parallel:1 은 실행 순서가 보장되지 않아 쓰지 않았습니다.
+  #    기동 순서(discovery → 도메인 서비스 → web-api → gateway)를 코드로 고정합니다.
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Deploy to ECS (sequential)
+    needs: [ detect-changes, build ]
+    if: >-
+      always() &&
+      needs.detect-changes.result == 'success' &&
+      needs.detect-changes.outputs.services != '[]' &&
+      (needs.build.result == 'success' || needs.build.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        if: vars.AWS_ROLE_ARN != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          role-session-name: tripnow-cd-deploy-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure AWS credentials (access key)
+        if: vars.AWS_ROLE_ARN == ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy services in order
+        env:
+          SERVICES_JSON: ${{ needs.detect-changes.outputs.services }}
+        run: |
+          set -euo pipefail
+
+          # 기동 의존 순서. 이 순서대로 하나씩, 앞 서비스가 안정화된 뒤에 다음으로 넘어갑니다.
+          DEPLOY_ORDER="discovery-service member-service post-service search-service user-activity-service web-api-service api-gateway"
+
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+          TARGETS=$(printf '%s' "$SERVICES_JSON" | jq -r '.[]')
+          DEPLOYED=""; SKIPPED=""
+
+          for SVC in $DEPLOY_ORDER; do
+            # 이번 실행의 대상이 아니면 건너뜁니다.
+            printf '%s\n' "$TARGETS" | grep -qx "$SVC" || continue
+
+            NAME="${RESOURCE_PREFIX:+$RESOURCE_PREFIX-}$SVC"
+            IMAGE="$REGISTRY/$NAME:$IMAGE_TAG"
+
+            echo "::group::$SVC → $NAME"
+
+            # ECS 서비스가 아직 없으면(콘솔 작업 미완) 실패시키지 않고 넘어갑니다.
+            STATUS=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$NAME" \
+                      --query 'services[0].status' --output text 2>/dev/null || echo "NONE")
+            if [ "$STATUS" != "ACTIVE" ]; then
+              echo "::warning::ECS 서비스 '$NAME' 가 없거나 비활성($STATUS)입니다. 이미지는 ECR에 올라갔으니 콘솔에서 서비스를 만든 뒤 다시 배포하세요."
+              SKIPPED="$SKIPPED $SVC"
+              echo "::endgroup::"
+              continue
+            fi
+
+            # 1) 현재 태스크 정의를 그대로 내려받습니다.
+            aws ecs describe-task-definition --task-definition "$NAME" \
+              --query taskDefinition --output json > td.json
+
+            # 2) 컨테이너 이름이 맞는지 먼저 확인합니다.
+            if ! jq -e --arg c "$SVC" '.containerDefinitions[] | select(.name == $c)' td.json >/dev/null; then
+              echo "::error::태스크 정의 '$NAME' 안에 컨테이너 '$SVC' 가 없습니다."
+              echo "::error::현재 컨테이너 이름: $(jq -r '[.containerDefinitions[].name] | join(", ")' td.json)"
+              echo "::error::컨테이너 이름은 접두사 없이 '$SVC' 여야 합니다."
+              exit 1
+            fi
+
+            # 3) 이미지 URI만 교체합니다. environment / secrets / portMappings 등은 손대지 않습니다.
+            jq --arg c "$SVC" --arg img "$IMAGE" '
+              del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+                  .compatibilities, .registeredAt, .registeredBy, .deregisteredAt)
+              | .containerDefinitions |= map(if .name == $c then .image = $img else . end)
+            ' td.json > td-new.json
+
+            NEW_TD=$(aws ecs register-task-definition \
+                      --cli-input-json file://td-new.json \
+                      --query 'taskDefinition.taskDefinitionArn' --output text)
+            echo "registered: $NEW_TD"
+
+            # 4) 서비스 업데이트. 배포 옵션(0%/100%)은 서비스 설정을 그대로 따릅니다.
+            aws ecs update-service --cluster "$ECS_CLUSTER" --service "$NAME" \
+              --task-definition "$NEW_TD" >/dev/null
+
+            # 5) 안정화 대기. aws ecs wait 는 15초 × 40회(10분)라 최대 3회 반복합니다.
+            #    host 모드 + 0%/100% 라 기존 태스크가 내려간 뒤 새 태스크가 뜹니다(1~2분 다운타임).
+            OK=0
+            for ATTEMPT in 1 2 3; do
+              if aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$NAME"; then
+                OK=1; break
+              fi
+              echo "아직 안정화되지 않음 (attempt $ATTEMPT/3) — 계속 대기합니다."
+            done
+
+            ROLLOUT=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$NAME" \
+                       --query 'services[0].deployments[?status==`PRIMARY`].rolloutState | [0]' --output text)
+
+            if [ "$OK" != "1" ] || [ "$ROLLOUT" != "COMPLETED" ]; then
+              echo "::error::$NAME 배포 실패 (rolloutState=$ROLLOUT)"
+              echo "--- 최근 서비스 이벤트 ---"
+              aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$NAME" \
+                --query 'services[0].events[0:10].message' --output text || true
+              echo "--- 중지된 태스크의 stoppedReason ---"
+              for T in $(aws ecs list-tasks --cluster "$ECS_CLUSTER" --service-name "$NAME" \
+                          --desired-status STOPPED --max-items 3 --query 'taskArns[]' --output text 2>/dev/null); do
+                aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$T" \
+                  --query 'tasks[0].[stoppedReason, containers[0].reason]' --output text || true
+              done
+              exit 1
+            fi
+
+            echo "✅ $NAME 배포 완료"
+            DEPLOYED="$DEPLOYED $SVC"
+            echo "::endgroup::"
+          done
+
+          {
+            echo "### 배포 결과"
+            echo ""
+            echo "| 항목 | 값 |"
+            echo "| --- | --- |"
+            echo "| 이미지 태그 | \`$IMAGE_TAG\` |"
+            echo "| 배포 완료 | ${DEPLOYED:-(없음)} |"
+            echo "| 건너뜀 | ${SKIPPED:-(없음)} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -n "$SKIPPED" ]; then
+            echo "::warning::ECS 서비스가 없어 건너뛴 대상:$SKIPPED"
+          fi
+
+      - name: Verify api-gateway health via ALB
+        if: ${{ vars.HEALTHCHECK_URL != '' }}
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 10); do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "${{ vars.HEALTHCHECK_URL }}" || echo 000)
+            echo "attempt $i: HTTP $CODE"
+            [ "$CODE" = "200" ] && exit 0
+            sleep 15
+          done
+          echo "::error::헬스 체크 실패: ${{ vars.HEALTHCHECK_URL }}"
+          exit 1
