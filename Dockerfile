@@ -28,7 +28,7 @@ RUN chmod +x gradlew \
 
 # (2) 소스 복사 후 실제 빌드
 COPY . .
-RUN ./gradlew --no-daemon --console=plain :${TARGET}:bootJar
+RUN chmod +x gradlew && ./gradlew --no-daemon --console=plain :${TARGET}:bootJar
 
 # ------------------------------- runtime -------------------------------------
 FROM amazoncorretto:21.0.4
