@@ -35,6 +35,14 @@ public class JwtTokenProvider {
                 });
     }
 
+    public Long getUserId(Claims claims) {
+        try {
+            return Long.valueOf(claims.getSubject());
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new ApiGatewayNoStackException(ApiGatewayErrorCode.INVALID_TOKEN_TYPE);
+        }
+    }
+
     public List<String> getRoles(Claims claims) {
         Object roles = claims.get(AuthConstants.CLAIM_ROLES);
         if (roles instanceof List<?> list) {

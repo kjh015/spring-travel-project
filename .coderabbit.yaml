@@ -7,5 +7,7 @@ reviews:
   auto_review:
     enabled: true
     drafts: true
+  path_filters:
+    - "!deprecated/**"
 chat:  
   auto_reply: true
