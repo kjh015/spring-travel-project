@@ -116,7 +116,7 @@ eureka:
 #security key
 app:
   jwt:
-    secret: ${JWT_SECRET_KEY}
+    public-jwk: ${JWT_PUBLIC_JWK}
 
 management:
   endpoints:

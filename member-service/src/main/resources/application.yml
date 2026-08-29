@@ -56,6 +56,6 @@ eureka:
 
 app:
   jwt:
-    secret: ${JWT_SECRET_KEY}
+    private-jwk: ${JWT_PRIVATE_JWK}
     access-expiration: ${JWT_ACCESS_EXPIRATION:3600000}  # 1시간
     refresh-expiration: ${JWT_REFRESH_EXPIRATION:1209600000} # 14일

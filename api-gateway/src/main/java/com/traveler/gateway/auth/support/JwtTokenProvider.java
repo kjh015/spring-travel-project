@@ -4,12 +4,13 @@ import com.traveler.common.core.auth.AuthConstants;
 import com.traveler.gateway.exception.ApiGatewayNoStackException;
 import com.traveler.gateway.exception.code.ApiGatewayErrorCode;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.Jwks;
 import io.jsonwebtoken.security.SignatureException;
+import java.security.Key;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Collections;
 import java.util.List;
-import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -20,9 +21,21 @@ public class JwtTokenProvider {
 
     private final JwtParser jwtParser; // 파서 재사용
 
-    public JwtTokenProvider(@Value("${app.jwt.secret}") String secret) {
-        SecretKey secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
-        this.jwtParser = Jwts.parser().verifyWith(secretKey).build();
+    public JwtTokenProvider(@Value("${app.jwt.public-jwk}") String publicJwk) {
+        // 게이트웨이는 검증만 하므로 공개키만 보유한다
+        PublicKey publicKey = parsePublicJwk(publicJwk);
+        this.jwtParser = Jwts.parser().verifyWith(publicKey).build();
+    }
+
+    private static PublicKey parsePublicJwk(String json) {
+        Key key = Jwks.parser().build().parse(json).toKey();
+        if (key instanceof PrivateKey) {
+            throw new IllegalStateException("app.jwt.public-jwk 에 개인키(d)가 포함되어 있습니다. 게이트웨이에는 공개 JWK만 설정하세요.");
+        }
+        if (key instanceof PublicKey publicKey) {
+            return publicKey;
+        }
+        throw new IllegalStateException("app.jwt.public-jwk 가 올바른 공개 JWK가 아닙니다.");
     }
 
     public Mono<Claims> validateToken(String token) {
